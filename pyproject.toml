@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sapenv"
+version = "0.1.0"
+description = "RL Environment for Super Auto Pets"
+authors = [
+    { name="Curtis Chong", email="curtischong5@gmail.com" }
+]
+
+[tool.setuptools]
+packages = ["environment"]
+# packages = ["o3", "e3simple_examples", "utils"]
