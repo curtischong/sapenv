@@ -1,4 +1,4 @@
-from all_types import Species
+from all_types_and_consts import Species
 from pet import Pet
 
 

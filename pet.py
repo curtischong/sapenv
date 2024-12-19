@@ -1,4 +1,4 @@
-from all_types import PetExperience, PetLevel
+from all_types_and_consts import PetExperience, PetLevel
 from pet_data import Species
 
 
