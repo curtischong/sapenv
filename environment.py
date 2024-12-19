@@ -61,7 +61,9 @@ class SuperAutoPetsEnv(gym.Env):
         shop_animals_space = spaces.Dict(
             {
                 # Create a space for each shop slot
-                "species": spaces.MultiDiscrete([len(Species)] * MAX_TOTAL_SHOP_SLOTS),
+                "num_species_available": spaces.MultiDiscrete(
+                    [len(Species)] * MAX_TOTAL_SHOP_SLOTS
+                ),
                 "attacks": spaces.Box(
                     low=MIN_ATTACK,
                     high=MAX_ATTACK,

@@ -41,6 +41,12 @@ class Species(Enum):
     BUS = auto()
 
 
+hidden_species = [
+    Species.RAM,
+    Species.BUS,
+]
+
+
 class FoodKind(Enum):
     NONE = auto()
     APPLE = auto()
