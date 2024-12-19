@@ -120,9 +120,13 @@ class SuperAutoPetsEnv(gym.Env):
             }
         )
 
-        # Define action space as needed for your gameplay logic.
-        # For example, if actions correspond to indices in the shop or team:
-        # self.action_space = spaces.Discrete(...)
+        self.action_space = spaces.Dict(
+            {
+                "action_type": spaces.Discrete(6),
+                "target_1": spaces.Discrete(self.shop_size),  # 0-6
+                "target_2": spaces.Discrete(self.shop_size),  # 0-6
+            }
+        )
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
@@ -133,6 +137,7 @@ class SuperAutoPetsEnv(gym.Env):
         for ith_pet in range(MAX_TEAM_SIZE):
             species_arr[ith_pet * MAX_TEAM_SIZE + Species.NONE.value] = 1
 
+        # TODO: we should also store turn number, the shop tier, any extra "permanent stat increases" the shop has
         observation = {
             "team": {
                 "species": species_arr,
