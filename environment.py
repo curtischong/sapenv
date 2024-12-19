@@ -6,11 +6,14 @@ from all_types_and_consts import (
     MAX_HEALTH,
     MAX_PET_EXPERIENCE,
     MAX_PET_LEVEL,
+    MAX_SHOP_FOOD_SLOTS,
     MAX_TEAM_SIZE,
+    MAX_TOTAL_SHOP_SLOTS,
     MIN_ATTACK,
     MIN_HEALTH,
     MIN_PET_EXPERIENCE,
     MIN_PET_LEVEL,
+    FoodKind,
     Species,
 )
 
@@ -20,10 +23,6 @@ class SuperAutoPetsEnv(gym.Env):
 
     def __init__(self):
         # Maximum IDs and attribute ranges (example values)
-        max_food_id = 20
-        max_shop_slots = 6
-        max_shop_linked_slots = MAX_TEAM_SIZE  # you can promote as most this many pets
-        max_total_shop_slots = max_shop_linked_slots + max_shop_slots
 
         # Team: up to 5 animals
         # Represented as a dictionary of parallel arrays for clarity.
@@ -62,25 +61,25 @@ class SuperAutoPetsEnv(gym.Env):
         shop_animals_space = spaces.Dict(
             {
                 # Create a space for each shop slot
-                "species": spaces.MultiDiscrete([len(Species)] * max_total_shop_slots),
+                "species": spaces.MultiDiscrete([len(Species)] * MAX_TOTAL_SHOP_SLOTS),
                 "attacks": spaces.Box(
                     low=MIN_ATTACK,
                     high=MAX_ATTACK,
-                    shape=(max_total_shop_slots,),
+                    shape=(MAX_TOTAL_SHOP_SLOTS,),
                     dtype=np.int32,
                 ),
                 "healths": spaces.Box(
                     low=MIN_HEALTH,
                     high=MAX_HEALTH,
-                    shape=(max_total_shop_slots,),
+                    shape=(MAX_TOTAL_SHOP_SLOTS,),
                     dtype=np.int32,
                 ),
             }
         )
 
         # Shop foods: up to 2 foods, each identified by an ID
-        shop_foods_space = spaces.Box(
-            low=0, high=max_food_id, shape=(2,), dtype=np.int32
+        shop_foods_space = (
+            spaces.MultiDiscrete([len(FoodKind)] * MAX_SHOP_FOOD_SLOTS),
         )
 
         # Combine into a single observation space
@@ -98,21 +97,30 @@ class SuperAutoPetsEnv(gym.Env):
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
-        # Initialize a starting observation; for example:
+        # Initialize a starting observation
+
+        # init all None pets
+        species_arr = np.zeros(len(Species) * MAX_TEAM_SIZE, dtype=np.int32)
+        for ith_pet in range(MAX_TEAM_SIZE):
+            species_arr[ith_pet * MAX_TEAM_SIZE + Species.NONE.value] = 1
+
         observation = {
             "team": {
-                "species": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
+                "species": species_arr,
                 "attacks": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
                 "healths": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
                 "levels": np.ones((MAX_TEAM_SIZE,), dtype=np.int32),
                 "experiences": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
             },
+            # todo: init shop
             "shop_animals": {
                 "species": np.zeros((3,), dtype=np.int32),
                 "attacks": np.zeros((3,), dtype=np.int32),
                 "healths": np.zeros((3,), dtype=np.int32),
             },
-            "shop_foods": np.zeros((2,), dtype=np.int32),
+            "shop_foods": np.zeros(
+                (2,), dtype=np.int32
+            ),  # todo: this is wrong. we need to init, but one hot encode
         }
         # Return observation and possibly some additional info
         return observation, {}

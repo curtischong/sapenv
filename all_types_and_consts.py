@@ -10,7 +10,6 @@ MAX_ATTACK = 50
 MIN_HEALTH = 1
 MAX_HEALTH = 50
 
-ShopTier = Literal[1, 2, 3, 4, 5, 6]
 
 # I could've made the experience and level the same. but 1) it's easier to read it this way. and 2) it's simpler for the model to read the "level" of a pet
 
@@ -21,6 +20,14 @@ MIN_PET_LEVEL = 1
 PetExperience = Literal[1, 2, 3]
 MAX_PET_EXPERIENCE = 2  # since when we hit experience 3, we are sent to level 3 and cannot collect more experience
 MIN_PET_EXPERIENCE = 0
+
+
+ShopTier = Literal[1, 2, 3, 4, 5, 6]
+MAX_SHOP_SLOTS = 6
+MAX_SHOP_LINKED_SLOTS = MAX_TEAM_SIZE  # since you can promote as most this many pets
+MAX_TOTAL_SHOP_SLOTS = MAX_SHOP_LINKED_SLOTS + MAX_SHOP_SLOTS
+
+MAX_SHOP_FOOD_SLOTS = 3
 
 
 class Species(Enum):
