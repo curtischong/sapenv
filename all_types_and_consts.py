@@ -23,11 +23,10 @@ MIN_PET_EXPERIENCE = 0
 
 
 ShopTier = Literal[1, 2, 3, 4, 5, 6]
-MAX_SHOP_SLOTS = 6
-MAX_SHOP_LINKED_SLOTS = MAX_TEAM_SIZE  # since you can promote as most this many pets
-MAX_TOTAL_SHOP_SLOTS = MAX_SHOP_LINKED_SLOTS + MAX_SHOP_SLOTS
+MAX_SHOP_SLOTS = 7  # you can have at most 7 NORMAL shop indexes (5 from normal - 2 more if you freeze linked indexes)
+MAX_SHOP_LINKED_SLOTS = MAX_TEAM_SIZE  # since you can promote as most this many pets (by dragging from the shop to them)
 
-MAX_SHOP_FOOD_SLOTS = 3
+MAX_SHOP_FOOD_SLOTS = 3  # I think having a pigeon and then selling it at a higher tier will allow you to overflow the existing 2 food slots (so you can have an extra food). Cow CLEARs the shop. so there's no risk of overflowing
 
 
 class Species(Enum):
@@ -47,7 +46,7 @@ hidden_species = [
 ]
 
 
-class FoodKind(Enum):
+class Foods(Enum):
     NONE = auto()
     APPLE = auto()
     HONEY = auto()
@@ -68,4 +67,28 @@ class FoodKind(Enum):
 
     # hidden foods
     MILK = auto()
-    PEANUT = auto()
+    # PEANUT = auto()
+    BREAD_CRUMB = auto()  # from pigeon (can overflow the food slots)
+
+
+hidden_foods = [
+    Foods.MILK,
+    # Foods.PEANUT,
+    Foods.BREAD_CRUMB,
+]
+
+
+# buyable_foods = []
+# for food in Foods:
+#     if food is Foods.NONE or food is Foods.PEANUT:
+#         continue
+#     buyable_foods.append(food)
+
+food_tiers = {
+    1: [Foods.APPLE, Foods.HONEY],
+    2: [Foods.PILL, Foods.MEAT_BONE, Foods.CUPCAKE],
+    3: [Foods.SALAD_BOWL, Foods.GARLIC],
+    4: [Foods.CANNED_FOOD, Foods.PEAR],
+    5: [Foods.CHILI, Foods.CHOCOLATE, Foods.SUSHI],
+    6: [Foods.STEAK, Foods.MELON, Foods.MUSHROOM, Foods.PIZZA],
+}
