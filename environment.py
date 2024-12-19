@@ -25,19 +25,12 @@ class SuperAutoPetsEnv(gym.Env):
         max_shop_linked_slots = MAX_TEAM_SIZE  # you can promote as most this many pets
         max_total_shop_slots = max_shop_linked_slots + max_shop_slots
 
-        max_species_id = len(Species) - 1  # -1 since high is inclusive
-
         # Team: up to 5 animals
         # Represented as a dictionary of parallel arrays for clarity.
         # Each animal: ID, Attack, Health, Level
         team_space = spaces.Dict(
             {
-                "species": spaces.Box(
-                    low=0,
-                    high=max_species_id,
-                    shape=(MAX_TEAM_SIZE,),
-                    dtype=np.int32,
-                ),
+                "species": spaces.MultiDiscrete([len(Species)] * MAX_TEAM_SIZE),
                 "attacks": spaces.Box(
                     low=MIN_ATTACK,
                     high=MAX_ATTACK,
@@ -68,12 +61,8 @@ class SuperAutoPetsEnv(gym.Env):
         # Each: ID, Attack, Health, Tier
         shop_animals_space = spaces.Dict(
             {
-                "species": spaces.Box(
-                    low=0,
-                    high=max_species_id,
-                    shape=(max_total_shop_slots,),
-                    dtype=np.int32,
-                ),
+                # Create a space for each shop slot
+                "species": spaces.MultiDiscrete([len(Species)] * max_total_shop_slots),
                 "attacks": spaces.Box(
                     low=MIN_ATTACK,
                     high=MAX_ATTACK,
@@ -112,16 +101,16 @@ class SuperAutoPetsEnv(gym.Env):
         # Initialize a starting observation; for example:
         observation = {
             "team": {
-                "ids": np.zeros((5,), dtype=np.int32),
-                "attacks": np.zeros((5,), dtype=np.int32),
-                "healths": np.zeros((5,), dtype=np.int32),
-                "levels": np.ones((5,), dtype=np.int32),
+                "species": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
+                "attacks": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
+                "healths": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
+                "levels": np.ones((MAX_TEAM_SIZE,), dtype=np.int32),
+                "experiences": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
             },
             "shop_animals": {
-                "ids": np.zeros((3,), dtype=np.int32),
+                "species": np.zeros((3,), dtype=np.int32),
                 "attacks": np.zeros((3,), dtype=np.int32),
                 "healths": np.zeros((3,), dtype=np.int32),
-                "tiers": np.ones((3,), dtype=np.int32),
             },
             "shop_foods": np.zeros((2,), dtype=np.int32),
         }

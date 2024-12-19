@@ -19,11 +19,40 @@ MAX_PET_LEVEL = 3
 MIN_PET_LEVEL = 1
 
 PetExperience = Literal[1, 2, 3]
-MAX_PET_EXPERIENCE = 3
-MIN_PET_EXPERIENCE = 1
+MAX_PET_EXPERIENCE = 2  # since when we hit experience 3, we are sent to level 3 and cannot collect more experience
+MIN_PET_EXPERIENCE = 0
 
 
 class Species(Enum):
+    NONE = auto()
     DUCK = auto()
     BEAVER = auto()
     PIGEON = auto()
+
+    # hidden species
+    RAM = auto()
+    BUS = auto()
+
+
+class FoodKind(Enum):
+    NONE = auto()
+    APPLE = auto()
+    HONEY = auto()
+    PILL = auto()
+    MEAT_BONE = auto()
+    CUPCAKE = auto()
+    SALAD_BOWL = auto()
+    GARLIC = auto()
+    CANNED_FOOD = auto()
+    PEAR = auto()
+    CHILI = auto()
+    CHOCOLATE = auto()
+    SUSHI = auto()
+    STEAK = auto()
+    MELON = auto()
+    MUSHROOM = auto()
+    PIZZA = auto()
+
+    # hidden foods
+    MILK = auto()
+    PEANUT = auto()
