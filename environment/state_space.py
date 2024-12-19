@@ -1,5 +1,3 @@
-import numpy as np
-
 from all_types_and_consts import (
     MAX_ATTACK,
     MAX_HEALTH,
@@ -17,9 +15,11 @@ from all_types_and_consts import (
     Species,
 )
 from gymnasium import spaces
+import numpy as np
 
-
-# Define the observation spaces
+# Team: up to 5 animals
+# Represented as a dictionary of parallel arrays for clarity.
+# Each animal: ID, Attack, Health, Level
 team_space = spaces.Dict(
     {
         "species": spaces.MultiDiscrete([len(Species)] * MAX_TEAM_SIZE),
@@ -50,8 +50,10 @@ team_space = spaces.Dict(
     }
 )
 
+# Each: ID, Attack, Health, Tier
 shop_animals_space = spaces.Dict(
     {
+        # Create a space for each shop slot
         "species": spaces.MultiDiscrete([len(Species)] * MAX_SHOP_SLOTS),
         "attacks": spaces.Box(
             low=MIN_ATTACK,
@@ -67,9 +69,9 @@ shop_animals_space = spaces.Dict(
         ),
     }
 )
-
 shop_linked_animals_space = spaces.Dict(
     {
+        # Create a space for each shop slot
         "species1": spaces.MultiDiscrete([len(Species)] * MAX_SHOP_LINKED_SLOTS),
         "species2": spaces.MultiDiscrete([len(Species)] * MAX_SHOP_LINKED_SLOTS),
         "attacks": spaces.Box(
@@ -87,6 +89,8 @@ shop_linked_animals_space = spaces.Dict(
     }
 )
 
+# since the shop foods are ALWAYS the same. we can represent it like this:
+# For each food type, specify the number of that kind we can buy
 shop_num_foods_space = spaces.Box(
     low=0,
     high=MAX_SHOP_FOOD_SLOTS,
@@ -106,11 +110,11 @@ env_observation_space = spaces.Dict(
 
 def get_initial_observation():
     # init all None pets
-    species_arr = np.zeros((MAX_TEAM_SIZE,), dtype=np.int32)
-    # Assuming we want the 'NONE' species to fill all team slots:
-    species_none_value = Species.NONE.value
-    species_arr.fill(species_none_value)
+    species_arr = np.zeros(len(Species) * MAX_TEAM_SIZE, dtype=np.int32)
+    for ith_pet in range(MAX_TEAM_SIZE):
+        species_arr[ith_pet * MAX_TEAM_SIZE + Species.NONE.value] = 1
 
+    # TODO: we should also store turn number, the shop tier, any extra "permanent stat increases" the shop has
     return {
         "team": {
             "species": species_arr,
@@ -119,16 +123,19 @@ def get_initial_observation():
             "levels": np.ones((MAX_TEAM_SIZE,), dtype=np.int32),
             "experiences": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
         },
+        # todo: init shop
         "shop_animals": {
-            "species": np.zeros((MAX_SHOP_SLOTS,), dtype=np.int32),
-            "attacks": np.zeros((MAX_SHOP_SLOTS,), dtype=np.int32),
-            "healths": np.zeros((MAX_SHOP_SLOTS,), dtype=np.int32),
+            "species": np.zeros((3,), dtype=np.int32),
+            "attacks": np.zeros((3,), dtype=np.int32),
+            "healths": np.zeros((3,), dtype=np.int32),
         },
         "shop_linked_animals_space": {
-            "species1": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.int32),
-            "species2": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.int32),
+            "species1": np.zeros((len(Species), MAX_SHOP_LINKED_SLOTS), dtype=np.int32),
+            "species2": np.zeros((len(Species), MAX_SHOP_LINKED_SLOTS), dtype=np.int32),
             "attacks": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.int32),
             "healths": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.int32),
         },
-        "shop_num_foods": np.zeros((len(Foods),), dtype=np.int32),
+        "shop_num_foods": np.zeros(
+            (2,), dtype=np.int32
+        ),  # todo: this is wrong. we need to init, but one hot encode
     }
