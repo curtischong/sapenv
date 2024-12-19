@@ -8,16 +8,16 @@ class Player:
 
     # returns if this reorder is a valid move
     def reorder_team(self, pet_start_idx: int, pet_end_idx: int) -> bool:
-        old_team = self.team.pets
-        if old_team[pet_start_idx].species == Species.NONE:
+        pets = self.team.pets
+        if pets[pet_start_idx].species == Species.NONE:
             return False
         if pet_start_idx == pet_end_idx:
             return False
 
         # Remove the pet from the old position
-        pet_to_move = old_team.pop(pet_start_idx)
+        pet_to_move = pets.pop(pet_start_idx)
 
         # Insert it into the new position
-        old_team.insert(pet_end_idx, pet_to_move)
+        pets.insert(pet_end_idx, pet_to_move)
 
         return True
