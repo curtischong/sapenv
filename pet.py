@@ -1,4 +1,5 @@
 from all_types import PetExperience, PetLevel
+from pet_data import Species
 
 
 class Pet:
@@ -6,25 +7,25 @@ class Pet:
         self,
         *,
         species: str,
+        attack: int,
         health: int,
-        defence: int,
         level: PetLevel,
         experience: PetExperience,
         effect: Effect | None,
     ):
         self.species = species
+        self.attack = attack
         self.health = health
-        self.defence = defence
         self.level = level
         self.experience = experience
         self.effect = effect
 
     @staticmethod
-    def define_base_stats(species: str, health: int, defence: int):
+    def define_base_stats(species: Species, attack: int, health: int):
         return Pet(
             species=species,
+            attack=attack,
             health=health,
-            defence=defence,
             level=1,
             experience=1,
             effect=None,

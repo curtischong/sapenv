@@ -1,7 +1,21 @@
+from all_types import Species
 from pet import Pet
 
 
-all_pets = [
-    # tier 1
-    Pet(shop_tier=1, species="cat", effect=Effect("poison", "poison", 1), health=10, defence=1),
+tier_1_pets = [
+    Pet.define_base_stats(
+        species=Species.DUCK,
+        health=2,
+        defence=1,
+    ),
+    Pet.define_base_stats(
+        species=Species.BEAVER,
+        health=2,
+        defence=1,
+    ),
+    Pet.define_base_stats(
+        species=Species.PIGEON,
+        health=3,
+        defence=1,
+    ),
 ]
