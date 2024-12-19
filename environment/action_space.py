@@ -16,3 +16,11 @@ buy_space = spaces.Dict(
         "end_idx": spaces.MultiBinary(MAX_TEAM_SIZE),
     }
 )
+
+env_action_space = spaces.Dict(
+    {
+        "action_type": spaces.Discrete(6),
+        # "target_1": spaces.Discrete(self.shop_size),  # 0-6
+        # "target_2": spaces.Discrete(self.shop_size),  # 0-6
+    }
+)

@@ -1,3 +1,7 @@
+from typing import TypedDict
+from numpy.typing import NDArray
+import numpy as np
+
 from all_types_and_consts import (
     MAX_ATTACK,
     MAX_HEALTH,
@@ -15,11 +19,38 @@ from all_types_and_consts import (
     Species,
 )
 from gymnasium import spaces
-import numpy as np
 
-# Team: up to 5 animals
-# Represented as a dictionary of parallel arrays for clarity.
-# Each animal: ID, Attack, Health, Level
+
+# Define TypedDicts for clarity and type hinting
+class TeamDict(TypedDict):
+    species: NDArray[np.int32]
+    attacks: NDArray[np.int32]
+    healths: NDArray[np.int32]
+    levels: NDArray[np.int32]
+    experiences: NDArray[np.int32]
+
+
+class ShopAnimalsDict(TypedDict):
+    species: NDArray[np.int32]
+    attacks: NDArray[np.int32]
+    healths: NDArray[np.int32]
+
+
+class ShopLinkedAnimalsDict(TypedDict):
+    species1: NDArray[np.int32]
+    species2: NDArray[np.int32]
+    attacks: NDArray[np.int32]
+    healths: NDArray[np.int32]
+
+
+class EnvObservationDict(TypedDict):
+    team: TeamDict
+    shop_animals: ShopAnimalsDict
+    shop_linked_animals_space: ShopLinkedAnimalsDict
+    shop_num_foods: NDArray[np.int32]
+
+
+# Define the observation spaces
 team_space = spaces.Dict(
     {
         "species": spaces.MultiDiscrete([len(Species)] * MAX_TEAM_SIZE),
@@ -50,10 +81,8 @@ team_space = spaces.Dict(
     }
 )
 
-# Each: ID, Attack, Health, Tier
 shop_animals_space = spaces.Dict(
     {
-        # Create a space for each shop slot
         "species": spaces.MultiDiscrete([len(Species)] * MAX_SHOP_SLOTS),
         "attacks": spaces.Box(
             low=MIN_ATTACK,
@@ -69,9 +98,9 @@ shop_animals_space = spaces.Dict(
         ),
     }
 )
+
 shop_linked_animals_space = spaces.Dict(
     {
-        # Create a space for each shop slot
         "species1": spaces.MultiDiscrete([len(Species)] * MAX_SHOP_LINKED_SLOTS),
         "species2": spaces.MultiDiscrete([len(Species)] * MAX_SHOP_LINKED_SLOTS),
         "attacks": spaces.Box(
@@ -89,11 +118,48 @@ shop_linked_animals_space = spaces.Dict(
     }
 )
 
-# since the shop foods are ALWAYS the same. we can represent it like this:
-# For each food type, specify the number of that kind we can buy
 shop_num_foods_space = spaces.Box(
     low=0,
     high=MAX_SHOP_FOOD_SLOTS,
     shape=(len(Foods),),
     dtype=np.int32,
 )
+
+env_observation_space: EnvObservationDict = spaces.Dict(
+    {
+        "team": team_space,
+        "shop_animals": shop_animals_space,
+        "shop_linked_animals_space": shop_linked_animals_space,
+        "shop_num_foods": shop_num_foods_space,
+    }
+)
+
+
+def get_initial_observation() -> EnvObservationDict:
+    # init all None pets
+    species_arr = np.zeros((MAX_TEAM_SIZE,), dtype=np.int32)
+    # Assuming we want the 'NONE' species to fill all team slots:
+    species_none_value = Species.NONE.value
+    species_arr.fill(species_none_value)
+
+    return {
+        "team": {
+            "species": species_arr,
+            "attacks": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
+            "healths": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
+            "levels": np.ones((MAX_TEAM_SIZE,), dtype=np.int32),
+            "experiences": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
+        },
+        "shop_animals": {
+            "species": np.zeros((MAX_SHOP_SLOTS,), dtype=np.int32),
+            "attacks": np.zeros((MAX_SHOP_SLOTS,), dtype=np.int32),
+            "healths": np.zeros((MAX_SHOP_SLOTS,), dtype=np.int32),
+        },
+        "shop_linked_animals_space": {
+            "species1": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.int32),
+            "species2": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.int32),
+            "attacks": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.int32),
+            "healths": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.int32),
+        },
+        "shop_num_foods": np.zeros((len(Foods),), dtype=np.int32),
+    }
