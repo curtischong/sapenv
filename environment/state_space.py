@@ -1,5 +1,3 @@
-from typing import TypedDict
-from numpy.typing import NDArray
 import numpy as np
 
 from all_types_and_consts import (
@@ -19,35 +17,6 @@ from all_types_and_consts import (
     Species,
 )
 from gymnasium import spaces
-
-
-# Define TypedDicts for clarity and type hinting
-class TeamDict(TypedDict):
-    species: NDArray[np.int32]
-    attacks: NDArray[np.int32]
-    healths: NDArray[np.int32]
-    levels: NDArray[np.int32]
-    experiences: NDArray[np.int32]
-
-
-class ShopAnimalsDict(TypedDict):
-    species: NDArray[np.int32]
-    attacks: NDArray[np.int32]
-    healths: NDArray[np.int32]
-
-
-class ShopLinkedAnimalsDict(TypedDict):
-    species1: NDArray[np.int32]
-    species2: NDArray[np.int32]
-    attacks: NDArray[np.int32]
-    healths: NDArray[np.int32]
-
-
-class EnvObservationDict(TypedDict):
-    team: TeamDict
-    shop_animals: ShopAnimalsDict
-    shop_linked_animals_space: ShopLinkedAnimalsDict
-    shop_num_foods: NDArray[np.int32]
 
 
 # Define the observation spaces
@@ -125,7 +94,7 @@ shop_num_foods_space = spaces.Box(
     dtype=np.int32,
 )
 
-env_observation_space: EnvObservationDict = spaces.Dict(
+env_observation_space = spaces.Dict(
     {
         "team": team_space,
         "shop_animals": shop_animals_space,
@@ -135,7 +104,7 @@ env_observation_space: EnvObservationDict = spaces.Dict(
 )
 
 
-def get_initial_observation() -> EnvObservationDict:
+def get_initial_observation():
     # init all None pets
     species_arr = np.zeros((MAX_TEAM_SIZE,), dtype=np.int32)
     # Assuming we want the 'NONE' species to fill all team slots:
