@@ -1,6 +1,7 @@
 import itertools
 from all_types_and_consts import (
     PET_COST,
+    ROLL_COST,
     STARTING_GOLD,
     ShopTier,
     Species,
@@ -85,8 +86,8 @@ class Shop:
     # I'm pretty sure that each animal has an EQUAL chance to be rolled. There is no special weighting for each species.
     # the only time where the chances are different is when you get a linked slot. in which case it'll always show the shop tier + 1 (or max tier)
     def roll_shop(self):
-        if self.gold < 1:
-            raise ValueError("You don't have enough gold to roll the shop")
+        assert self.gold >= ROLL_COST
+        self.gold -= ROLL_COST
 
         # 1) cary over all the frozen slots
 
@@ -118,6 +119,24 @@ class Shop:
             new_slots.append(ShopSlot(base_pet))
 
         self.slots = new_slots
+
+    def toggle_freeze_slot(self, slot_idx: int):
+        assert slot_idx < len(self.slots)
+        self.slots[slot_idx].is_frozen = not self.slots[slot_idx].is_frozen
+
+    def freeze_pet_at_linked_slot(self, linked_slot_idx: int, is_freezing_pet1: bool):
+        assert linked_slot_idx < len(self.linked_slots)
+        froze_linked_slot = self.linked_slots.pop(linked_slot_idx)
+
+        if is_freezing_pet1:
+            froze_pet = froze_linked_slot.pet1
+        else:
+            froze_pet = froze_linked_slot.pet2
+
+        # now put this frozen pet into a new slot
+        new_slot = ShopSlot(froze_pet)
+        new_slot.is_frozen = True
+        self.slots.append(new_slot)
 
     def pet_at_slot(self, idx: int) -> Pet:
         if idx >= len(self.slots):
