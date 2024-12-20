@@ -59,7 +59,6 @@ class LinkedShopSlot:
     def __init__(self, pet1: Pet, pet2: Pet):
         self.pet1 = pet1
         self.pet2 = pet2
-        self.is_frozen: bool = False
 
 
 class Shop:
@@ -77,19 +76,28 @@ class Shop:
     # I'm pretty sure that each animal has an EQUAL chance to be rolled. There is no special weighting for each species.
     # the only time where the chances are different is when you get a linked slot. in which case it'll always show the shop tier + 1 (or max tier)
     def roll_shop(self):
+        # 1) cary over all the frozen slots
+
+        # all linked slots disappear after the shop is rolled
+        # In my implementation, if you freeze a linked shop slot, it's no longer a linked shop slot. you chose the species you care about.
+        # so you KNOW that there are no no frozen linked shop slots
+        self.linked_slots = []
+
         new_slots = []
-        for slot in self.linked_slots:
-            if slot.is_frozen:
-                new_slots.append(slot)
-        self.linked_slots = []  # all linked slots disappear after the shop is randomized
-
-        # I tested in the game. If you freeze all the pets AND the linked slot, and you roll. the frozen pet (from the linked slot) will remain. You basically artificially increase your slots
-
         for slot in self.slots:
             if slot.is_frozen:
                 new_slots.append(slot)
-            else:
-                new_slots.append(ShopSlot())
+
+        # for the free slots left, we generate them
+        # I tested in the game. If you freeze all the pets AND the linked slot, and you roll. the frozen pet (from the linked slot) will remain. You basically artificially increase your slots
+        num_free_slots = max(
+            SHOP_TIER_TO_MAX_SHOP_SLOTS[self.shop_tier] - len(new_slots), 0
+        )
+
+        pet_pool = 
+        for _ in range(num_free_slots):
+            new_slots.append(ShopSlot(get_base_pet(Species.NONE)))
+
         self.slots = new_slots
 
     # def get_linked_slot_state(self):
