@@ -78,12 +78,14 @@ class Pet:
         else:
             updated_pet = pet1.add_stats(attack=1, health=1)
 
-        old_level = updated_pet.get_level()
         # now update the experience
+        old_level = updated_pet.get_level()
         updated_pet.experience = min(
             pet1.experience + pet2.experience, MAX_PET_EXPERIENCE
         )
         new_level = updated_pet.get_level()
+
+        # call the on_level_up function if the pet leveled up
         if new_level > old_level:
             updated_pet.on_level_up()
 
