@@ -49,7 +49,7 @@ class Species(Enum):
     # tier 2
     SNAIL = auto()
     CRAB = auto()
-    DUCK = auto()
+    SWAN = auto()
     RAT = auto()
     HEDGEHOG = auto()
     PEACOCK = auto()
