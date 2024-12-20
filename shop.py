@@ -150,26 +150,28 @@ class Shop:
 
     def get_observation(self):
         slot_pets = [slot.pet for slot in self.slots]
-        slot_observations = Pet.get_observations_for_pets_exclude_experience(
+        slot_pets_observation = Pet.get_observation_for_pets_exclude_experience(
             slot_pets,
         )
+        is_slot_pet_frozen = np.bool([slot.is_frozen for slot in self.slots])
+
         linked_slot_pets1 = [linked_slot.pet1 for linked_slot in self.linked_slots]
         linked_slot_pets2 = [linked_slot.pet2 for linked_slot in self.linked_slots]
-        linked_slot_observations1 = Pet.get_observations_for_pets_exclude_experience(
+        linked_slot_observation1 = Pet.get_observation_for_pets_exclude_experience(
             linked_slot_pets1
         )
-        linked_slot_observations2 = Pet.get_observations_for_pets_exclude_experience(
+        linked_slot_observation2 = Pet.get_observation_for_pets_exclude_experience(
             linked_slot_pets2
         )
         return {
-            "shop_animals": slot_observations,
+            "shop_animals": slot_pets_observation | {"is_frozen": is_slot_pet_frozen},
             "shop_linked_animals_space": {
-                "species1": linked_slot_observations1["species"],
-                "species2": linked_slot_observations2["species"],
-                "attacks1": linked_slot_observations1["attacks"],
-                "attacks2": linked_slot_observations2["attacks"],
-                "healths1": linked_slot_observations1["healths"],
-                "healths2": linked_slot_observations2["healths"],
+                "species1": linked_slot_observation1["species"],
+                "species2": linked_slot_observation2["species"],
+                "attacks1": linked_slot_observation1["attacks"],
+                "attacks2": linked_slot_observation2["attacks"],
+                "healths1": linked_slot_observation1["healths"],
+                "healths2": linked_slot_observation2["healths"],
             },
             # "shop_num_foods": np.zeros(
             #     (2,), dtype=np.int32

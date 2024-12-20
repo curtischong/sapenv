@@ -108,7 +108,7 @@ class Pet:
         return self
 
     @staticmethod
-    def get_observations_for_pets_exclude_experience(pets: list["Pet"]):
+    def get_observation_for_pets_exclude_experience(pets: list["Pet"]):
         num_pets = len(pets)
         species = np.zeros((len(Species), num_pets), dtype=np.bool)
         attacks = np.zeros((num_pets,), dtype=np.int32)
@@ -126,14 +126,14 @@ class Pet:
         }
 
     @staticmethod
-    def get_observations_for_pets(pets: list["Pet"]):
+    def get_observation_for_pets(pets: list["Pet"]):
         num_pets = len(pets)
         experience = np.zeros((num_pets,), dtype=np.int32)
 
         for idx, pet in enumerate(pets):
             experience[idx] = pet.experience
 
-        return Pet.get_observations_for_pets(pets) | {
+        return Pet.get_observation_for_pets(pets) | {
             "experience": experience,
         }
 

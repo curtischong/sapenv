@@ -79,19 +79,30 @@ shop_linked_animals_space = spaces.Dict(
         # Create a space for each shop slot
         "species1": spaces.MultiDiscrete([len(Species)] * MAX_SHOP_LINKED_SLOTS),
         "species2": spaces.MultiDiscrete([len(Species)] * MAX_SHOP_LINKED_SLOTS),
-        "attacks": spaces.Box(
+        "attacks1": spaces.Box(
             low=MIN_ATTACK,
             high=MAX_ATTACK,
             shape=(MAX_SHOP_LINKED_SLOTS,),
             dtype=np.int32,
         ),
-        "healths": spaces.Box(
+        "attacks2": spaces.Box(
+            low=MIN_ATTACK,
+            high=MAX_ATTACK,
+            shape=(MAX_SHOP_LINKED_SLOTS,),
+            dtype=np.int32,
+        ),
+        "healths1": spaces.Box(
             low=MIN_HEALTH,
             high=MAX_HEALTH,
             shape=(MAX_SHOP_LINKED_SLOTS,),
             dtype=np.int32,
         ),
-        "is_frozen": spaces.MultiBinary(MAX_SHOP_LINKED_SLOTS),
+        "healths2": spaces.Box(
+            low=MIN_HEALTH,
+            high=MAX_HEALTH,
+            shape=(MAX_SHOP_LINKED_SLOTS,),
+            dtype=np.int32,
+        ),
     }
 )
 
