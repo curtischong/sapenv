@@ -11,7 +11,7 @@ class Pet:
     def __init__(
         self,
         *,
-        species: str,
+        species: Species,
         attack: int,
         health: int,
         experience: PetExperience,
@@ -115,7 +115,7 @@ class Pet:
         healths = np.zeros((num_pets,), dtype=np.int32)
 
         for idx, pet in enumerate(pets):
-            species[pet.species, idx] = 1
+            species[pet.species.value, idx] = 1
             attacks[idx] = pet.attack
             healths[idx] = pet.health
 
