@@ -17,6 +17,7 @@ class Pet:
         # effect: Effect | None,  # TODO: add effect
         effect=None,
         on_level_up=dummy_trigger_fn,
+        on_buy=dummy_trigger_fn,
     ):
         self.species = species
         self.attack = attack
@@ -24,6 +25,7 @@ class Pet:
         self.experience = experience
         self.effect = effect
         self.on_level_up = on_level_up
+        self.on_buy = on_buy
 
     @staticmethod
     def define_base_stats(*, species: Species, attack: int, health: int):
@@ -61,6 +63,13 @@ class Pet:
         else:
             return 3
 
+    def get_level_experience(self):
+        if self.experience == 6:
+            return 0
+        if self.experience >= 3:  # the pet is on level 2.
+            return self.experience - 3
+        return self.experience  # the pet is on level 1. no need to subtract anything
+
     def combine_onto(self, pet2: "Pet"):
         pet1 = self
         if pet2._has_higher_stats(pet1):
@@ -89,3 +98,9 @@ class Pet:
         self.attack += attack
         self.health += health
         return self
+
+    def __repr__(self):
+        level = self.get_level()
+        level_experience = self.get_level_experience()
+        # TODO: print effect
+        return f"Pet({self.species}, attack={self.attack}, health={self.health}, lvl{level}-{level_experience})"

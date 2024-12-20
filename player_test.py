@@ -93,13 +93,23 @@ def test_combine_pets_moves_pet1_to_pet2():
         )
     )
     player.combine_pets(pet1_idx=0, pet2_idx=1)
+
+    new_beaver = get_base_pet(Species.BEAVER).add_stats(attack=3, health=2)
+    new_beaver.experience = 2
+
     desired_team = Team(
         pets=[
             get_base_pet(Species.NONE),
-            get_base_pet(Species.BEAVER).add_stats(attack=3, health=2),
+            new_beaver,
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),
         ]
     )
     assert player.team == desired_team
+
+
+def test_buy_pet(player: Player):
+    player.shop.init_shop_for_round(3)
+    player.buy_pet_at_slot(slot_idx=2, target_team_idx=2)
+    assert player.team.pets[2].species != Species.NONE

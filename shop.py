@@ -1,5 +1,11 @@
 import itertools
-from all_types_and_consts import STARTING_GOLD, ShopTier, Species, hidden_species
+from all_types_and_consts import (
+    PET_COST,
+    STARTING_GOLD,
+    ShopTier,
+    Species,
+    hidden_species,
+)
 from pet import Pet
 import random
 from pet_data import shop_tier_to_pets_map
@@ -112,6 +118,20 @@ class Shop:
             new_slots.append(ShopSlot(base_pet))
 
         self.slots = new_slots
+
+    def buy_pet_at_slot(self, slot_idx: int):
+        assert self.gold >= PET_COST
+        self.gold -= PET_COST
+        return self.slots.pop(slot_idx).pet
+
+    def buy_pet_at_linked_slot(self, linked_slot_idx: int, is_pet1_bought: bool):
+        assert self.gold >= PET_COST
+        self.gold -= PET_COST
+        bought_linked_slot = self.linked_slots.pop(linked_slot_idx)
+        if is_pet1_bought:
+            return bought_linked_slot.pet1
+        else:
+            return bought_linked_slot.pet2
 
     # def get_linked_slot_state(self):
     #     species1 = [linked_slot.pet1.species for linked_slot in self.linked_slots]

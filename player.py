@@ -1,11 +1,13 @@
 from all_types_and_consts import Species
 from pet_data import get_base_pet
+from shop import Shop
 from team import Team
 
 
 class Player:
     def __init__(self, team: Team):
         self.team = team
+        self.shop = Shop()
 
     # returns if this reorder is a valid move
     def reorder_team(self, pet_start_idx: int, pet_end_idx: int) -> bool:
@@ -40,3 +42,18 @@ class Player:
         self.team.pets[pet1_idx] = get_base_pet(Species.NONE)
 
         # PERF: do we delete the old pet?
+
+    def buy_pet_at_slot(self, slot_idx: int, target_team_idx: int) -> bool:
+        if self.team.pets[target_team_idx].species != Species.NONE:
+            return False
+
+        pet = self.shop.buy_pet_at_slot(slot_idx)
+        self.team.pets[target_team_idx] = pet
+
+    def buy_pet_at_linked_slot(
+        self, linked_slot_idx: int, is_pet1_bought: bool, target_team_idx: int
+    ) -> bool:
+        if self.team.pets[linked_slot_idx].species != Species.NONE:
+            return False
+        pet = self.shop.buy_pet_at_linked_slot(linked_slot_idx, is_pet1_bought)
+        self.team.pets[target_team_idx] = pet
