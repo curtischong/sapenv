@@ -3,6 +3,7 @@ from all_types_and_consts import (
     MAX_SHOP_LINKED_SLOTS,
     MAX_TEAM_SIZE,
     PET_COST,
+    ROLL_COST,
     Species,
     MAX_SHOP_SLOTS,
 )
@@ -54,7 +55,7 @@ class Player:
         return mask
 
     # Note: if a pet is level 3, you cannot combine it AT ALL
-    def combine_pets_action(self, pet1_idx: int, pet2_idx: int) -> bool:
+    def combine_pets_action(self, pet1_idx: int, pet2_idx: int):
         assert pet1_idx != pet2_idx
 
         pet1 = self.team.pets[pet1_idx]
@@ -100,7 +101,7 @@ class Player:
         return mask
 
     # Note: if a pet is level 3, you cannot buy a pet and combine to the level 3 pet
-    def buy_pet_action(self, slot_idx: int, target_team_idx: int) -> bool:
+    def buy_pet_action(self, slot_idx: int, target_team_idx: int):
         shop_pet_species = self.shop.pet_at_slot(slot_idx).species
         pet_at_team_idx = self.team.pets[target_team_idx]
 
@@ -138,7 +139,7 @@ class Player:
 
     def buy_linked_pet_action(
         self, linked_slot_idx: int, is_pet1_bought: bool, target_team_idx: int
-    ) -> bool:
+    ):
         shop_pet_species = self.shop.pet_at_linked_slot(
             linked_slot_idx, is_pet1_bought
         ).species
@@ -196,4 +197,33 @@ class Player:
             # you cannot sell an empty pet
             if pet.species == Species.NONE:
                 mask[slot_idx] = False
+        return mask
+
+    def roll_shop_action(self):
+        self.shop.roll_shop()
+
+    def roll_shop_action_mask(self) -> np.ndarray:
+        if self.shop.gold < ROLL_COST:
+            return np.zeros((1), dtype=np.bool)
+        else:
+            return np.ones((1), dtype=np.bool)
+
+    def toggle_freeze_slot_action(self, slot_idx: int):
+        self.shop.toggle_freeze_slot(slot_idx)
+
+    def toggle_freeze_slot_action_mask(self, slot_idx: int) -> np.ndarray:
+        mask = np.zeros((MAX_SHOP_SLOTS), dtype=np.bool)
+
+        # ensure the slots we freeze/unfreeze are available
+        for slot_idx in range(len(self.shop.slots)):
+            mask[slot_idx] = True
+        return mask
+
+    def freeze_pet_at_linked_slot(self, slot_idx: int, is_freezing_pet1: bool):
+        self.shop.freeze_pet_at_linked_slot(slot_idx, is_freezing_pet1)
+
+    def freeze_pet_at_linked_slot_action_mask(self, slot_idx: int) -> np.ndarray:
+        mask = np.zeros((MAX_SHOP_LINKED_SLOTS), dtype=np.bool)
+        for slot_idx in range(len(self.shop.linked_slots)):
+            mask[slot_idx] = True
         return mask
