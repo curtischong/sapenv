@@ -111,5 +111,5 @@ def test_combine_pets_moves_pet1_to_pet2():
 
 def test_buy_pet(player: Player):
     player.shop.init_shop_for_round(3)
-    player.buy_pet_at_slot(slot_idx=2, target_team_idx=2)
+    player.buy_pet_action(slot_idx=2, target_team_idx=2)
     assert player.team.pets[2].species != Species.NONE
