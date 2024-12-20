@@ -1,4 +1,5 @@
 from all_types_and_consts import Species
+from pet_data import get_base_pet
 from team import Team
 
 
@@ -21,3 +22,25 @@ class Player:
         pets.insert(pet_end_idx, pet_to_move)
 
         return True
+
+    # drag pet 1 to pet 2
+    def combine_pets(self, pet1_idx: int, pet2_idx: int) -> bool:
+        if pet1_idx == pet2_idx:
+            return False  # you cannot combine a pet with itself
+
+        pet1 = self.team.pets[pet1_idx]
+        pet2 = self.team.pets[pet2_idx]
+
+        if pet1.species != pet2.species:
+            # you cannot combine pets of different species
+            return False
+
+        if pet2.has_higher_stats(pet1):
+            # important. use pet2 first. So if both have equal stats, we'll USE pet2 (due to the implementation of has_higher_stats)
+            self.team.pets[pet2_idx] = pet2.update_stats(1, 1)
+            self.team.pets[pet1_idx] = get_base_pet(Species.NONE)
+        else:
+            self.team.pets[pet2_idx] = pet1.update_stats(1, 1)
+            self.team.pets[pet1_idx] = get_base_pet(Species.NONE)
+
+        # PERF: do we delete the old pet?

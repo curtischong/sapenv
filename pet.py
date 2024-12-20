@@ -50,3 +50,13 @@ class Pet:
             and self.experience == other.experience
             and self.effect == other.effect
         )
+
+    def has_higher_stats(self, other: "Pet"):
+        self_stats = self.attack + self.health
+        other_stats = other.attack + other.health
+        return self_stats >= other_stats
+
+    def update_stats(self, delta_attack: int, delta_health: int):
+        self.attack += delta_attack
+        self.health += delta_health
+        return self
