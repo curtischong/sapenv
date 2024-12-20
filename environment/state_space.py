@@ -125,14 +125,7 @@ env_observation_space = spaces.Dict(
 )
 
 
-def get_initial_observation(player: Player):
-    player.shop.roll_shop()
-
-    # init all None pets
-    species_arr = np.zeros(len(Species) * MAX_TEAM_SIZE, dtype=np.int32)
-    for ith_pet in range(MAX_TEAM_SIZE):
-        species_arr[ith_pet * MAX_TEAM_SIZE + Species.NONE.value] = 1
-
+def get_observation(player: Player):
     # TODO: we should also store turn number, the shop tier, any extra "permanent stat increases" the shop has
     return {
         "team": player.team.get_observation() | player.shop.get_observation(),
