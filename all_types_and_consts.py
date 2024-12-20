@@ -27,6 +27,7 @@ MAX_SHOP_LINKED_SLOTS = MAX_TEAM_SIZE  # since you can promote as most this many
 
 MAX_SHOP_FOOD_SLOTS = 3  # I think having a pigeon and then selling it at a higher tier will allow you to overflow the existing 2 food slots (so you can have an extra food). Cow CLEARs the shop. so there's no risk of overflowing
 STARTING_GOLD = 10
+MAX_GOLD = 30
 PET_COST = 3
 ROLL_COST = 1
 

@@ -1,5 +1,6 @@
 from all_types_and_consts import (
     MAX_ATTACK,
+    MAX_GAMES_LENGTH,
     MAX_HEALTH,
     MAX_PET_EXPERIENCE,
     MAX_PET_LEVEL,
@@ -11,8 +12,11 @@ from all_types_and_consts import (
     MIN_HEALTH,
     MIN_PET_EXPERIENCE,
     MIN_PET_LEVEL,
-    Foods,
+    NUM_WINS_TO_WIN,
+    STARTING_HEARTS,
     Species,
+    MAX_GOLD,
+    Foods,
 )
 from gymnasium import spaces
 import numpy as np
@@ -115,18 +119,34 @@ shop_num_foods_space = spaces.Box(
     dtype=np.int32,
 )
 
+shop_gold_space = spaces.Box(low=0, high=MAX_GOLD, shape=(1,), dtype=np.int32)
+turn_number_space = spaces.Box(low=0, high=MAX_GAMES_LENGTH, shape=(1,), dtype=np.int32)
+num_wins_space = spaces.Box(low=0, high=NUM_WINS_TO_WIN, shape=(1,), dtype=np.int32)
+num_hearts_space = spaces.Box(low=0, high=STARTING_HEARTS, shape=(1,), dtype=np.int32)
+
 env_observation_space = spaces.Dict(
     {
         "team": team_space,
         "shop_animals": shop_animals_space,
         "shop_linked_animals_space": shop_linked_animals_space,
+        "shop_gold": shop_gold_space,
+        "turn_number": turn_number_space,
+        "num_wins": num_wins_space,
+        "num_hearts": num_hearts_space,
         # "shop_num_foods": shop_num_foods_space,
     }
 )
 
 
 def get_observation(player: Player):
-    # TODO: we should also store turn number, the shop tier, any extra "permanent stat increases" the shop has
+    # TODO: we should also any extra "permanent stat increases" the shop has, or temperaroy buffs pets have
     return {
-        "team": player.team.get_observation() | player.shop.get_observation(),
+        "team": player.team.get_observation()
+        | player.shop.get_observation()
+        | {
+            "shop_gold": np.array([player.shop.gold], dtype=np.int32),
+            "turn_number": np.array([player.turn_number], dtype=np.int32),
+            "num_wins": np.array([player.num_wins], dtype=np.int32),
+            "num_hearts": np.array([player.hearts], dtype=np.int32),
+        }
     }
