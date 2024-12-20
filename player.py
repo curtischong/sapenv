@@ -126,9 +126,18 @@ class Player:
         else:
             self.team.pets[target_team_idx] = bought_pet
 
-    def sell_pet_at_slot(self, slot_idx: int):
+    def sell_pet_action(self, slot_idx: int):
         pet = self.team.pets[slot_idx]
         assert pet.species != Species.NONE
         self.shop.gold += pet.get_level()
 
         self.team.pets[slot_idx] = get_base_pet(Species.NONE)
+
+    def sell_pet_action_mask(self) -> np.ndarray:
+        mask = np.ones((MAX_TEAM_SIZE), dtype=np.bool)
+        for slot_idx in range(MAX_TEAM_SIZE):
+            pet = self.team.pets[slot_idx]
+            # you cannot sell an empty pet
+            if pet.species == Species.NONE:
+                mask[slot_idx] = False
+        return mask
