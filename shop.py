@@ -1,7 +1,5 @@
 import itertools
 from all_types_and_consts import (
-    MAX_SHOP_SLOTS,
-    MAX_SHOP_LINKED_SLOTS,
     PET_COST,
     STARTING_GOLD,
     ShopTier,
@@ -80,7 +78,6 @@ class Shop:
         self.gold: int = STARTING_GOLD
 
     def init_shop_for_round(self, round_number: int):
-        # similar to roll_shop but there are higher chances for pets of the current tier
         if round_number in ROUND_TO_SHOP_TIER:
             self.shop_tier = ROUND_TO_SHOP_TIER[round_number]
         self.roll_shop()
