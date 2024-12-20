@@ -84,7 +84,7 @@ def test_combine_pets_moves_pet1_to_pet2():
     player = Player(
         Team(
             pets=[
-                get_base_pet(Species.BEAVER).update_stats(2, 1),
+                get_base_pet(Species.BEAVER).add_stats(attack=2, health=1),
                 get_base_pet(Species.BEAVER),
                 get_base_pet(Species.NONE),
                 get_base_pet(Species.NONE),
@@ -96,7 +96,7 @@ def test_combine_pets_moves_pet1_to_pet2():
     desired_team = Team(
         pets=[
             get_base_pet(Species.NONE),
-            get_base_pet(Species.BEAVER).update_stats(3, 2),
+            get_base_pet(Species.BEAVER).add_stats(attack=3, health=2),
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),

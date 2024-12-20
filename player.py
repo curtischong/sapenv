@@ -35,12 +35,8 @@ class Player:
             # you cannot combine pets of different species
             return False
 
-        if pet2.has_higher_stats(pet1):
-            # important. use pet2 first. So if both have equal stats, we'll USE pet2 (due to the implementation of has_higher_stats)
-            self.team.pets[pet2_idx] = pet2.update_stats(1, 1)
-            self.team.pets[pet1_idx] = get_base_pet(Species.NONE)
-        else:
-            self.team.pets[pet2_idx] = pet1.update_stats(1, 1)
-            self.team.pets[pet1_idx] = get_base_pet(Species.NONE)
+        new_pet = pet1.combine_onto(pet2)
+        self.team.pets[pet2_idx] = new_pet
+        self.team.pets[pet1_idx] = get_base_pet(Species.NONE)
 
         # PERF: do we delete the old pet?

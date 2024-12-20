@@ -1,5 +1,5 @@
 import itertools
-from all_types_and_consts import ShopTier, Species, hidden_species
+from all_types_and_consts import STARTING_GOLD, ShopTier, Species, hidden_species
 from pet import Pet
 import random
 from pet_data import shop_tier_to_pets_map
@@ -68,6 +68,7 @@ class Shop:
         self.shop_tier: ShopTier = 1
         self.slots: list[ShopSlot] = []
         self.linked_slots: list[LinkedShopSlot] = []
+        self.gold: int = STARTING_GOLD
 
     def init_shop_for_round(self, round_number: int):
         # similar to roll_shop but there are higher chances for pets of the current tier
@@ -78,6 +79,9 @@ class Shop:
     # I'm pretty sure that each animal has an EQUAL chance to be rolled. There is no special weighting for each species.
     # the only time where the chances are different is when you get a linked slot. in which case it'll always show the shop tier + 1 (or max tier)
     def roll_shop(self):
+        if self.gold < 1:
+            raise ValueError("You don't have enough gold to roll the shop")
+
         # 1) cary over all the frozen slots
 
         # all linked slots disappear after the shop is rolled
