@@ -2,7 +2,6 @@ from all_types_and_consts import (
     MAX_ATTACK,
     MAX_HEALTH,
     MAX_PET_EXPERIENCE,
-    MAX_PET_LEVEL,
     MAX_SHOP_FOOD_SLOTS,
     MAX_SHOP_LINKED_SLOTS,
     MAX_SHOP_SLOTS,
@@ -10,7 +9,6 @@ from all_types_and_consts import (
     MIN_ATTACK,
     MIN_HEALTH,
     MIN_PET_EXPERIENCE,
-    MIN_PET_LEVEL,
     Foods,
     Species,
 )
@@ -38,8 +36,8 @@ team_space = spaces.Dict(
             dtype=np.int32,
         ),
         "levels": spaces.Box(
-            low=MIN_PET_LEVEL,
-            high=MAX_PET_LEVEL,
+            low=1,
+            high=3,
             shape=(MAX_TEAM_SIZE,),
             dtype=np.int32,
         ),

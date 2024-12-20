@@ -1,4 +1,9 @@
-from all_types_and_consts import PetExperience, PetLevel, Species
+from all_types_and_consts import (
+    MAX_PET_EXPERIENCE,
+    PetExperience,
+    Species,
+    dummy_trigger_fn,
+)
 
 
 class Pet:
@@ -8,17 +13,17 @@ class Pet:
         species: str,
         attack: int,
         health: int,
-        level: PetLevel,
         experience: PetExperience,
         # effect: Effect | None,  # TODO: add effect
         effect=None,
+        on_level_up=dummy_trigger_fn,
     ):
         self.species = species
         self.attack = attack
         self.health = health
-        self.level = level
         self.experience = experience
         self.effect = effect
+        self.on_level_up = on_level_up
 
     @staticmethod
     def define_base_stats(*, species: Species, attack: int, health: int):
@@ -26,7 +31,6 @@ class Pet:
             species=species,
             attack=attack,
             health=health,
-            level=1,
             experience=1,
             effect=None,
         )
@@ -36,7 +40,6 @@ class Pet:
             species=self.species,
             attack=self.attack,
             health=self.health,
-            level=self.level,
             experience=self.experience,
             effect=self.effect,
         )
@@ -46,18 +49,17 @@ class Pet:
             self.species == other.species
             and self.attack == other.attack
             and self.health == other.health
-            and self.level == other.level
             and self.experience == other.experience
             and self.effect == other.effect
         )
 
-    def get_total_experience(self):
-        exp = self.experience
-        if self.level == 2:
-            exp += 3
-        if self.level == 3:
-            exp += 6
-        return exp
+    def get_level(self):
+        if self.experience < 3:
+            return 1
+        elif self.experience < 6:
+            return 2
+        else:
+            return 3
 
     def combine_onto(self, pet2: "Pet"):
         pet1 = self
@@ -67,8 +69,14 @@ class Pet:
         else:
             updated_pet = pet1.add_stats(attack=1, health=1)
 
-        # how update the level and experience
-        total_experience = pet1.level * pet1.experience + pet2.experience
+        old_level = updated_pet.get_level()
+        # now update the experience
+        updated_pet.experience = min(
+            pet1.experience + pet2.experience, MAX_PET_EXPERIENCE
+        )
+        new_level = updated_pet.get_level()
+        if new_level > old_level:
+            updated_pet.on_level_up()
 
         return updated_pet
 
