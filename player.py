@@ -162,12 +162,12 @@ class Player:
         mask = np.ones((MAX_SHOP_SLOTS, 2, MAX_TEAM_SIZE), dtype=np.bool)
         for linked_slot_idx in range(MAX_SHOP_LINKED_SLOTS):
             for buy_pet1 in [True, False]:
-                buy_pet1_idx = 1 if buy_pet1 else 0
+                buy_pet_idx = 0 if buy_pet1 else 1
 
                 # prevent buying a none pet
                 shop_pet = self.shop.pet_at_linked_slot(linked_slot_idx, buy_pet1)
                 if shop_pet.species == Species.NONE:
-                    mask[linked_slot_idx, buy_pet1_idx, :] = False
+                    mask[linked_slot_idx, buy_pet_idx, :] = False
                     continue
 
                 for target_team_idx in range(MAX_TEAM_SIZE):
@@ -179,7 +179,7 @@ class Player:
                         shop_pet.species == target_team_pet.species
                     )
                     if is_target_position_occupied and not is_player_combining_pets:
-                        mask[linked_slot_idx, buy_pet1_idx, target_team_idx] = False
+                        mask[linked_slot_idx, buy_pet_idx, target_team_idx] = False
         return mask
 
     def sell_pet_action(self, slot_idx: int):
