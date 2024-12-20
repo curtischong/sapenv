@@ -19,8 +19,7 @@ class SuperAutoPetsEnv(gym.Env):
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
-        # Initialize a starting observation
-
+        self.player = Player.init_starting_player()
         # Return observation and possibly some additional info
         return get_initial_observation(self.player), {}
 

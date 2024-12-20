@@ -1,6 +1,7 @@
 from all_types_and_consts import MAX_TEAM_SIZE, Species
 from pet import Pet
 from pet_data import get_base_pet
+import numpy as np
 
 
 class Team:
@@ -11,6 +12,18 @@ class Team:
     @staticmethod
     def init_starting_team():
         return Team(pets=[get_base_pet(Species.NONE) for _ in range(MAX_TEAM_SIZE)])
+
+    def get_observation(self):
+        num_pets = len(self.pets)
+        experience = np.zeros((num_pets,), dtype=np.int32)
+
+        # TODO: do effects as well
+        for idx, pet in enumerate(self.pets):
+            experience[idx] = pet.experience
+
+        return Pet.get_observation_for_base_stats(self.pets) | {
+            "experience": experience
+        }
 
     def __eq__(self, other: "Team"):
         return self.pets == other.pets

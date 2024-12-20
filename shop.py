@@ -150,19 +150,15 @@ class Shop:
 
     def get_observation(self):
         slot_pets = [slot.pet for slot in self.slots]
-        slot_pets_observation = Pet.get_observation_for_pets_exclude_experience(
+        slot_pets_observation = Pet.get_observation_for_base_stats(
             slot_pets,
         )
         is_slot_pet_frozen = np.bool([slot.is_frozen for slot in self.slots])
 
         linked_slot_pets1 = [linked_slot.pet1 for linked_slot in self.linked_slots]
         linked_slot_pets2 = [linked_slot.pet2 for linked_slot in self.linked_slots]
-        linked_slot_observation1 = Pet.get_observation_for_pets_exclude_experience(
-            linked_slot_pets1
-        )
-        linked_slot_observation2 = Pet.get_observation_for_pets_exclude_experience(
-            linked_slot_pets2
-        )
+        linked_slot_observation1 = Pet.get_observation_for_base_stats(linked_slot_pets1)
+        linked_slot_observation2 = Pet.get_observation_for_base_stats(linked_slot_pets2)
         return {
             "shop_animals": slot_pets_observation | {"is_frozen": is_slot_pet_frozen},
             "shop_linked_animals_space": {
