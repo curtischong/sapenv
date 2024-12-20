@@ -108,7 +108,7 @@ class Pet:
         return self
 
     @staticmethod
-    def get_observation_for_base_stats(pets: list["Pet"]):
+    def get_base_stats_observation(pets: list["Pet"]):
         num_pets = len(pets)
         species = np.zeros((len(Species), num_pets), dtype=np.bool)
         attacks = np.zeros((num_pets,), dtype=np.int32)

@@ -21,9 +21,7 @@ class Team:
         for idx, pet in enumerate(self.pets):
             experiences[idx] = pet.experience
 
-        return Pet.get_observation_for_base_stats(self.pets) | {
-            "experiences": experiences
-        }
+        return Pet.get_base_stats_observation(self.pets) | {"experiences": experiences}
 
     def __eq__(self, other: "Team"):
         return self.pets == other.pets
