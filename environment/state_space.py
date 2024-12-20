@@ -135,12 +135,5 @@ def get_initial_observation(player: Player):
 
     # TODO: we should also store turn number, the shop tier, any extra "permanent stat increases" the shop has
     return {
-        "team": {
-            "species": species_arr,
-            "attacks": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
-            "healths": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
-            "levels": np.ones((MAX_TEAM_SIZE,), dtype=np.int32),
-            "experiences": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
-        }
-        | player.shop.get_observation(),
+        "team": player.team.get_observation() | player.shop.get_observation(),
     }
