@@ -99,6 +99,11 @@ class Pet:
         self.health += health
         return self
 
+    def set_stats(self, *, attack: int, health: int):
+        self.attack = attack
+        self.health = health
+        return self
+
     def __repr__(self):
         level = self.get_level()
         level_experience = self.get_level_experience()

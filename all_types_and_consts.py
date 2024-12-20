@@ -170,3 +170,9 @@ food_tiers = {
     5: [Foods.CHILI, Foods.CHOCOLATE, Foods.SUSHI],
     6: [Foods.STEAK, Foods.MELON, Foods.MUSHROOM, Foods.PIZZA],
 }
+
+
+class BattleResult(Enum):
+    TEAM1_WIN = auto()
+    TEAM2_WIN = auto()
+    TIE = auto()
