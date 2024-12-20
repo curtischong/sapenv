@@ -119,12 +119,24 @@ class Shop:
 
         self.slots = new_slots
 
-    def buy_pet_at_slot(self, slot_idx: int):
+    def pet_at_slot(self, idx: int) -> Pet:
+        assert idx < len(self.slots)
+        return self.slots[idx].pet
+
+    def pet_at_linked_slot(self, idx: int, is_quering_for_pet1: bool) -> Pet:
+        assert idx < len(self.linked_slots)
+        linked_slot = self.linked_slots[idx]
+        if is_quering_for_pet1:
+            return linked_slot.pet1
+        else:
+            return linked_slot.pet2
+
+    def buy_pet_at_slot(self, slot_idx: int) -> Pet:
         assert self.gold >= PET_COST
         self.gold -= PET_COST
         return self.slots.pop(slot_idx).pet
 
-    def buy_pet_at_linked_slot(self, linked_slot_idx: int, is_pet1_bought: bool):
+    def buy_pet_at_linked_slot(self, linked_slot_idx: int, is_pet1_bought: bool) -> Pet:
         assert self.gold >= PET_COST
         self.gold -= PET_COST
         bought_linked_slot = self.linked_slots.pop(linked_slot_idx)

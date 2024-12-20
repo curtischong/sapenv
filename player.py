@@ -25,6 +25,7 @@ class Player:
 
         return True
 
+    # TODO: do we allow combining pets if the target pet is already at max level?
     # drag pet 1 to pet 2
     def combine_pets(self, pet1_idx: int, pet2_idx: int) -> bool:
         if pet1_idx == pet2_idx:
@@ -44,16 +45,36 @@ class Player:
         # PERF: do we delete the old pet?
 
     def buy_pet_at_slot(self, slot_idx: int, target_team_idx: int) -> bool:
-        if self.team.pets[target_team_idx].species != Species.NONE:
+        shop_pet_species = self.shop.pet_at_slot(slot_idx).species
+        pet_at_team_idx = self.team.pets[target_team_idx]
+
+        is_player_trying_to_combine = shop_pet_species == pet_at_team_idx.species
+        if pet_at_team_idx != Species.NONE and not is_player_trying_to_combine:
+            # the player is trying to put the bought spot to an incompatible pet. fail
             return False
 
-        pet = self.shop.buy_pet_at_slot(slot_idx)
-        self.team.pets[target_team_idx] = pet
+        bought_pet = self.shop.buy_pet_at_slot(slot_idx)
+        if is_player_trying_to_combine:
+            self.team.pets[target_team_idx] = bought_pet.combine_onto(pet_at_team_idx)
+        else:
+            self.team.pets[target_team_idx] = bought_pet
 
     def buy_pet_at_linked_slot(
         self, linked_slot_idx: int, is_pet1_bought: bool, target_team_idx: int
     ) -> bool:
-        if self.team.pets[linked_slot_idx].species != Species.NONE:
+        shop_pet_species = self.shop.pet_at_linked_slot(
+            linked_slot_idx, is_pet1_bought
+        ).species
+        pet_at_team_idx = self.team.pets[target_team_idx]
+
+        is_player_trying_to_combine = shop_pet_species == pet_at_team_idx.species
+
+        if pet_at_team_idx != Species.NONE and not is_player_trying_to_combine:
+            # the player is trying to put the bought spot to an incompatible pet. fail
             return False
-        pet = self.shop.buy_pet_at_linked_slot(linked_slot_idx, is_pet1_bought)
-        self.team.pets[target_team_idx] = pet
+
+        bought_pet = self.shop.buy_pet_at_linked_slot(linked_slot_idx, is_pet1_bought)
+        if is_player_trying_to_combine:
+            self.team.pets[target_team_idx] = bought_pet.combine_onto(pet_at_team_idx)
+        else:
+            self.team.pets[target_team_idx] = bought_pet
