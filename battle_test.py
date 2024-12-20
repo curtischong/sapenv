@@ -1,6 +1,5 @@
 from all_types_and_consts import BattleResult, Species
 from battle import battle
-from pet import Pet
 from pet_data import get_base_pet
 from team import Team
 
