@@ -1,14 +1,20 @@
 import itertools
 from all_types_and_consts import (
+    MAX_GAMES_LENGTH,
     MAX_SHOP_LINKED_SLOTS,
     MAX_TEAM_SIZE,
+    NUM_WINS_TO_WIN,
     PET_COST,
     ROLL_COST,
+    STARTING_HEARTS,
+    TURN_AT_WHICH_THEY_GAIN_ONE_LOST_HEART,
     BattleResult,
+    GameResult,
     Species,
     MAX_SHOP_SLOTS,
 )
 from battle import battle
+from gen_opponent import get_pig_team
 from pet_data import get_base_pet
 from shop import Shop
 from team import Team
@@ -20,6 +26,8 @@ class Player:
         self.team = team
         self.shop = Shop()
         self.turn_number = 0
+        self.num_wins = 0
+        self.hearts = STARTING_HEARTS
 
     @staticmethod
     def init_starting_player():
@@ -231,10 +239,30 @@ class Player:
             mask[slot_idx] = True
         return mask
 
-    def end_turn_action(self) -> BattleResult:
-        battle_result = battle(self.team, self.team)  # todo: get opponent team
+    def end_turn_action(self) -> GameResult:
+        # todo: smarter opponent team
+        battle_result = battle(self.team, get_pig_team(self.turn_number))
+
+        # update based on result of battle
         self.turn_number += 1
-        return battle_result
+        if battle_result == BattleResult.TEAM1_WIN:
+            self.num_wins += 1
+        elif battle_result == BattleResult.TEAM2_WIN:
+            self.hearts -= 1
+
+        # recover lost heart if the round is early enough
+        if (
+            self.turn_number == TURN_AT_WHICH_THEY_GAIN_ONE_LOST_HEART
+            and self.hearts < STARTING_HEARTS
+        ):
+            self.hearts += 1
+
+        # if the player has no more lives, they lose
+        if self.hearts <= 0 or self.turn_number >= MAX_GAMES_LENGTH:
+            return GameResult.LOSE
+        if self.num_wins == NUM_WINS_TO_WIN:
+            return GameResult.WIN
+        return GameResult.CONTINUE
 
     # to help the model, you can only end turn if you have no gold
     # we can remove this restriction in the future?
