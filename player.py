@@ -32,7 +32,7 @@ class Player:
     @staticmethod
     def init_starting_player():
         player = Player(Team.init_starting_team())
-        player.shop.init_shop_for_round()
+        player.shop.init_shop_for_round(round_number=1)
         return player
 
     def reorder_team_action(self, start_idx: int, end_idx: int):
@@ -256,6 +256,9 @@ class Player:
             and self.hearts < STARTING_HEARTS
         ):
             self.hearts += 1
+
+        # since we moved onto the next round, we need to init it for the current round
+        self.shop.init_shop_for_round(self.shop, self.turn_number)
 
         # if the player has no more lives, they lose
         if self.hearts <= 0 or self.turn_number >= MAX_GAMES_LENGTH:

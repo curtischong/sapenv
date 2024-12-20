@@ -24,9 +24,12 @@ class SuperAutoPetsEnv(gym.Env):
     def step(self, action):
         # Implement your logic for applying the action and transitioning to the next state
         observation = get_observation(self.player)  # Implement this method
-        game_result = (
-            self.player.end_turn_action()
-        )  # Get the game result after the action
+
+        game_result = GameResult.CONTINUE
+        if False:  # TODO: only run this if they run end turn
+            game_result = (
+                self.player.end_turn_action()
+            )  # Get the game result after the action
 
         # Determine if the game is done based on the result
         info = {"game_result": game_result}
