@@ -15,14 +15,14 @@ class Team:
 
     def get_observation(self):
         num_pets = len(self.pets)
-        experience = np.zeros((num_pets,), dtype=np.int32)
+        experiences = np.zeros((num_pets,), dtype=np.int32)
 
         # TODO: do effects as well
         for idx, pet in enumerate(self.pets):
-            experience[idx] = pet.experience
+            experiences[idx] = pet.experience
 
         return Pet.get_observation_for_base_stats(self.pets) | {
-            "experience": experience
+            "experiences": experiences
         }
 
     def __eq__(self, other: "Team"):
