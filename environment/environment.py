@@ -35,6 +35,7 @@ class SuperAutoPetsEnv(gym.Env):
             reward = 100
             done = True
         elif game_result == GameResult.LOSE:
+            # the more wins you have, less the penalty
             reward = -100 + self.player.num_wins * 10
             done = True
 
