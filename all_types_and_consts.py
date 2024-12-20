@@ -33,9 +33,78 @@ MAX_SHOP_FOOD_SLOTS = 3  # I think having a pigeon and then selling it at a high
 
 class Species(Enum):
     NONE = auto()
+
+    # tier 1
     DUCK = auto()
     BEAVER = auto()
     PIGEON = auto()
+    OTTER = auto()
+    PIG = auto()
+    ANT = auto()
+    MOSQUITO = auto()
+    FISH = auto()
+    CRICKET = auto()
+    HORSE = auto()
+
+    # tier 2
+    SNAIL = auto()
+    CRAB = auto()
+    DUCK = auto()
+    RAT = auto()
+    HEDGEHOG = auto()
+    PEACOCK = auto()
+    FLAMINGO = auto()
+    WORM = auto()
+    KANGAROO = auto()
+    SPIDER = auto()
+
+    # tier 3
+    DODO = auto()
+    BADGER = auto()
+    DOLPHIN = auto()
+    GIRAFFE = auto()
+    ELEPHANT = auto()
+    CAMEL = auto()
+    RABBIT = auto()
+    OX = auto()
+    DOG = auto()
+    SHEEP = auto()
+
+    # tier 4
+    SKUNK = auto()
+    HIPPO = auto()
+    BISON = auto()
+    BLOWFISH = auto()
+    TURTLE = auto()
+    SQUIRREL = auto()
+    PENGUIN = auto()
+    DEER = auto()
+    WHALE = auto()
+    PARROT = auto()
+
+    # tier 5
+    SCORPION = auto()
+    CROCODILE = auto()
+    RHINO = auto()
+    MONKEY = auto()
+    ARMADILLO = auto()
+    COW = auto()
+    SEAL = auto()
+    ROOSTER = auto()
+    SHARK = auto()
+    TURKEY = auto()
+
+    # tier 6
+    LEOPARD = auto()
+    BOAR = auto()
+    TIGER = auto()
+    WOLVERINE = auto()
+    GORILLA = auto()
+    DRAGON = auto()
+    MAMMOTH = auto()
+    CAT = auto()
+    SNAKE = auto()
+    FLY = auto()
 
     # hidden species
     RAM = auto()
