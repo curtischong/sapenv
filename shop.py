@@ -1,5 +1,6 @@
 import itertools
 from all_types_and_consts import (
+    MAX_SHOP_LINKED_SLOTS,
     PET_COST,
     STARTING_GOLD,
     ShopTier,
@@ -9,6 +10,7 @@ from all_types_and_consts import (
 from pet import Pet
 import random
 from pet_data import shop_tier_to_pets_map
+import numpy as np
 
 ROUND_TO_SHOP_TIER: dict[int, ShopTier] = {
     1: 1,
@@ -144,6 +146,30 @@ class Shop:
             return bought_linked_slot.pet1
         else:
             return bought_linked_slot.pet2
+
+    def get_observation(self):
+        return {
+            "shop_animals": {
+                "species": np.zeros((3,), dtype=np.int32),
+                "attacks": np.zeros((3,), dtype=np.int32),
+                "healths": np.zeros((3,), dtype=np.int32),
+                "tiers": np.ones((3,), dtype=np.int32),
+            },
+            "shop_linked_animals_space": {
+                "species1": np.zeros(
+                    (len(Species), MAX_SHOP_LINKED_SLOTS), dtype=np.int32
+                ),
+                "species2": np.zeros(
+                    (len(Species), MAX_SHOP_LINKED_SLOTS), dtype=np.int32
+                ),
+                "attacks": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.int32),
+                "healths": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.int32),
+                "is_frozen": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.bool),
+            },
+            # "shop_num_foods": np.zeros(
+            #     (2,), dtype=np.int32
+            # ),  # todo: this is wrong. we need to init, but one hot encode
+        }
 
     # def get_linked_slot_state(self):
     #     species1 = [linked_slot.pet1.species for linked_slot in self.linked_slots]

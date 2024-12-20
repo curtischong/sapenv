@@ -22,7 +22,7 @@ class SuperAutoPetsEnv(gym.Env):
         # Initialize a starting observation
 
         # Return observation and possibly some additional info
-        return get_initial_observation(), {}
+        return get_initial_observation(self.player), {}
 
     def step(self, action):
         # Implement your logic for applying the action and transitioning to the next state

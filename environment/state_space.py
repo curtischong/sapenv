@@ -17,6 +17,8 @@ from all_types_and_consts import (
 from gymnasium import spaces
 import numpy as np
 
+from player import Player
+
 # Team: up to 5 animals
 # Represented as a dictionary of parallel arrays for clarity.
 # Each animal: ID, Attack, Health, Level
@@ -107,12 +109,14 @@ env_observation_space = spaces.Dict(
         "team": team_space,
         "shop_animals": shop_animals_space,
         "shop_linked_animals_space": shop_linked_animals_space,
-        "shop_num_foods": shop_num_foods_space,
+        # "shop_num_foods": shop_num_foods_space,
     }
 )
 
 
-def get_initial_observation():
+def get_initial_observation(player: Player):
+    player.shop.roll_shop()
+
     # init all None pets
     species_arr = np.zeros(len(Species) * MAX_TEAM_SIZE, dtype=np.int32)
     for ith_pet in range(MAX_TEAM_SIZE):
@@ -126,22 +130,6 @@ def get_initial_observation():
             "healths": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
             "levels": np.ones((MAX_TEAM_SIZE,), dtype=np.int32),
             "experiences": np.zeros((MAX_TEAM_SIZE,), dtype=np.int32),
-        },
-        # todo: init shop
-        "shop_animals": {
-            "species": np.zeros((3,), dtype=np.int32),
-            "attacks": np.zeros((3,), dtype=np.int32),
-            "healths": np.zeros((3,), dtype=np.int32),
-            "is_frozen": np.zeros((3,), dtype=np.bool),
-        },
-        "shop_linked_animals_space": {
-            "species1": np.zeros((len(Species), MAX_SHOP_LINKED_SLOTS), dtype=np.int32),
-            "species2": np.zeros((len(Species), MAX_SHOP_LINKED_SLOTS), dtype=np.int32),
-            "attacks": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.int32),
-            "healths": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.int32),
-            "is_frozen": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.bool),
-        },
-        "shop_num_foods": np.zeros(
-            (2,), dtype=np.int32
-        ),  # todo: this is wrong. we need to init, but one hot encode
+        }
+        | player.shop.get_observation(),
     }
