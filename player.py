@@ -18,7 +18,6 @@ class Player:
         player.shop.init_shop_for_round()
         return player
 
-    # returns if this reorder is a valid move
     def reorder_team_action(self, pet_start_idx: int, pet_end_idx: int):
         pets = self.team.pets
         assert pets[pet_start_idx].species != Species.NONE
