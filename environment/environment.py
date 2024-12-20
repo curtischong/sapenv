@@ -3,6 +3,7 @@ import numpy as np
 from all_types_and_consts import MAX_SHOP_LINKED_SLOTS, MAX_TEAM_SIZE, Species
 from environment.state_space import env_observation_space, get_initial_observation
 from environment.action_space import env_action_space
+from player import Player
 
 
 class SuperAutoPetsEnv(gym.Env):
@@ -14,6 +15,7 @@ class SuperAutoPetsEnv(gym.Env):
         # Combine into a single observation space
         self.observation_space = env_observation_space
         self.action_space = env_action_space
+        self.player = Player.init_starting_player()
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)

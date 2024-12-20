@@ -9,6 +9,10 @@ class Player:
         self.team = team
         self.shop = Shop()
 
+    @staticmethod
+    def init_starting_player():
+        return Player(Team.init_starting_team())
+
     # returns if this reorder is a valid move
     def reorder_team(self, pet_start_idx: int, pet_end_idx: int) -> bool:
         pets = self.team.pets

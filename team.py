@@ -1,11 +1,16 @@
 from all_types_and_consts import MAX_TEAM_SIZE, Species
 from pet import Pet
+from pet_data import get_base_pet
 
 
 class Team:
     def __init__(self, pets: list[Pet]):
         self.pets = pets
         assert len(pets) == MAX_TEAM_SIZE
+
+    @staticmethod
+    def init_starting_team():
+        return Team(pets=[get_base_pet(Species.NONE) for _ in range(MAX_TEAM_SIZE)])
 
     def __eq__(self, other: "Team"):
         return self.pets == other.pets
