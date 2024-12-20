@@ -2,14 +2,6 @@ from all_types_and_consts import ShopTier, Species
 from pet import Pet
 
 
-none_pet = (
-    Pet.define_base_stats(
-        species=Species.NONE,
-        attack=-1,
-        health=-1,
-    ),
-)
-
 tier_1_pets: list[Pet] = [
     Pet.define_base_stats(species=Species.DUCK, attack=2, health=3),
     Pet.define_base_stats(species=Species.BEAVER, attack=3, health=2),
@@ -87,7 +79,25 @@ tier_6_pets: list[Pet] = [
     Pet.define_base_stats(species=Species.FLY, attack=4, health=4),
 ]
 
-all_pets: list[Pet] = tier_1_pets
+hidden_pets: list[Pet] = [
+    Pet.define_base_stats(species=Species.NONE, attack=-1, health=-1),
+    Pet.define_base_stats(species=Species.CRICKET_SPAWN, attack=1, health=1),
+    # NOTE: as the sheep levels up, these stats increase
+    Pet.define_base_stats(species=Species.RAM, attack=2, health=2),
+    # NOTE: as the deer levels up, these stats increase
+    Pet.define_base_stats(species=Species.BUS, attack=5, health=3),
+    Pet.define_base_stats(species=Species.FLY_SPAWN, attack=4, health=4),
+]
+
+all_pets: list[Pet] = (
+    tier_1_pets
+    + tier_2_pets
+    + tier_3_pets
+    + tier_4_pets
+    + tier_5_pets
+    + tier_6_pets
+    + hidden_pets
+)
 assert len(all_pets) == len(Species)
 
 species_to_pet_map: dict[Species, Pet] = {pet.species: pet for pet in all_pets}

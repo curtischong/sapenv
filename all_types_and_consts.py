@@ -107,13 +107,17 @@ class Species(Enum):
     FLY = auto()
 
     # hidden species
-    RAM = auto()
+    CRICKET_SPAWN = auto()  # spawned when a cricket is killed
+    RAM = auto()  # spawned when a sheep is killed
     BUS = auto()
+    FLY_SPAWN = auto()  # spawned when a pet is killed
 
 
 hidden_species = [
+    Species.CRICKET_SPAWN,
     Species.RAM,
     Species.BUS,
+    Species.FLY_SPAWN,
 ]
 
 
