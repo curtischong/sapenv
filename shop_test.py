@@ -13,7 +13,8 @@ def test_shop_only_generates_pets_of_the_correct_tier():
     pets_within_shop_tier = tier_1_pets + tier_2_pets + tier_3_pets
     species_within_shop_tier = set(get_species_in_tier(pets_within_shop_tier))
 
-    for num_rolls in range(30):
+    num_rolls = 30
+    for _ in range(num_rolls):
         shop.roll_shop()
         for slot in shop.slots:
             assert slot.pet.species in species_within_shop_tier

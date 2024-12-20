@@ -78,3 +78,28 @@ def test_rearrange_team_move_middle_to_end(player: Player):
         ]
     )
     assert player.team == desired_pet_order_team
+
+
+def test_combine_pets_moves_pet1_to_pet2():
+    player = Player(
+        Team(
+            pets=[
+                get_base_pet(Species.BEAVER).update_stats(2, 1),
+                get_base_pet(Species.BEAVER),
+                get_base_pet(Species.NONE),
+                get_base_pet(Species.NONE),
+                get_base_pet(Species.NONE),
+            ]
+        )
+    )
+    player.combine_pets(pet1_idx=0, pet2_idx=1)
+    desired_team = Team(
+        pets=[
+            get_base_pet(Species.NONE),
+            get_base_pet(Species.BEAVER).update_stats(3, 2),
+            get_base_pet(Species.NONE),
+            get_base_pet(Species.NONE),
+            get_base_pet(Species.NONE),
+        ]
+    )
+    assert player.team == desired_team
