@@ -25,7 +25,7 @@ def player(original_team: Team) -> Player:
 
 
 def test_rearrange_team_move_start_to_middle(player: Player):
-    player.reorder_team(pet_start_idx=0, pet_end_idx=2)
+    player.reorder_team_action(pet_start_idx=0, pet_end_idx=2)
     desired_pet_order_team = Team(
         pets=[
             get_base_pet(Species.NONE),
@@ -39,7 +39,7 @@ def test_rearrange_team_move_start_to_middle(player: Player):
 
 
 def test_rearrange_team_move_start_to_end(player: Player):
-    player.reorder_team(pet_start_idx=0, pet_end_idx=4)
+    player.reorder_team_action(pet_start_idx=0, pet_end_idx=4)
     desired_pet_order_team = Team(
         pets=[
             get_base_pet(Species.NONE),
@@ -53,7 +53,7 @@ def test_rearrange_team_move_start_to_end(player: Player):
 
 
 def test_rearrange_team_move_end_to_start(player: Player):
-    player.reorder_team(pet_start_idx=4, pet_end_idx=0)
+    player.reorder_team_action(pet_start_idx=4, pet_end_idx=0)
     desired_pet_order_team = Team(
         pets=[
             get_base_pet(Species.PIGEON),
@@ -67,7 +67,7 @@ def test_rearrange_team_move_end_to_start(player: Player):
 
 
 def test_rearrange_team_move_middle_to_end(player: Player):
-    player.reorder_team(pet_start_idx=3, pet_end_idx=4)
+    player.reorder_team_action(pet_start_idx=3, pet_end_idx=4)
     desired_pet_order_team = Team(
         pets=[
             get_base_pet(Species.DUCK),
@@ -92,7 +92,7 @@ def test_combine_pets_moves_pet1_to_pet2():
             ]
         )
     )
-    player.combine_pets(pet1_idx=0, pet2_idx=1)
+    player.combine_pets_action(pet1_idx=0, pet2_idx=1)
 
     new_beaver = get_base_pet(Species.BEAVER).add_stats(attack=3, health=2)
     new_beaver.experience = 2
