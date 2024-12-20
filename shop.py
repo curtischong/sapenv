@@ -1,6 +1,8 @@
 import itertools
 from all_types_and_consts import ShopTier, Species, hidden_species
 from pet import Pet
+import random
+from pet_data import shop_tier_to_pets_map
 
 ROUND_TO_SHOP_TIER: dict[int, ShopTier] = {
     1: 1,
@@ -23,7 +25,7 @@ SHOP_TIER_TO_MAX_SHOP_SLOTS: dict[ShopTier, int] = {
 
 # since the linked species is independent of the order, this just ensures the tuples are the same each time
 def species_to_linked_species(species1: Species, species2: Species):
-    if species1 < species2:
+    if species1.value < species2.value:
         return (species1, species2)
     else:
         return (species2, species1)
@@ -94,9 +96,15 @@ class Shop:
             SHOP_TIER_TO_MAX_SHOP_SLOTS[self.shop_tier] - len(new_slots), 0
         )
 
-        pet_pool = 
+        num_pets_available = self.shop_tier * 10
         for _ in range(num_free_slots):
-            new_slots.append(ShopSlot(get_base_pet(Species.NONE)))
+            chosen_species = random.randrange(0, num_pets_available)
+            chosen_species_tier = (chosen_species // 10) + 1
+            chosen_species_idx_in_tier = chosen_species % 10
+            base_pet = shop_tier_to_pets_map[chosen_species_tier][
+                chosen_species_idx_in_tier
+            ]
+            new_slots.append(ShopSlot(base_pet))
 
         self.slots = new_slots
 
