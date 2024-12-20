@@ -51,12 +51,33 @@ class Pet:
             and self.effect == other.effect
         )
 
-    def has_higher_stats(self, other: "Pet"):
+    def get_total_experience(self):
+        exp = self.experience
+        if self.level == 2:
+            exp += 3
+        if self.level == 3:
+            exp += 6
+        return exp
+
+    def combine_onto(self, pet2: "Pet"):
+        pet1 = self
+        if pet2._has_higher_stats(pet1):
+            # important. use pet2 first. So if both have equal stats, we'll USE pet2 (due to the implementation of has_higher_stats)
+            updated_pet = pet2.add_stats(attack=1, health=1)
+        else:
+            updated_pet = pet1.add_stats(attack=1, health=1)
+
+        # how update the level and experience
+        total_experience = pet1.level * pet1.experience + pet2.experience
+
+        return updated_pet
+
+    def _has_higher_stats(self, other: "Pet"):
         self_stats = self.attack + self.health
         other_stats = other.attack + other.health
         return self_stats >= other_stats
 
-    def update_stats(self, delta_attack: int, delta_health: int):
-        self.attack += delta_attack
-        self.health += delta_health
+    def add_stats(self, *, attack: int, health: int):
+        self.attack += attack
+        self.health += health
         return self
