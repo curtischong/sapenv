@@ -30,6 +30,9 @@ STARTING_GOLD = 10
 PET_COST = 3
 ROLL_COST = 1
 
+STARTING_HEARTS = 5
+TURN_AT_WHICH_THEY_GAIN_ONE_LOST_HEART = 3
+
 
 def dummy_trigger_fn():
     pass
@@ -177,3 +180,13 @@ class BattleResult(Enum):
     TEAM1_WIN = auto()
     TEAM2_WIN = auto()
     TIE = auto()
+
+
+NUM_WINS_TO_WIN = 10
+MAX_GAMES_LENGTH = 30  # if they play more than these number of turns, they lose automatically (to prevent infinite episodes)
+
+
+class GameResult(Enum):
+    CONTINUE = auto()
+    WIN = auto()
+    LOSE = auto()
