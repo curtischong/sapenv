@@ -4,9 +4,11 @@ from all_types_and_consts import (
     MAX_TEAM_SIZE,
     PET_COST,
     ROLL_COST,
+    BattleResult,
     Species,
     MAX_SHOP_SLOTS,
 )
+from battle import battle
 from pet_data import get_base_pet
 from shop import Shop
 from team import Team
@@ -17,6 +19,7 @@ class Player:
     def __init__(self, team: Team):
         self.team = team
         self.shop = Shop()
+        self.turn_number = 0
 
     @staticmethod
     def init_starting_player():
@@ -227,3 +230,16 @@ class Player:
         for slot_idx in range(len(self.shop.linked_slots)):
             mask[slot_idx] = True
         return mask
+
+    def end_turn_action(self) -> BattleResult:
+        battle_result = battle(self.team, self.team)  # todo: get opponent team
+        self.turn_number += 1
+        return battle_result
+
+    # to help the model, you can only end turn if you have no gold
+    # we can remove this restriction in the future?
+    def end_turn_action_mask(self) -> np.ndarray:
+        if self.shop.gold > 0:
+            return np.zeros((1), dtype=np.bool)
+        else:
+            return np.ones((1), dtype=np.bool)
