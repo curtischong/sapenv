@@ -1,5 +1,7 @@
 import itertools
 from all_types_and_consts import (
+    MAX_SHOP_SLOTS,
+    MAX_SHOP_LINKED_SLOTS,
     PET_COST,
     STARTING_GOLD,
     ShopTier,
@@ -9,6 +11,7 @@ from all_types_and_consts import (
 from pet import Pet
 import random
 from pet_data import shop_tier_to_pets_map
+import numpy as np
 
 ROUND_TO_SHOP_TIER: dict[int, ShopTier] = {
     1: 1,
@@ -145,17 +148,28 @@ class Shop:
         else:
             return bought_linked_slot.pet2
 
-    # def get_linked_slot_state(self):
-    #     species1 = [linked_slot.pet1.species for linked_slot in self.linked_slots]
-    #     species2 = [linked_slot.pet2.species for linked_slot in self.linked_slots]
-    #     attack = [slot.pet.attack for slot in self.slots]
-    #     health = [slot.pet.health for slot in self.slots]
-    #     is_frozen = [slot.is_frozen for slot in self.slots]
+    def get_observation(self):
+        slot_pets = [slot.pet for slot in self.slots]
+        slot_pets_observation = Pet.get_base_stats_observation(
+            slot_pets,
+        )
+        is_slot_pet_frozen = np.bool([slot.is_frozen for slot in self.slots])
 
-    #     return {
-    #         "species1": species1,
-    #         "species2": species2,
-    #         "attacks": attack,
-    #         "healths": health,
-    #         "is_frozen": is_frozen,
-    #     }
+        linked_slot_pets1 = [linked_slot.pet1 for linked_slot in self.linked_slots]
+        linked_slot_pets2 = [linked_slot.pet2 for linked_slot in self.linked_slots]
+        linked_slot_observation1 = Pet.get_base_stats_observation(linked_slot_pets1)
+        linked_slot_observation2 = Pet.get_base_stats_observation(linked_slot_pets2)
+        return {
+            "shop_animals": slot_pets_observation | {"is_frozen": is_slot_pet_frozen},
+            "shop_linked_animals_space": {
+                "species1": linked_slot_observation1["species"],
+                "species2": linked_slot_observation2["species"],
+                "attacks1": linked_slot_observation1["attacks"],
+                "attacks2": linked_slot_observation2["attacks"],
+                "healths1": linked_slot_observation1["healths"],
+                "healths2": linked_slot_observation2["healths"],
+            },
+            # "shop_num_foods": np.zeros(
+            #     (2,), dtype=np.int32
+            # ),  # todo: this is wrong. we need to init, but one hot encode
+        }

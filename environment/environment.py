@@ -3,6 +3,7 @@ import numpy as np
 from all_types_and_consts import MAX_SHOP_LINKED_SLOTS, MAX_TEAM_SIZE, Species
 from environment.state_space import env_observation_space, get_initial_observation
 from environment.action_space import env_action_space
+from player import Player
 
 
 class SuperAutoPetsEnv(gym.Env):
@@ -14,13 +15,13 @@ class SuperAutoPetsEnv(gym.Env):
         # Combine into a single observation space
         self.observation_space = env_observation_space
         self.action_space = env_action_space
+        self.player = Player.init_starting_player()
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
-        # Initialize a starting observation
-
+        self.player = Player.init_starting_player()
         # Return observation and possibly some additional info
-        return get_initial_observation(), {}
+        return get_initial_observation(self.player), {}
 
     def step(self, action):
         # Implement your logic for applying the action and transitioning to the next state
@@ -35,13 +36,13 @@ class SuperAutoPetsEnv(gym.Env):
         # Typically you'd return the current state of the team and shop
         return {
             "team": {
-                "ids": np.zeros((5,), dtype=np.int32),
+                "species": np.zeros((5,), dtype=np.int32),
                 "attacks": np.zeros((5,), dtype=np.int32),
                 "healths": np.zeros((5,), dtype=np.int32),
                 "levels": np.ones((5,), dtype=np.int32),
             },
             "shop_animals": {
-                "ids": np.zeros((3,), dtype=np.int32),
+                "species": np.zeros((3,), dtype=np.int32),
                 "attacks": np.zeros((3,), dtype=np.int32),
                 "healths": np.zeros((3,), dtype=np.int32),
                 "tiers": np.ones((3,), dtype=np.int32),

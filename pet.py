@@ -1,3 +1,4 @@
+import numpy as np
 from all_types_and_consts import (
     MAX_PET_EXPERIENCE,
     PetExperience,
@@ -10,7 +11,7 @@ class Pet:
     def __init__(
         self,
         *,
-        species: str,
+        species: Species,
         attack: int,
         health: int,
         experience: PetExperience,
@@ -105,6 +106,24 @@ class Pet:
         self.attack = attack
         self.health = health
         return self
+
+    @staticmethod
+    def get_base_stats_observation(pets: list["Pet"]):
+        num_pets = len(pets)
+        species = np.zeros((len(Species), num_pets), dtype=np.bool)
+        attacks = np.zeros((num_pets,), dtype=np.int32)
+        healths = np.zeros((num_pets,), dtype=np.int32)
+
+        for idx, pet in enumerate(pets):
+            species[pet.species.value, idx] = 1
+            attacks[idx] = pet.attack
+            healths[idx] = pet.health
+
+        return {
+            "species": species,
+            "attacks": attacks,
+            "healths": healths,
+        }
 
     def __repr__(self):
         level = self.get_level()
