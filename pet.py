@@ -1,5 +1,4 @@
-from all_types_and_consts import PetExperience, PetLevel
-from pet_data import Species
+from all_types_and_consts import PetExperience, PetLevel, Species
 
 
 class Pet:
@@ -11,7 +10,8 @@ class Pet:
         health: int,
         level: PetLevel,
         experience: PetExperience,
-        effect: Effect | None,
+        # effect: Effect | None,  # TODO: add effect
+        effect=None,
     ):
         self.species = species
         self.attack = attack
@@ -21,7 +21,7 @@ class Pet:
         self.effect = effect
 
     @staticmethod
-    def define_base_stats(species: Species, attack: int, health: int):
+    def define_base_stats(*, species: Species, attack: int, health: int):
         return Pet(
             species=species,
             attack=attack,
@@ -29,4 +29,24 @@ class Pet:
             level=1,
             experience=1,
             effect=None,
+        )
+
+    def clone(self):
+        return Pet(
+            species=self.species,
+            attack=self.attack,
+            health=self.health,
+            level=self.level,
+            experience=self.experience,
+            effect=self.effect,
+        )
+
+    def __eq__(self, other: "Pet"):
+        return (
+            self.species == other.species
+            and self.attack == other.attack
+            and self.health == other.health
+            and self.level == other.level
+            and self.experience == other.experience
+            and self.effect == other.effect
         )
