@@ -99,9 +99,7 @@ class Player:
         pet_at_team_idx = self.team.pets[target_team_idx]
 
         is_player_trying_to_combine = shop_pet_species == pet_at_team_idx.species
-        if pet_at_team_idx != Species.NONE and not is_player_trying_to_combine:
-            # the player is trying to put the bought spot to an incompatible pet. fail
-            return False
+        assert pet_at_team_idx == Species.NONE or is_player_trying_to_combine
 
         bought_pet = self.shop.buy_pet_at_slot(slot_idx)
         if is_player_trying_to_combine:
@@ -110,12 +108,28 @@ class Player:
             self.team.pets[target_team_idx] = bought_pet
 
     def buy_pet_action_mask(self) -> np.ndarray:
+        # prevent buying if the player does not have enough gold
         if self.shop.gold < PET_COST:
             return np.zeros((MAX_SHOP_SLOTS, MAX_TEAM_SIZE), dtype=np.bool)
 
-        # we need to verify if we place the pet at the target location after buying
-        mask = np.ones((MAX_SHOP_SLOTS), dtype=np.bool)
-        # TODO
+        mask = np.ones((MAX_SHOP_SLOTS, MAX_TEAM_SIZE), dtype=np.bool)
+        for slot_idx in range(MAX_SHOP_SLOTS):
+            # prevent buying a none pet
+            shop_pet = self.shop.pet_at_slot(slot_idx)
+            if shop_pet.species == Species.NONE:
+                mask[slot_idx, :] = False
+                continue
+
+            for target_team_idx in range(MAX_TEAM_SIZE):
+                target_team_pet = self.team.pets[target_team_idx]
+
+                # you can only buy if you are combining or placing the pet into an empty position
+                if (
+                    shop_pet.species != target_team_pet.species  # you are not combining
+                    and target_team_pet != Species.NONE  #  the target pos is not empty
+                ):
+                    mask[slot_idx, target_team_idx] = False
+        return mask
 
     def buy_linked_pet_action(
         self, linked_slot_idx: int, is_pet1_bought: bool, target_team_idx: int
