@@ -96,6 +96,7 @@ class Shop:
             SHOP_TIER_TO_MAX_SHOP_SLOTS[self.shop_tier] - len(new_slots), 0
         )
 
+        # multiply by 10 since right now, in the game, there are 10 pets per tier
         num_pets_available = self.shop_tier * 10
         for _ in range(num_free_slots):
             chosen_species = random.randrange(0, num_pets_available)
