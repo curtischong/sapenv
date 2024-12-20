@@ -37,13 +37,13 @@ class SuperAutoPetsEnv(gym.Env):
         # Typically you'd return the current state of the team and shop
         return {
             "team": {
-                "ids": np.zeros((5,), dtype=np.int32),
+                "species": np.zeros((5,), dtype=np.int32),
                 "attacks": np.zeros((5,), dtype=np.int32),
                 "healths": np.zeros((5,), dtype=np.int32),
                 "levels": np.ones((5,), dtype=np.int32),
             },
             "shop_animals": {
-                "ids": np.zeros((3,), dtype=np.int32),
+                "species": np.zeros((3,), dtype=np.int32),
                 "attacks": np.zeros((3,), dtype=np.int32),
                 "healths": np.zeros((3,), dtype=np.int32),
                 "tiers": np.ones((3,), dtype=np.int32),

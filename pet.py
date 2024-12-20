@@ -1,3 +1,4 @@
+import numpy as np
 from all_types_and_consts import (
     MAX_PET_EXPERIENCE,
     PetExperience,
@@ -105,6 +106,36 @@ class Pet:
         self.attack = attack
         self.health = health
         return self
+
+    @staticmethod
+    def get_observations_for_pets_exclude_experience(pets: list["Pet"]):
+        num_pets = len(pets)
+        species = np.zeros((len(Species), num_pets), dtype=np.bool)
+        attacks = np.zeros((num_pets,), dtype=np.int32)
+        healths = np.zeros((num_pets,), dtype=np.int32)
+
+        for idx, pet in enumerate(pets):
+            species[pet.species, idx] = 1
+            attacks[idx] = pet.attack
+            healths[idx] = pet.health
+
+        return {
+            "species": species,
+            "attacks": attacks,
+            "healths": healths,
+        }
+
+    @staticmethod
+    def get_observations_for_pets(pets: list["Pet"]):
+        num_pets = len(pets)
+        experience = np.zeros((num_pets,), dtype=np.int32)
+
+        for idx, pet in enumerate(pets):
+            experience[idx] = pet.experience
+
+        return Pet.get_observations_for_pets(pets) | {
+            "experience": experience,
+        }
 
     def __repr__(self):
         level = self.get_level()

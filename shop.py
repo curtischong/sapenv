@@ -1,5 +1,6 @@
 import itertools
 from all_types_and_consts import (
+    MAX_SHOP_SLOTS,
     MAX_SHOP_LINKED_SLOTS,
     PET_COST,
     STARTING_GOLD,
@@ -148,40 +149,29 @@ class Shop:
             return bought_linked_slot.pet2
 
     def get_observation(self):
+        slot_pets = [slot.pet for slot in self.slots]
+        slot_observations = Pet.get_observations_for_pets_exclude_experience(
+            slot_pets,
+        )
+        linked_slot_pets1 = [linked_slot.pet1 for linked_slot in self.linked_slots]
+        linked_slot_pets2 = [linked_slot.pet2 for linked_slot in self.linked_slots]
+        linked_slot_observations1 = Pet.get_observations_for_pets_exclude_experience(
+            linked_slot_pets1
+        )
+        linked_slot_observations2 = Pet.get_observations_for_pets_exclude_experience(
+            linked_slot_pets2
+        )
         return {
-            "shop_animals": {
-                "species": np.zeros((3,), dtype=np.int32),
-                "attacks": np.zeros((3,), dtype=np.int32),
-                "healths": np.zeros((3,), dtype=np.int32),
-                "tiers": np.ones((3,), dtype=np.int32),
-            },
+            "shop_animals": slot_observations,
             "shop_linked_animals_space": {
-                "species1": np.zeros(
-                    (len(Species), MAX_SHOP_LINKED_SLOTS), dtype=np.int32
-                ),
-                "species2": np.zeros(
-                    (len(Species), MAX_SHOP_LINKED_SLOTS), dtype=np.int32
-                ),
-                "attacks": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.int32),
-                "healths": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.int32),
-                "is_frozen": np.zeros((MAX_SHOP_LINKED_SLOTS,), dtype=np.bool),
+                "species1": linked_slot_observations1["species"],
+                "species2": linked_slot_observations2["species"],
+                "attacks1": linked_slot_observations1["attacks"],
+                "attacks2": linked_slot_observations2["attacks"],
+                "healths1": linked_slot_observations1["healths"],
+                "healths2": linked_slot_observations2["healths"],
             },
             # "shop_num_foods": np.zeros(
             #     (2,), dtype=np.int32
             # ),  # todo: this is wrong. we need to init, but one hot encode
         }
-
-    # def get_linked_slot_state(self):
-    #     species1 = [linked_slot.pet1.species for linked_slot in self.linked_slots]
-    #     species2 = [linked_slot.pet2.species for linked_slot in self.linked_slots]
-    #     attack = [slot.pet.attack for slot in self.slots]
-    #     health = [slot.pet.health for slot in self.slots]
-    #     is_frozen = [slot.is_frozen for slot in self.slots]
-
-    #     return {
-    #         "species1": species1,
-    #         "species2": species2,
-    #         "attacks": attack,
-    #         "healths": health,
-    #         "is_frozen": is_frozen,
-    #     }
