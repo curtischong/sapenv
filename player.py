@@ -1,7 +1,10 @@
-from all_types_and_consts import Species
+import itertools
+import math
+from all_types_and_consts import MAX_TEAM_SIZE, Species
 from pet_data import get_base_pet
 from shop import Shop
 from team import Team
+import numpy as np
 
 
 class Player:
@@ -33,22 +36,36 @@ class Player:
 
     # TODO: do we allow combining pets if the target pet is already at max level?
     # drag pet 1 to pet 2
-    def combine_pets(self, pet1_idx: int, pet2_idx: int) -> bool:
-        if pet1_idx == pet2_idx:
-            return False  # you cannot combine a pet with itself
+    def combine_pets_action(self, pet1_idx: int, pet2_idx: int) -> bool:
+        assert pet1_idx == pet2_idx
 
         pet1 = self.team.pets[pet1_idx]
         pet2 = self.team.pets[pet2_idx]
 
-        if pet1.species != pet2.species:
-            # you cannot combine pets of different species
-            return False
+        assert pet1.species != pet2.species
 
         new_pet = pet1.combine_onto(pet2)
         self.team.pets[pet2_idx] = new_pet
         self.team.pets[pet1_idx] = get_base_pet(Species.NONE)
-
         # PERF: do we delete the old pet?
+
+    def combine_pets_action_mask(self) -> np.ndarray:
+        # the mask is NOT of size n choose 2 since the order of the merged pet matters (dictates who we're merging ONTO).
+        mask = np.ones((MAX_TEAM_SIZE, MAX_TEAM_SIZE), dtype=np.bool)
+
+        for pet1_idx, pet2_idx in itertools.combinations(range(MAX_TEAM_SIZE), 2):
+            # you cannot combine a pet with itself
+            if pet1_idx == pet2_idx:
+                mask[pet1_idx, pet2_idx] = False
+                continue
+
+            # you cannot combine pets of different species
+            pet1 = self.team.pets[pet1_idx]
+            pet2 = self.team.pets[pet2_idx]
+            if pet1.species != pet2.species:
+                mask[pet1_idx, pet2_idx] = False
+                mask[pet2_idx, pet1_idx] = False
+        return mask
 
     def buy_pet_at_slot(self, slot_idx: int, target_team_idx: int) -> bool:
         shop_pet_species = self.shop.pet_at_slot(slot_idx).species
