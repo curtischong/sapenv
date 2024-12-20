@@ -60,12 +60,11 @@ class Shop:
         # similar to roll_shop but there are higher chances for pets of the current tier
         if round_number in ROUND_TO_SHOP_TIER:
             self.shop_tier = ROUND_TO_SHOP_TIER[round_number]
-        self.randomize_shop()
+        self.roll_shop()
 
+    # I'm pretty sure that each animal has an EQUAL chance to be rolled. There is no special weighting for each species.
+    # the only time where the chances are different is when you get a linked slot. in which case it'll always show the shop tier + 1 (or max tier)
     def roll_shop(self):
-        self.randomize_shop()
-
-    def randomize_shop(self, shop_probabilities):
         new_slots = []
         for slot in self.linked_slots:
             if slot.is_frozen:
