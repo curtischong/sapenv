@@ -23,6 +23,8 @@ MIN_PET_EXPERIENCE = 0
 
 
 ShopTier = Literal[1, 2, 3, 4, 5, 6]
+
+
 MAX_SHOP_SLOTS = 7  # you can have at most 7 NORMAL shop indexes (5 from normal - 2 more if you freeze linked indexes)
 MAX_SHOP_LINKED_SLOTS = MAX_TEAM_SIZE  # since you can promote as most this many pets (by dragging from the shop to them)
 

@@ -2,6 +2,24 @@ import itertools
 from all_types_and_consts import ShopTier, Species, hidden_species
 from pet import Pet
 
+ROUND_TO_SHOP_TIER: dict[int, ShopTier] = {
+    1: 1,
+    3: 2,
+    5: 3,
+    7: 4,
+    9: 5,
+    11: 6,
+}
+
+SHOP_TIER_TO_MAX_SHOP_SLOTS: dict[ShopTier, int] = {
+    1: 3,
+    2: 3,
+    3: 4,
+    4: 4,
+    5: 5,
+    6: 5,
+}
+
 
 # since the linked species is independent of the order, this just ensures the tuples are the same each time
 def species_to_linked_species(species1: Species, species2: Species):
@@ -36,13 +54,16 @@ class Shop:
         self.shop_tier: ShopTier = 1
         self.slots: list[ShopSlot] = []
         self.linked_slots: list[ShopSlot] = []
+        self.is_frozen: list[bool] = []
 
-    def init_shop(self):
-        # same as roll_shop but there are higher chances for pets of the current tier
-        pass
+    def init_shop_for_round(self, round_number: int):
+        # similar to roll_shop but there are higher chances for pets of the current tier
+        if round_number in ROUND_TO_SHOP_TIER:
+            self.shop_tier = ROUND_TO_SHOP_TIER[round_number]
+        self.randomize_shop()
 
     def roll_shop(self):
-        pass
+        self.randomize_shop()
 
     def randomize_shop(self, shop_probabilities):
         new_slots = []
