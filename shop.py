@@ -8,7 +8,7 @@ from all_types_and_consts import (
 )
 from pet import Pet
 import random
-from pet_data import shop_tier_to_pets_map
+from pet_data import get_base_pet, shop_tier_to_pets_map
 import numpy as np
 
 ROUND_TO_SHOP_TIER: dict[int, ShopTier] = {
@@ -120,11 +120,13 @@ class Shop:
         self.slots = new_slots
 
     def pet_at_slot(self, idx: int) -> Pet:
-        assert idx < len(self.slots)
+        if idx >= len(self.slots):
+            return get_base_pet(Species.NONE)
         return self.slots[idx].pet
 
     def pet_at_linked_slot(self, idx: int, is_quering_for_pet1: bool) -> Pet:
-        assert idx < len(self.linked_slots)
+        if idx >= len(self.linked_slots):
+            return get_base_pet(Species.NONE)
         linked_slot = self.linked_slots[idx]
         if is_quering_for_pet1:
             return linked_slot.pet1
