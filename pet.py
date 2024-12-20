@@ -75,9 +75,11 @@ class Pet:
         pet1 = self
         if pet2._has_higher_stats(pet1):
             # important. use pet2 first. So if both have equal stats, we'll USE pet2 (due to the implementation of has_higher_stats)
-            updated_pet = pet2.add_stats(attack=1, health=1)
+            stats_to_add = pet1.experience
+            updated_pet = pet2.add_stats(attack=stats_to_add, health=stats_to_add)
         else:
-            updated_pet = pet1.add_stats(attack=1, health=1)
+            stats_to_add = pet2.experience
+            updated_pet = pet1.add_stats(attack=stats_to_add, health=stats_to_add)
 
         # now update the experience
         old_level = updated_pet.get_level()
