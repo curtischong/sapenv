@@ -33,7 +33,7 @@ linked_species = create_linked_species_list()
 
 class Shop:
     def __init__(self):
-        self.tier: ShopTier = 1
+        self.shop_tier: ShopTier = 1
         self.slots: list[ShopSlot] = []
         self.linked_slots: list[ShopSlot] = []
 
@@ -61,7 +61,7 @@ class Shop:
         self.slots = new_slots
 
     def freeze_pet(self, ShopSlot):
-        self.is_frozen[self.tier] = True
+        self.is_frozen[self.shop_tier] = True
 
 
 class LinkedShopSlot:
