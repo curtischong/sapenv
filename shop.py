@@ -49,12 +49,24 @@ def create_linked_species_list():
 linked_species = create_linked_species_list()
 
 
+class ShopSlot:
+    def __init__(self, pet: Pet):
+        self.pet = pet
+        self.is_frozen: bool = False
+
+
+class LinkedShopSlot:
+    def __init__(self, pet1: Pet, pet2: Pet):
+        self.pet1 = pet1
+        self.pet2 = pet2
+        self.is_frozen: bool = False
+
+
 class Shop:
     def __init__(self):
         self.shop_tier: ShopTier = 1
         self.slots: list[ShopSlot] = []
-        self.linked_slots: list[ShopSlot] = []
-        self.is_frozen: list[bool] = []
+        self.linked_slots: list[LinkedShopSlot] = []
 
     def init_shop_for_round(self, round_number: int):
         # similar to roll_shop but there are higher chances for pets of the current tier
@@ -71,7 +83,7 @@ class Shop:
                 new_slots.append(slot)
         self.linked_slots = []  # all linked slots disappear after the shop is randomized
 
-        # I tested in the game. If you freeze all the pets AND the linked slot, and you roll. the frozen pet (from the linked slot) will remain
+        # I tested in the game. If you freeze all the pets AND the linked slot, and you roll. the frozen pet (from the linked slot) will remain. You basically artificially increase your slots
 
         for slot in self.slots:
             if slot.is_frozen:
@@ -80,17 +92,17 @@ class Shop:
                 new_slots.append(ShopSlot())
         self.slots = new_slots
 
-    def freeze_pet(self, ShopSlot):
-        self.is_frozen[self.shop_tier] = True
+    # def get_linked_slot_state(self):
+    #     species1 = [linked_slot.pet1.species for linked_slot in self.linked_slots]
+    #     species2 = [linked_slot.pet2.species for linked_slot in self.linked_slots]
+    #     attack = [slot.pet.attack for slot in self.slots]
+    #     health = [slot.pet.health for slot in self.slots]
+    #     is_frozen = [slot.is_frozen for slot in self.slots]
 
-
-class LinkedShopSlot:
-    def __init__(self):
-        self.pet: Pet = None
-        self.is_frozen: bool = False
-
-
-class ShopSlot:
-    def __init__(self):
-        self.pet: Pet = None
-        self.is_frozen: bool = False
+    #     return {
+    #         "species1": species1,
+    #         "species2": species2,
+    #         "attacks": attack,
+    #         "healths": health,
+    #         "is_frozen": is_frozen,
+    #     }
