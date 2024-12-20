@@ -139,7 +139,7 @@ env_observation_space = spaces.Dict(
 
 
 def get_observation(player: Player):
-    # TODO: we should also store turn number, the shop tier, any extra "permanent stat increases" the shop has
+    # TODO: we should also any extra "permanent stat increases" the shop has, or temperaroy buffs pets have
     return {
         "team": player.team.get_observation()
         | player.shop.get_observation()

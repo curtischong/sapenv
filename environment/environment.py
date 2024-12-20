@@ -14,7 +14,7 @@ class SuperAutoPetsEnv(gym.Env):
     def __init__(self):
         self.observation_space = env_observation_space
         self.action_space = env_action_space
-        # self.player = Player.init_starting_player()
+        self.player = Player.init_starting_player()
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)

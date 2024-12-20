@@ -35,16 +35,16 @@ class Player:
         player.shop.init_shop_for_round()
         return player
 
-    def reorder_team_action(self, pet_start_idx: int, pet_end_idx: int):
+    def reorder_team_action(self, start_idx: int, end_idx: int):
         pets = self.team.pets
-        assert pets[pet_start_idx].species != Species.NONE
-        assert pet_start_idx != pet_end_idx
+        assert pets[start_idx].species != Species.NONE
+        assert start_idx != end_idx
 
         # Remove the pet from the old position
-        pet_to_move = pets.pop(pet_start_idx)
+        pet_to_move = pets.pop(start_idx)
 
         # Insert it into the new position
-        pets.insert(pet_end_idx, pet_to_move)
+        pets.insert(end_idx, pet_to_move)
 
         return True
 
@@ -194,12 +194,12 @@ class Player:
                         mask[linked_slot_idx, buy_pet_idx, target_team_idx] = False
         return mask
 
-    def sell_pet_action(self, slot_idx: int):
-        pet = self.team.pets[slot_idx]
+    def sell_pet_action(self, idx: int):
+        pet = self.team.pets[idx]
         assert pet.species != Species.NONE
         self.shop.gold += pet.get_level()
 
-        self.team.pets[slot_idx] = get_base_pet(Species.NONE)
+        self.team.pets[idx] = get_base_pet(Species.NONE)
 
     def sell_pet_action_mask(self) -> np.ndarray:
         mask = np.ones((MAX_TEAM_SIZE), dtype=np.bool)
