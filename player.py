@@ -84,3 +84,10 @@ class Player:
             self.team.pets[target_team_idx] = bought_pet.combine_onto(pet_at_team_idx)
         else:
             self.team.pets[target_team_idx] = bought_pet
+
+    def sell_pet_at_slot(self, slot_idx: int):
+        pet = self.team.pets[slot_idx]
+        assert pet.species != Species.NONE
+        self.shop.gold += pet.get_level()
+
+        self.team.pets[slot_idx] = get_base_pet(Species.NONE)
