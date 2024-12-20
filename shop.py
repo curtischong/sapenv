@@ -2,6 +2,24 @@ import itertools
 from all_types_and_consts import ShopTier, Species, hidden_species
 from pet import Pet
 
+ROUND_TO_SHOP_TIER: dict[int, ShopTier] = {
+    1: 1,
+    3: 2,
+    5: 3,
+    7: 4,
+    9: 5,
+    11: 6,
+}
+
+SHOP_TIER_TO_MAX_SHOP_SLOTS: dict[ShopTier, int] = {
+    1: 3,
+    2: 3,
+    3: 4,
+    4: 4,
+    5: 5,
+    6: 5,
+}
+
 
 # since the linked species is independent of the order, this just ensures the tuples are the same each time
 def species_to_linked_species(species1: Species, species2: Species):
@@ -31,46 +49,68 @@ def create_linked_species_list():
 linked_species = create_linked_species_list()
 
 
+class ShopSlot:
+    def __init__(self, pet: Pet):
+        self.pet = pet
+        self.is_frozen: bool = False
+
+
+class LinkedShopSlot:
+    def __init__(self, pet1: Pet, pet2: Pet):
+        self.pet1 = pet1
+        self.pet2 = pet2
+
+
 class Shop:
     def __init__(self):
         self.shop_tier: ShopTier = 1
         self.slots: list[ShopSlot] = []
-        self.linked_slots: list[ShopSlot] = []
+        self.linked_slots: list[LinkedShopSlot] = []
 
-    def init_shop(self):
-        # same as roll_shop but there are higher chances for pets of the current tier
-        pass
+    def init_shop_for_round(self, round_number: int):
+        # similar to roll_shop but there are higher chances for pets of the current tier
+        if round_number in ROUND_TO_SHOP_TIER:
+            self.shop_tier = ROUND_TO_SHOP_TIER[round_number]
+        self.roll_shop()
 
+    # I'm pretty sure that each animal has an EQUAL chance to be rolled. There is no special weighting for each species.
+    # the only time where the chances are different is when you get a linked slot. in which case it'll always show the shop tier + 1 (or max tier)
     def roll_shop(self):
-        pass
+        # 1) cary over all the frozen slots
 
-    def randomize_shop(self, shop_probabilities):
+        # all linked slots disappear after the shop is rolled
+        # In my implementation, if you freeze a linked shop slot, it's no longer a linked shop slot. you chose the species you care about.
+        # so you KNOW that there are no no frozen linked shop slots
+        self.linked_slots = []
+
         new_slots = []
-        for slot in self.linked_slots:
-            if slot.is_frozen:
-                new_slots.append(slot)
-        self.linked_slots = []  # all linked slots disappear after the shop is randomized
-
-        # I tested in the game. If you freeze all the pets AND the linked slot, and you roll. the frozen pet (from the linked slot) will remain
-
         for slot in self.slots:
             if slot.is_frozen:
                 new_slots.append(slot)
-            else:
-                new_slots.append(ShopSlot())
+
+        # for the free slots left, we generate them
+        # I tested in the game. If you freeze all the pets AND the linked slot, and you roll. the frozen pet (from the linked slot) will remain. You basically artificially increase your slots
+        num_free_slots = max(
+            SHOP_TIER_TO_MAX_SHOP_SLOTS[self.shop_tier] - len(new_slots), 0
+        )
+
+        pet_pool = 
+        for _ in range(num_free_slots):
+            new_slots.append(ShopSlot(get_base_pet(Species.NONE)))
+
         self.slots = new_slots
 
-    def freeze_pet(self, ShopSlot):
-        self.is_frozen[self.shop_tier] = True
+    # def get_linked_slot_state(self):
+    #     species1 = [linked_slot.pet1.species for linked_slot in self.linked_slots]
+    #     species2 = [linked_slot.pet2.species for linked_slot in self.linked_slots]
+    #     attack = [slot.pet.attack for slot in self.slots]
+    #     health = [slot.pet.health for slot in self.slots]
+    #     is_frozen = [slot.is_frozen for slot in self.slots]
 
-
-class LinkedShopSlot:
-    def __init__(self):
-        self.pet: Pet = None
-        self.is_frozen: bool = False
-
-
-class ShopSlot:
-    def __init__(self):
-        self.pet: Pet = None
-        self.is_frozen: bool = False
+    #     return {
+    #         "species1": species1,
+    #         "species2": species2,
+    #         "attacks": attack,
+    #         "healths": health,
+    #         "is_frozen": is_frozen,
+    #     }
