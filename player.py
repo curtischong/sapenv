@@ -104,11 +104,11 @@ class Player:
         shop_pet_species = self.shop.pet_at_slot(slot_idx).species
         pet_at_team_idx = self.team.pets[target_team_idx]
 
-        is_player_trying_to_combine = shop_pet_species == pet_at_team_idx.species
-        assert pet_at_team_idx == Species.NONE or is_player_trying_to_combine
+        is_player_combining_pets = shop_pet_species == pet_at_team_idx.species
+        assert pet_at_team_idx == Species.NONE or is_player_combining_pets
 
         bought_pet = self.shop.buy_pet_at_slot(slot_idx)
-        if is_player_trying_to_combine:
+        if is_player_combining_pets:
             self.team.pets[target_team_idx] = bought_pet.combine_onto(pet_at_team_idx)
         else:
             self.team.pets[target_team_idx] = bought_pet
@@ -130,10 +130,9 @@ class Player:
                 target_team_pet = self.team.pets[target_team_idx]
 
                 # you can only buy if you are combining or placing the pet into an empty position
-                if (
-                    shop_pet.species != target_team_pet.species  # you are not combining
-                    and target_team_pet != Species.NONE  #  the target pos is not empty
-                ):
+                is_target_position_occupied = target_team_pet != Species.NONE
+                is_player_combining_pets = shop_pet.species == target_team_pet.species
+                if is_target_position_occupied and not is_player_combining_pets:
                     mask[slot_idx, target_team_idx] = False
         return mask
 
@@ -175,10 +174,10 @@ class Player:
                     target_team_pet = self.team.pets[target_team_idx]
 
                     # you can only buy if you are combining or placing the pet into an empty position
+                    is_target_position_occupied = target_team_pet != Species.NONE
                     is_player_combining_pets = (
                         shop_pet.species == target_team_pet.species
                     )
-                    is_target_position_occupied = target_team_pet != Species.NONE
                     if is_target_position_occupied and not is_player_combining_pets:
                         mask[linked_slot_idx, buy_pet1_idx, target_team_idx] = False
         return mask
