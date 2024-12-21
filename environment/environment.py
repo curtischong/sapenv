@@ -19,7 +19,8 @@ class SuperAutoPetsEnv(gym.Env):
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
         self.player = Player.init_starting_player()
-        return get_observation(self.player), {}
+        obs = get_observation(self.player)
+        return obs, {}
 
     def step(self, action):
         # Implement your logic for applying the action and transitioning to the next state

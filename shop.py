@@ -182,7 +182,7 @@ class Shop:
         linked_slot_observation2 = Pet.get_base_stats_observation(linked_slot_pets2)
         return {
             "shop_animals": slot_pets_observation | {"is_frozen": is_slot_pet_frozen},
-            "shop_linked_animals_space": {
+            "shop_linked_animals": {
                 "species1": linked_slot_observation1["species"],
                 "species2": linked_slot_observation2["species"],
                 "attacks1": linked_slot_observation1["attacks"],
