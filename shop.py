@@ -172,7 +172,9 @@ class Shop:
         slot_pets_observation = Pet.get_base_stats_observation(
             slot_pets,
         )
-        is_slot_pet_frozen = np.bool([slot.is_frozen for slot in self.slots])
+        is_slot_pet_frozen = np.array(
+            [slot.is_frozen for slot in self.slots], dtype=bool
+        )
 
         linked_slot_pets1 = [linked_slot.pet1 for linked_slot in self.linked_slots]
         linked_slot_pets2 = [linked_slot.pet2 for linked_slot in self.linked_slots]
