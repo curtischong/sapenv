@@ -117,7 +117,7 @@ class Player:
         pet_at_team_idx = self.team.pets[target_team_idx]
 
         is_player_combining_pets = shop_pet_species == pet_at_team_idx.species
-        assert pet_at_team_idx == Species.NONE or is_player_combining_pets
+        assert pet_at_team_idx.species == Species.NONE or is_player_combining_pets
 
         bought_pet = self.shop.buy_pet_at_slot(slot_idx)
         if is_player_combining_pets:
@@ -142,7 +142,7 @@ class Player:
                 target_team_pet = self.team.pets[target_team_idx]
 
                 # you can only buy if you are combining or placing the pet into an empty position
-                is_target_position_occupied = target_team_pet != Species.NONE
+                is_target_position_occupied = target_team_pet.species != Species.NONE
                 is_player_combining_pets = shop_pet.species == target_team_pet.species
                 if is_target_position_occupied and not is_player_combining_pets:
                     mask[slot_idx, target_team_idx] = False
@@ -158,7 +158,7 @@ class Player:
 
         is_player_combining_pets = shop_pet_species == pet_at_team_idx.species
 
-        assert pet_at_team_idx == Species.NONE or is_player_combining_pets
+        assert pet_at_team_idx.species == Species.NONE or is_player_combining_pets
 
         bought_pet = self.shop.buy_pet_at_linked_slot(linked_slot_idx, is_pet1_bought)
         if is_player_combining_pets:
@@ -186,7 +186,9 @@ class Player:
                     target_team_pet = self.team.pets[target_team_idx]
 
                     # you can only buy if you are combining or placing the pet into an empty position
-                    is_target_position_occupied = target_team_pet != Species.NONE
+                    is_target_position_occupied = (
+                        target_team_pet.species != Species.NONE
+                    )
                     is_player_combining_pets = (
                         shop_pet.species == target_team_pet.species
                     )
@@ -222,7 +224,7 @@ class Player:
     def toggle_freeze_slot_action(self, slot_idx: int):
         self.shop.toggle_freeze_slot(slot_idx)
 
-    def toggle_freeze_slot_action_mask(self, slot_idx: int) -> np.ndarray:
+    def toggle_freeze_slot_action_mask(self) -> np.ndarray:
         mask = np.zeros((MAX_SHOP_SLOTS), dtype=bool)
 
         # ensure the slots we freeze/unfreeze are available
@@ -233,7 +235,7 @@ class Player:
     def freeze_pet_at_linked_slot(self, slot_idx: int, is_freezing_pet1: bool):
         self.shop.freeze_pet_at_linked_slot(slot_idx, is_freezing_pet1)
 
-    def freeze_pet_at_linked_slot_action_mask(self, slot_idx: int) -> np.ndarray:
+    def freeze_pet_at_linked_slot_action_mask(self) -> np.ndarray:
         mask = np.zeros((MAX_SHOP_LINKED_SLOTS), dtype=bool)
         for slot_idx in range(len(self.shop.linked_slots)):
             mask[slot_idx] = True

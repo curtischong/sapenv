@@ -22,6 +22,7 @@ from gymnasium import spaces
 import numpy as np
 import gymnasium as gym
 
+from environment.action_space import get_action_masks
 from player import Player
 
 # Team: up to 5 animals
@@ -143,7 +144,7 @@ env_observation_space = spaces.Dict(
 
 def get_observation(player: Player):
     # TODO: we should also any extra "permanent stat increases" the shop has, or temporary buffs pets have
-    return (
+    observation = (
         {"team": player.team.get_observation()}
         | player.shop.get_observation()
         | {
@@ -153,3 +154,5 @@ def get_observation(player: Player):
             "num_hearts": np.array([player.hearts], dtype=np.int32),
         }
     )
+    action_masks = get_action_masks(player)
+    return observation, action_masks
