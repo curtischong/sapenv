@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Dict, Union
 import gymnasium as gym
 import numpy as np
 
@@ -20,9 +20,13 @@ class FlattenObservation(gym.ObservationWrapper):
 
     def __init__(self, env):
         super(FlattenObservation, self).__init__(env)
-        self.observation_ranges, observation_space_size = (
+        observation_ranges, observation_space_size = (
             self.return_flatten_observation_defs(self.env.observation_space)
         )
+
+        self.observation_normalization = {}
+        for obs_def in observation_ranges:
+            self.observation_normalization[obs_def.path_key] = obs_def
 
         # for each obs, I need to divide by the range (so it's normalized between 0 and 1)
         self.observation_space = gym.spaces.Box(
@@ -58,7 +62,6 @@ class FlattenObservation(gym.ObservationWrapper):
                         )
                     )
                 elif type(value) is gym.spaces.Box:
-                    # TODO: handle if it's binary or box
                     observation_defs.append(
                         FlattenObservationDefinition(
                             path_key=path_key,
@@ -73,8 +76,24 @@ class FlattenObservation(gym.ObservationWrapper):
                 start_idx += observation_size
         return observation_defs, start_idx
 
-    def action(self, action):
-        return gym.spaces.unflatten(self.env.action_space, action)
+    def observation(self, obs: Dict[str, Dict | np.ndarray]):
+        obs_arr = np.ndarray(self.observation_space.shape, dtype=np.float32)
+        return self._recursively_flatten_obs(obs, obs_arr)
 
-    def reverse_action(self, action):
-        return gym.spaces.flatten(self.env.action_space, action)
+    def _recursively_flatten_obs(
+        self,
+        obs: Dict[str, Dict | np.ndarray],
+        obs_arr: np.ndarray,
+        root_path: str = "",
+    ):
+        for key, value in obs.items():
+            path_key = root_path + "_" + key
+            observation_def = self.observation_normalization[path_key]
+            if type(value) is dict:
+                self._recursively_flatten_obs(value, obs_arr, root_path=path_key)
+            else:
+                start_idx = observation_def.start_idx
+                end_idx = observation_def.start_idx + observation_def.size
+                obs_arr[start_idx:end_idx] = (
+                    value + observation_def.normalization_shift
+                ) / observation_def.normalization_amount
