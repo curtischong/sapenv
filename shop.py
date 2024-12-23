@@ -1,5 +1,6 @@
 import itertools
 from all_types_and_consts import (
+    MAX_SHOP_SLOTS,
     PET_COST,
     ROLL_COST,
     STARTING_GOLD,
@@ -11,6 +12,8 @@ from pet import Pet
 import random
 from pet_data import get_base_pet, shop_tier_to_pets_map
 import numpy as np
+
+from utils import extend_pet_array_to_length
 
 ROUND_TO_SHOP_TIER: dict[int, ShopTier] = {
     1: 1,
@@ -168,7 +171,9 @@ class Shop:
             return bought_linked_slot.pet2
 
     def get_observation(self):
-        slot_pets = [slot.pet for slot in self.slots]
+        slot_pets = extend_pet_array_to_length(
+            [slot.pet for slot in self.slots], MAX_SHOP_SLOTS
+        )
         slot_pets_observation = Pet.get_base_stats_observation(
             slot_pets,
         )
@@ -176,8 +181,12 @@ class Shop:
             [slot.is_frozen for slot in self.slots], dtype=bool
         )
 
-        linked_slot_pets1 = [linked_slot.pet1 for linked_slot in self.linked_slots]
-        linked_slot_pets2 = [linked_slot.pet2 for linked_slot in self.linked_slots]
+        linked_slot_pets1 = extend_pet_array_to_length(
+            [linked_slot.pet1 for linked_slot in self.linked_slots], MAX_SHOP_SLOTS
+        )
+        linked_slot_pets2 = extend_pet_array_to_length(
+            [linked_slot.pet2 for linked_slot in self.linked_slots], MAX_SHOP_SLOTS
+        )
         linked_slot_observation1 = Pet.get_base_stats_observation(linked_slot_pets1)
         linked_slot_observation2 = Pet.get_base_stats_observation(linked_slot_pets2)
         return {
