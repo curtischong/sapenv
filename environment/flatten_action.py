@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Union
 import gymnasium as gym
+import numpy as np
 
 from environment.action_space import get_action_masks
 # https://gist.github.com/colllin/1172e042edf267d5ec667fa9802673cf
@@ -24,14 +25,40 @@ class FlattenAction(gym.ActionWrapper):
             self.env.action_space, action_def_map=self.action_def_map
         )  # TODO: binary search for which bucket you're in
         print(self.action_ranges)
-        self.action_space = gym.spaces.MultiBinary(num_actions)
+        self.action_space: gym.spaces.MultiBinary = gym.spaces.MultiBinary(num_actions)
 
-    def get_action_masks(self):
+    def get_action_masks(self) -> np.ndarray:
         # given the dictionary action mask of the environment, return a flattened version of it
         dict_action_mask = get_action_masks(self.env.player)
+        num_actions = self.action_space.n
 
-        for key, value in dict_action_mask.items():
-            pass
+        mask = np.empty((num_actions,), dtype=bool)
+        self.build_action_mask(
+            action_mask=mask,
+            action_dict=dict_action_mask,
+        )
+
+        return mask
+
+    def build_action_mask(
+        self,
+        action_mask: np.ndarray,
+        action_dict: dict[str, Union[dict | gym.spaces.MultiBinary]],
+        root_path: str = "",
+    ):
+        for key, value in action_dict.items():
+            path_key = root_path + "_" + key
+            if type(value) is dict:
+                self.build_action_mask(
+                    action_mask=action_mask,
+                    action_dict=value,
+                    root_path=path_key,
+                )
+            else:
+                flatten_action_def = self.action_def_map[path_key]
+                start_idx = flatten_action_def.start_idx
+                end_idx = start_idx + flatten_action_def.size
+                action_mask[start_idx:end_idx] = value
 
     def return_flattened_action_ranges(
         self,
