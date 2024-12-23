@@ -10,21 +10,21 @@ class FlattenAction(gym.ActionWrapper):
         super(FlattenAction, self).__init__(env)
         # self.action_space = gym.spaces.flatten_space(self.env.action_space)
         self.action_ranges, num_actions = self.return_flattened_action_ranges(
-            0, self.env.action_space
+            self.env.action_space
         )  # TODO: binary search for which bucket you're in
         print(self.action_ranges)
         self.action_space = gym.spaces.MultiBinary(num_actions)
 
     def return_flattened_action_ranges(
         self,
-        start_idx: int,
         action_dict: dict[str, Union[dict | gym.spaces.MultiBinary]],
+        start_idx=0,
     ):
         actions_ranges = []  # list of tuple: (action_name, start_idx, end_idx])
         for key, value in action_dict.items():
             if type(value) is gym.spaces.Dict:
                 flattened_ranges, start_idx = self.return_flattened_action_ranges(
-                    start_idx, value
+                    value, start_idx
                 )
                 actions_ranges.extend(flattened_ranges)
             else:
