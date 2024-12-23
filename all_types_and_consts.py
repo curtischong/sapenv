@@ -3,11 +3,12 @@ from enum import Enum, auto
 
 MAX_TEAM_SIZE = 5
 
-MIN_ATTACK = 1
+# set min attack and min health to 0 because that will be the value for the NONE pet
+MIN_ATTACK = 0
 MAX_ATTACK = 50
 
 
-MIN_HEALTH = 1
+MIN_HEALTH = 0
 MAX_HEALTH = 50
 
 
