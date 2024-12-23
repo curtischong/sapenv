@@ -17,6 +17,8 @@ from environment.flatten_action import FlattenAction
 from environment.environment import SuperAutoPetsEnv
 from environment.flatten_observation import FlattenObservation
 
+from sb3_contrib.common.wrappers import ActionMasker
+
 
 def train_with_masks(ret):
     """

@@ -15,17 +15,19 @@ class SuperAutoPetsEnv(gym.Env):
         self.observation_space = env_observation_space
         self.action_space = env_action_space
         self.player = Player.init_starting_player()
-        self.action_masks = None
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
         self.player = Player.init_starting_player()
-        obs, self.action_masks = get_observation(self.player)
+        obs = get_observation(self.player)
         return obs, {}
+
+    # def action_masks(self):
+    #     return get_action_masks(self.player)
 
     def step(self, action):
         # Implement your logic for applying the action and transitioning to the next state
-        observation, self.action_masks = get_observation(self.player)
+        observation = get_observation(self.player)
 
         game_result = GameResult.CONTINUE
         if False:  # TODO: only run this if they run end turn

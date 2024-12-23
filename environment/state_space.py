@@ -154,5 +154,6 @@ def get_observation(player: Player):
             "num_hearts": np.array([player.hearts], dtype=np.int32),
         }
     )
-    action_masks = get_action_masks(player)
-    return observation, action_masks
+    return observation
+    # action_masks = get_action_masks(player)
+    # return observation, action_masks
