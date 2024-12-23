@@ -43,13 +43,13 @@ class FlattenObservation(gym.ObservationWrapper):
     ) -> tuple[list[FlattenObservationDefinition], int]:
         observation_defs = []  # list of tuple: (action_name, start_idx, end_idx])
         for key, value in observation_dict.items():
+            path_key = root_path + "|" + key
             if type(value) is gym.spaces.Dict:
                 flattened_ranges, start_idx = self.return_flatten_observation_defs(
-                    value, root_path + "_" + key, start_idx
+                    value, path_key, start_idx
                 )
                 observation_defs.extend(flattened_ranges)
             else:
-                path_key = root_path + "_" + key
                 observation_size = np.sum(value.shape)
                 if type(value) is gym.spaces.MultiBinary:
                     observation_defs.append(
@@ -88,7 +88,7 @@ class FlattenObservation(gym.ObservationWrapper):
         root_path: str = "",
     ):
         for key, value in obs.items():
-            path_key = root_path + "_" + key
+            path_key = root_path + "|" + key
             if type(value) is dict:
                 self._recursively_flatten_obs(value, obs_arr, root_path=path_key)
             else:

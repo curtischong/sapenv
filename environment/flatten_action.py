@@ -25,7 +25,7 @@ class FlattenAction(gym.ActionWrapper):
             self.env.action_space, action_def_map=self.action_def_map
         )  # TODO: binary search for which bucket you're in
         print(self.action_def_map)
-        self.action_space: gym.spaces.MultiBinary = gym.spaces.MultiBinary(num_actions)
+        self.action_space: gym.spaces.Discrete = gym.spaces.Discrete(num_actions)
 
     def action_masks(self) -> np.ndarray:
         # given the dictionary action mask of the environment, return a flattened version of it
@@ -47,7 +47,7 @@ class FlattenAction(gym.ActionWrapper):
         root_path: str = "",
     ):
         for key, value in action_dict.items():
-            path_key = root_path + "_" + key
+            path_key = root_path + "|" + key
             if type(value) is dict:
                 self.build_action_mask(
                     action_mask=action_mask,
@@ -68,7 +68,7 @@ class FlattenAction(gym.ActionWrapper):
         start_idx=0,
     ):
         for key, value in action_dict.items():
-            path_key = root_path + "_" + key
+            path_key = root_path + "|" + key
             if type(value) is gym.spaces.Dict:
                 start_idx = self.return_flattened_action_ranges(
                     action_dict=value,
@@ -84,8 +84,10 @@ class FlattenAction(gym.ActionWrapper):
                 start_idx += size
         return start_idx
 
-    def action(self, action):
-        return gym.spaces.unflatten(self.env.action_space, action)
+    def action(self, action: np.int64):
+        # I need to somehow turn this action into the right action key, and then get the proper params
+        # return gym.spaces.unflatten(self.env.action_space, action)
+        pass
 
     def reverse_action(self, action):
         return gym.spaces.flatten(self.env.action_space, action)
