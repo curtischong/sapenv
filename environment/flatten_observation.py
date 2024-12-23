@@ -20,16 +20,14 @@ class FlattenObservation(gym.ObservationWrapper):
 
     def __init__(self, env):
         super(FlattenObservation, self).__init__(env)
-        # self.action_space = gym.spaces.flatten_space(self.env.action_space)
-        self.observation_ranges, num_actions = self.return_flatten_observation_defs(
-            self.env.observation_space
+        self.observation_ranges, observation_space_size = (
+            self.return_flatten_observation_defs(self.env.observation_space)
         )
 
         # for each obs, I need to divide by the range (so it's normalized between 0 and 1)
         self.observation_space = gym.spaces.Box(
-            low=0.0, high=1.0, shape=self.env.observation_space.shape, dtype=np.float32
+            low=0.0, high=1.0, shape=(observation_space_size,), dtype=np.float32
         )
-        print("observation_space", self.observation_space)
 
     # we need 2 functions: one to flatten the env into a box env to define the gym environment
     # and one to flatten dictionaries of the box env
