@@ -32,7 +32,7 @@ class Player:
     @staticmethod
     def init_starting_player():
         player = Player(Team.init_starting_team())
-        player.shop.init_shop_for_round()
+        player.shop.init_shop_for_round(round_number=1)
         return player
 
     def reorder_team_action(self, start_idx: int, end_idx: int):
@@ -49,7 +49,7 @@ class Player:
         return True
 
     def reorder_team_action_mask(self) -> np.ndarray:
-        mask = np.ones((MAX_TEAM_SIZE, MAX_TEAM_SIZE), dtype=np.bool)
+        mask = np.ones((MAX_TEAM_SIZE, MAX_TEAM_SIZE), dtype=bool)
 
         # cannot use itertools.combinations since reordering does NOT commute (who is the first pet matters)
         for pet_start_idx in range(MAX_TEAM_SIZE):
@@ -83,7 +83,7 @@ class Player:
 
     def combine_pets_action_mask(self) -> np.ndarray:
         # the mask is NOT of size n choose 2 since the order of the merged pet matters (dictates who we're merging ONTO).
-        mask = np.ones((MAX_TEAM_SIZE, MAX_TEAM_SIZE), dtype=np.bool)
+        mask = np.ones((MAX_TEAM_SIZE, MAX_TEAM_SIZE), dtype=bool)
 
         # we can use itertools since combine_pets validity commutes
         for pet1_idx, pet2_idx in itertools.combinations(range(MAX_TEAM_SIZE), 2):
@@ -128,9 +128,9 @@ class Player:
     def buy_pet_action_mask(self) -> np.ndarray:
         # prevent buying if the player does not have enough gold
         if self.shop.gold < PET_COST:
-            return np.zeros((MAX_SHOP_SLOTS, MAX_TEAM_SIZE), dtype=np.bool)
+            return np.zeros((MAX_SHOP_SLOTS, MAX_TEAM_SIZE), dtype=bool)
 
-        mask = np.ones((MAX_SHOP_SLOTS, MAX_TEAM_SIZE), dtype=np.bool)
+        mask = np.ones((MAX_SHOP_SLOTS, MAX_TEAM_SIZE), dtype=bool)
         for slot_idx in range(MAX_SHOP_SLOTS):
             # prevent buying a none pet
             shop_pet = self.shop.pet_at_slot(slot_idx)
@@ -169,9 +169,9 @@ class Player:
     def buy_linked_pet_action_mask(self) -> np.ndarray:
         # prevent buying if the player does not have enough gold
         if self.shop.gold < PET_COST:
-            return np.zeros((MAX_SHOP_LINKED_SLOTS, 2, MAX_TEAM_SIZE), dtype=np.bool)
+            return np.zeros((MAX_SHOP_LINKED_SLOTS, 2, MAX_TEAM_SIZE), dtype=bool)
 
-        mask = np.ones((MAX_SHOP_SLOTS, 2, MAX_TEAM_SIZE), dtype=np.bool)
+        mask = np.ones((MAX_SHOP_SLOTS, 2, MAX_TEAM_SIZE), dtype=bool)
         for linked_slot_idx in range(MAX_SHOP_LINKED_SLOTS):
             for buy_pet1 in [True, False]:
                 buy_pet_idx = 0 if buy_pet1 else 1
@@ -202,7 +202,7 @@ class Player:
         self.team.pets[idx] = get_base_pet(Species.NONE)
 
     def sell_pet_action_mask(self) -> np.ndarray:
-        mask = np.ones((MAX_TEAM_SIZE), dtype=np.bool)
+        mask = np.ones((MAX_TEAM_SIZE), dtype=bool)
         for slot_idx in range(MAX_TEAM_SIZE):
             pet = self.team.pets[slot_idx]
             # you cannot sell an empty pet
@@ -215,15 +215,15 @@ class Player:
 
     def roll_shop_action_mask(self) -> np.ndarray:
         if self.shop.gold < ROLL_COST:
-            return np.zeros((1), dtype=np.bool)
+            return np.zeros((1), dtype=bool)
         else:
-            return np.ones((1), dtype=np.bool)
+            return np.ones((1), dtype=bool)
 
     def toggle_freeze_slot_action(self, slot_idx: int):
         self.shop.toggle_freeze_slot(slot_idx)
 
     def toggle_freeze_slot_action_mask(self, slot_idx: int) -> np.ndarray:
-        mask = np.zeros((MAX_SHOP_SLOTS), dtype=np.bool)
+        mask = np.zeros((MAX_SHOP_SLOTS), dtype=bool)
 
         # ensure the slots we freeze/unfreeze are available
         for slot_idx in range(len(self.shop.slots)):
@@ -234,7 +234,7 @@ class Player:
         self.shop.freeze_pet_at_linked_slot(slot_idx, is_freezing_pet1)
 
     def freeze_pet_at_linked_slot_action_mask(self, slot_idx: int) -> np.ndarray:
-        mask = np.zeros((MAX_SHOP_LINKED_SLOTS), dtype=np.bool)
+        mask = np.zeros((MAX_SHOP_LINKED_SLOTS), dtype=bool)
         for slot_idx in range(len(self.shop.linked_slots)):
             mask[slot_idx] = True
         return mask
@@ -257,6 +257,9 @@ class Player:
         ):
             self.hearts += 1
 
+        # since we moved onto the next round, we need to init it for the current round
+        self.shop.init_shop_for_round(self.turn_number)
+
         # if the player has no more lives, they lose
         if self.hearts <= 0 or self.turn_number >= MAX_GAMES_LENGTH:
             return GameResult.LOSE
@@ -268,6 +271,6 @@ class Player:
     # we can remove this restriction in the future?
     def end_turn_action_mask(self) -> np.ndarray:
         if self.shop.gold > 0:
-            return np.zeros((1), dtype=np.bool)
+            return np.zeros((1), dtype=bool)
         else:
-            return np.ones((1), dtype=np.bool)
+            return np.ones((1), dtype=bool)

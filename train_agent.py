@@ -12,8 +12,10 @@ import numpy as np
 import os
 import sys
 import logging as log
+from environment.flatten_action import FlattenAction
 
 from environment.environment import SuperAutoPetsEnv
+from environment.flatten_observation import FlattenObservation
 
 
 def train_with_masks(ret):
@@ -21,7 +23,9 @@ def train_with_masks(ret):
     method for performing agent training
     """
     # initialize environment
-    env = SuperAutoPetsEnv()
+    # env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
+    env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
+
     # eval_env = SuperAutoPetsEnv(opponent_generator, valid_actions_only=True)  # need separate eval env for
     # EvalCallback (this is the wrong env - not working)
 
@@ -81,38 +85,21 @@ def train_with_masks(ret):
     training_flag = True
     retry_counter = 0
     while training_flag:
-        try:
-            # reset environment before starting to train (useful when retrying)
-            obs = env.reset()
+        # reset environment before starting to train (useful when retrying)
+        obs = env.reset()
 
-            # stop training if number of retries reaches user-defined value
-            if retry_counter == ret.nb_retries:
-                break
-            # setup trainer and start learning
-            model.set_logger(logger)
-            model.learn(total_timesteps=ret.nb_steps, callback=checkpoint_callback)
-            evaluate_policy(
-                model, env, n_eval_episodes=100, reward_threshold=0, warn=False
-            )
-            obs = env.reset()
+        # stop training if number of retries reaches user-defined value
+        if retry_counter == ret.nb_retries:
+            break
+        # setup trainer and start learning
+        model.set_logger(logger)
+        model.learn(total_timesteps=ret.nb_steps, callback=checkpoint_callback)
+        evaluate_policy(model, env, n_eval_episodes=100, reward_threshold=0, warn=False)
+        obs = env.reset()
 
-            # if we reach 1M iterations, then training can stop, else, restart!
-            # training_flag = False
-            log.info("One full iter is done")
-            retry_counter += 1
-        except AssertionError as e1:
-            log.info("AssertionError: %s", e1)
-            retry_counter += 1
-        except TypeError as e2:
-            log.info("TypeError: %s", e2)
-            log.info("Model stopped training...")
-            retry_counter += 1
-        except ValueError as e3:
-            log.info("ValueError: %s", e3)
-            retry_counter += 1
-        except Exception as e4:
-            log.info("Exception: %s", e4)
-            retry_counter += 1
+        # if we reach 1M iterations, then training can stop, else, restart!
+        # training_flag = False
+        log.info("One full iter is done")
 
     # save best model
     model.save("./models/" + ret.model_name)

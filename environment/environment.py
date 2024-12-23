@@ -19,14 +19,18 @@ class SuperAutoPetsEnv(gym.Env):
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
         self.player = Player.init_starting_player()
-        return get_observation(self.player), {}
+        obs = get_observation(self.player)
+        return obs, {}
 
     def step(self, action):
         # Implement your logic for applying the action and transitioning to the next state
         observation = get_observation(self.player)  # Implement this method
-        game_result = (
-            self.player.end_turn_action()
-        )  # Get the game result after the action
+
+        game_result = GameResult.CONTINUE
+        if False:  # TODO: only run this if they run end turn
+            game_result = (
+                self.player.end_turn_action()
+            )  # Get the game result after the action
 
         # Determine if the game is done based on the result
         info = {"game_result": game_result}
@@ -35,6 +39,7 @@ class SuperAutoPetsEnv(gym.Env):
             reward = 100
             done = True
         elif game_result == GameResult.LOSE:
+            # the more wins you have, less the penalty
             reward = -100 + self.player.num_wins * 10
             done = True
 

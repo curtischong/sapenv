@@ -20,6 +20,7 @@ from all_types_and_consts import (
 )
 from gymnasium import spaces
 import numpy as np
+import gymnasium as gym
 
 from player import Player
 
@@ -30,7 +31,7 @@ team_space = spaces.Dict(
     {
         #     species_space = spaces.Discrete(len(Species))  # Each species is represented by an integer
         # team_space = spaces.Tuple([species_space] * MAX_TEAM_SIZE)
-        "species": spaces.MultiDiscrete([len(Species)] * MAX_TEAM_SIZE),
+        "species": spaces.MultiBinary([len(Species)] * MAX_TEAM_SIZE),
         "attacks": spaces.Box(
             low=MIN_ATTACK,
             high=MAX_ATTACK,
@@ -62,7 +63,7 @@ team_space = spaces.Dict(
 shop_animals_space = spaces.Dict(
     {
         # Create a space for each shop slot
-        "species": spaces.MultiDiscrete([len(Species)] * MAX_SHOP_SLOTS),
+        "species": spaces.MultiBinary([len(Species)] * MAX_SHOP_SLOTS),
         "attacks": spaces.Box(
             low=MIN_ATTACK,
             high=MAX_ATTACK,
@@ -81,8 +82,8 @@ shop_animals_space = spaces.Dict(
 shop_linked_animals_space = spaces.Dict(
     {
         # Create a space for each shop slot
-        "species1": spaces.MultiDiscrete([len(Species)] * MAX_SHOP_LINKED_SLOTS),
-        "species2": spaces.MultiDiscrete([len(Species)] * MAX_SHOP_LINKED_SLOTS),
+        "species1": spaces.MultiBinary([len(Species)] * MAX_SHOP_LINKED_SLOTS),
+        "species2": spaces.MultiBinary([len(Species)] * MAX_SHOP_LINKED_SLOTS),
         "attacks1": spaces.Box(
             low=MIN_ATTACK,
             high=MAX_ATTACK,
@@ -120,15 +121,17 @@ shop_num_foods_space = spaces.Box(
 )
 
 shop_gold_space = spaces.Box(low=0, high=MAX_GOLD, shape=(1,), dtype=np.int32)
-turn_number_space = spaces.Box(low=0, high=MAX_GAMES_LENGTH, shape=(1,), dtype=np.int32)
+turn_number_space = spaces.Box(low=1, high=MAX_GAMES_LENGTH, shape=(1,), dtype=np.int32)
 num_wins_space = spaces.Box(low=0, high=NUM_WINS_TO_WIN, shape=(1,), dtype=np.int32)
+
+# TODO: On the very last round, the player can have 0 hearts. To avoid potential problems, I set it to low=0. not low=1
 num_hearts_space = spaces.Box(low=0, high=STARTING_HEARTS, shape=(1,), dtype=np.int32)
 
 env_observation_space = spaces.Dict(
     {
         "team": team_space,
         "shop_animals": shop_animals_space,
-        "shop_linked_animals_space": shop_linked_animals_space,
+        "shop_linked_animals": shop_linked_animals_space,
         "shop_gold": shop_gold_space,
         "turn_number": turn_number_space,
         "num_wins": num_wins_space,
@@ -139,9 +142,9 @@ env_observation_space = spaces.Dict(
 
 
 def get_observation(player: Player):
-    # TODO: we should also any extra "permanent stat increases" the shop has, or temperaroy buffs pets have
-    return {
-        "team": player.team.get_observation()
+    # TODO: we should also any extra "permanent stat increases" the shop has, or temporary buffs pets have
+    return (
+        {"team": player.team.get_observation()}
         | player.shop.get_observation()
         | {
             "shop_gold": np.array([player.shop.gold], dtype=np.int32),
@@ -149,4 +152,4 @@ def get_observation(player: Player):
             "num_wins": np.array([player.num_wins], dtype=np.int32),
             "num_hearts": np.array([player.hearts], dtype=np.int32),
         }
-    }
+    )
