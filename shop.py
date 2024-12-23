@@ -13,7 +13,7 @@ import random
 from pet_data import get_base_pet, shop_tier_to_pets_map
 import numpy as np
 
-from utils import extend_pet_array_to_length
+from utils import extend_array_to_length, extend_pet_array_to_length
 
 ROUND_TO_SHOP_TIER: dict[int, ShopTier] = {
     1: 1,
@@ -171,24 +171,28 @@ class Shop:
             return bought_linked_slot.pet2
 
     def get_observation(self):
-        slot_pets = extend_pet_array_to_length(
-            [slot.pet for slot in self.slots], MAX_SHOP_SLOTS
-        )
         slot_pets_observation = Pet.get_base_stats_observation(
-            slot_pets,
+            extend_pet_array_to_length(
+                [slot.pet for slot in self.slots], MAX_SHOP_SLOTS
+            )
         )
         is_slot_pet_frozen = np.array(
-            [slot.is_frozen for slot in self.slots], dtype=bool
+            extend_array_to_length(
+                [slot.is_frozen for slot in self.slots], lambda: False
+            ),
+            dtype=bool,
         )
 
-        linked_slot_pets1 = extend_pet_array_to_length(
-            [linked_slot.pet1 for linked_slot in self.linked_slots], MAX_SHOP_SLOTS
+        linked_slot_observation1 = Pet.get_base_stats_observation(
+            extend_pet_array_to_length(
+                [linked_slot.pet1 for linked_slot in self.linked_slots], MAX_SHOP_SLOTS
+            )
         )
-        linked_slot_pets2 = extend_pet_array_to_length(
-            [linked_slot.pet2 for linked_slot in self.linked_slots], MAX_SHOP_SLOTS
+        linked_slot_observation2 = Pet.get_base_stats_observation(
+            extend_pet_array_to_length(
+                [linked_slot.pet2 for linked_slot in self.linked_slots], MAX_SHOP_SLOTS
+            )
         )
-        linked_slot_observation1 = Pet.get_base_stats_observation(linked_slot_pets1)
-        linked_slot_observation2 = Pet.get_base_stats_observation(linked_slot_pets2)
         return {
             "shop_animals": slot_pets_observation | {"is_frozen": is_slot_pet_frozen},
             "shop_linked_animals": {
