@@ -12,10 +12,10 @@ import numpy as np
 import os
 import sys
 import logging as log
-from gymnasium.wrappers import FlattenObservation
 from environment.flatten_action import FlattenAction
 
 from environment.environment import SuperAutoPetsEnv
+from environment.flatten_observation import FlattenObservation
 
 
 def train_with_masks(ret):
@@ -24,7 +24,7 @@ def train_with_masks(ret):
     """
     # initialize environment
     # env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
-    env = FlattenAction(SuperAutoPetsEnv())
+    env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
 
     # eval_env = SuperAutoPetsEnv(opponent_generator, valid_actions_only=True)  # need separate eval env for
     # EvalCallback (this is the wrong env - not working)
