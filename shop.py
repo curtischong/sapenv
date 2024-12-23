@@ -1,5 +1,6 @@
 import itertools
 from all_types_and_consts import (
+    MAX_SHOP_LINKED_SLOTS,
     MAX_SHOP_SLOTS,
     PET_COST,
     ROLL_COST,
@@ -173,24 +174,28 @@ class Shop:
     def get_observation(self):
         slot_pets_observation = Pet.get_base_stats_observation(
             extend_pet_array_to_length(
-                [slot.pet for slot in self.slots], MAX_SHOP_SLOTS
+                [slot.pet for slot in self.slots], length=MAX_SHOP_SLOTS
             )
         )
         is_slot_pet_frozen = np.array(
             extend_array_to_length(
-                [slot.is_frozen for slot in self.slots], lambda: False
+                [slot.is_frozen for slot in self.slots],
+                length=MAX_SHOP_SLOTS,
+                get_padded_value=lambda: False,
             ),
             dtype=bool,
         )
 
         linked_slot_observation1 = Pet.get_base_stats_observation(
             extend_pet_array_to_length(
-                [linked_slot.pet1 for linked_slot in self.linked_slots], MAX_SHOP_SLOTS
+                [linked_slot.pet1 for linked_slot in self.linked_slots],
+                length=MAX_SHOP_LINKED_SLOTS,
             )
         )
         linked_slot_observation2 = Pet.get_base_stats_observation(
             extend_pet_array_to_length(
-                [linked_slot.pet2 for linked_slot in self.linked_slots], MAX_SHOP_SLOTS
+                [linked_slot.pet2 for linked_slot in self.linked_slots],
+                length=MAX_SHOP_LINKED_SLOTS,
             )
         )
         return {
