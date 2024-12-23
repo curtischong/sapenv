@@ -4,19 +4,21 @@ from all_types_and_consts import MAX_SHOP_LINKED_SLOTS, MAX_SHOP_SLOTS, MAX_TEAM
 from player import Player
 
 # moves the pet from start_idx to end_idx
-reorder_team_space = spaces.MultiBinary([MAX_TEAM_SIZE, MAX_TEAM_SIZE])
+reorder_team_space = spaces.MultiBinary([MAX_TEAM_SIZE, MAX_TEAM_SIZE])  # 25
 
-combine_pets_space = spaces.MultiBinary([MAX_TEAM_SIZE, MAX_TEAM_SIZE])
+combine_pets_space = spaces.MultiBinary([MAX_TEAM_SIZE, MAX_TEAM_SIZE])  # 25
 
-buy_pet_space = spaces.MultiBinary([MAX_SHOP_SLOTS, MAX_TEAM_SIZE])
+buy_pet_space = spaces.MultiBinary([MAX_SHOP_SLOTS, MAX_TEAM_SIZE])  # 35
 
-buy_linked_pet_space = spaces.MultiBinary([MAX_SHOP_LINKED_SLOTS, 2, MAX_TEAM_SIZE])
-sell_pet_space = spaces.MultiBinary(MAX_TEAM_SIZE)  # index of pet you're selling
+buy_linked_pet_space = spaces.MultiBinary(
+    [MAX_SHOP_LINKED_SLOTS, 2, MAX_TEAM_SIZE]
+)  # 50
+sell_pet_space = spaces.MultiBinary(MAX_TEAM_SIZE)  # index of pet you're selling # 5
 
-roll_shop_space = spaces.MultiBinary(1)
-toggle_freeze_slot_space = spaces.MultiBinary(MAX_SHOP_SLOTS)
-freeze_pet_at_linked_slot_space = spaces.MultiBinary(MAX_SHOP_LINKED_SLOTS)
-end_turn_space = spaces.MultiBinary(1)
+roll_shop_space = spaces.MultiBinary(1)  # 1
+toggle_freeze_slot_space = spaces.MultiBinary(MAX_SHOP_SLOTS)  # 7
+freeze_pet_at_linked_slot_space = spaces.MultiBinary(MAX_SHOP_LINKED_SLOTS)  # 5
+end_turn_space = spaces.MultiBinary(1)  # 1
 
 env_action_space = spaces.Dict(
     {
