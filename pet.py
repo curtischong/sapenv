@@ -117,6 +117,8 @@ class Pet:
         healths = np.zeros((num_pets,), dtype=np.int32)
 
         for idx, pet in enumerate(pets):
+            if pet.species == Species.NONE:
+                continue
             species[pet.species.value, idx] = 1
             attacks[idx] = pet.attack
             healths[idx] = pet.health

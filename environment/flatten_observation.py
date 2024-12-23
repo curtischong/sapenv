@@ -24,7 +24,7 @@ class FlattenObservation(gym.ObservationWrapper):
             self.return_flatten_observation_defs(self.env.observation_space)
         )
 
-        self.observation_normalization = {}
+        self.observation_normalization: dict[str, FlattenObservationDefinition] = {}
         for obs_def in observation_ranges:
             self.observation_normalization[obs_def.path_key] = obs_def
 
@@ -78,7 +78,8 @@ class FlattenObservation(gym.ObservationWrapper):
 
     def observation(self, obs: Dict[str, Dict | np.ndarray]):
         obs_arr = np.ndarray(self.observation_space.shape, dtype=np.float32)
-        return self._recursively_flatten_obs(obs, obs_arr)
+        self._recursively_flatten_obs(obs, obs_arr)
+        return obs_arr
 
     def _recursively_flatten_obs(
         self,
@@ -88,12 +89,13 @@ class FlattenObservation(gym.ObservationWrapper):
     ):
         for key, value in obs.items():
             path_key = root_path + "_" + key
-            observation_def = self.observation_normalization[path_key]
             if type(value) is dict:
                 self._recursively_flatten_obs(value, obs_arr, root_path=path_key)
             else:
+                observation_def = self.observation_normalization[path_key]
                 start_idx = observation_def.start_idx
                 end_idx = observation_def.start_idx + observation_def.size
+                flattened_value = value.flatten()
                 obs_arr[start_idx:end_idx] = (
-                    value + observation_def.normalization_shift
+                    flattened_value + observation_def.normalization_shift
                 ) / observation_def.normalization_amount
