@@ -22,8 +22,8 @@ class SuperAutoPetsEnv(gym.Env):
         obs = get_observation(self.player)
         return obs, {}
 
-    # def action_masks(self):
-    #     return get_action_masks(self.player)
+    def action_masks(self):
+        return get_action_masks(self.player)
 
     def step(self, action):
         # Implement your logic for applying the action and transitioning to the next state

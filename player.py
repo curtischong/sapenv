@@ -171,7 +171,7 @@ class Player:
         if self.shop.gold < PET_COST:
             return np.zeros((MAX_SHOP_LINKED_SLOTS, 2, MAX_TEAM_SIZE), dtype=bool)
 
-        mask = np.ones((MAX_SHOP_SLOTS, 2, MAX_TEAM_SIZE), dtype=bool)
+        mask = np.ones((MAX_SHOP_LINKED_SLOTS, 2, MAX_TEAM_SIZE), dtype=bool)
         for linked_slot_idx in range(MAX_SHOP_LINKED_SLOTS):
             for buy_pet1 in [True, False]:
                 buy_pet_idx = 0 if buy_pet1 else 1

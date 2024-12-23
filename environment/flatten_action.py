@@ -20,16 +20,16 @@ class FlattenAction(gym.ActionWrapper):
     def __init__(self, env):
         super(FlattenAction, self).__init__(env)
         # self.action_space = gym.spaces.flatten_space(self.env.action_space)
-        self.action_def_map = {}
+        self.action_def_map: dict[str, FlattenActionDefinition] = {}
         num_actions = self.return_flattened_action_ranges(
             self.env.action_space, action_def_map=self.action_def_map
         )  # TODO: binary search for which bucket you're in
-        print(self.action_ranges)
+        print(self.action_def_map)
         self.action_space: gym.spaces.MultiBinary = gym.spaces.MultiBinary(num_actions)
 
-    def get_action_masks(self) -> np.ndarray:
+    def action_masks(self) -> np.ndarray:
         # given the dictionary action mask of the environment, return a flattened version of it
-        dict_action_mask = get_action_masks(self.env.player)
+        dict_action_mask = self.env.env.action_masks()
         num_actions = self.action_space.n
 
         mask = np.empty((num_actions,), dtype=bool)
@@ -58,7 +58,7 @@ class FlattenAction(gym.ActionWrapper):
                 flatten_action_def = self.action_def_map[path_key]
                 start_idx = flatten_action_def.start_idx
                 end_idx = start_idx + flatten_action_def.size
-                action_mask[start_idx:end_idx] = value
+                action_mask[start_idx:end_idx] = value.flatten()
 
     def return_flattened_action_ranges(
         self,
@@ -77,10 +77,11 @@ class FlattenAction(gym.ActionWrapper):
                     start_idx=start_idx,
                 )
             else:
+                size = np.prod(value.shape)
                 action_def_map[path_key] = FlattenActionDefinition(
-                    path_key=path_key, start_idx=start_idx, size=len(value.n)
+                    path_key=path_key, start_idx=start_idx, size=size
                 )
-                start_idx += value.n
+                start_idx += size
         return start_idx
 
     def action(self, action):
