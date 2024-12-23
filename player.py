@@ -258,7 +258,7 @@ class Player:
             self.hearts += 1
 
         # since we moved onto the next round, we need to init it for the current round
-        self.shop.init_shop_for_round(self.shop, self.turn_number)
+        self.shop.init_shop_for_round(self.turn_number)
 
         # if the player has no more lives, they lose
         if self.hearts <= 0 or self.turn_number >= MAX_GAMES_LENGTH:

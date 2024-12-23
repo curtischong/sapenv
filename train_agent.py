@@ -23,6 +23,7 @@ def train_with_masks(ret):
     method for performing agent training
     """
     # initialize environment
+    # env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
     env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
 
     # eval_env = SuperAutoPetsEnv(opponent_generator, valid_actions_only=True)  # need separate eval env for
