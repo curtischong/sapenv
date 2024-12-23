@@ -1,19 +1,23 @@
-from typing import Dict, Union
+from typing import Union
 import gymnasium as gym
+import numpy as np
 # https://gist.github.com/colllin/1172e042edf267d5ec667fa9802673cf
 
 
-class FlattenAction(gym.ActionWrapper):
+class FlattenObservation(gym.ObservationWrapper):
     """Action wrapper that flattens the action."""
 
     def __init__(self, env):
-        super(FlattenAction, self).__init__(env)
+        super(FlattenObservation, self).__init__(env)
         # self.action_space = gym.spaces.flatten_space(self.env.action_space)
         self.action_ranges, num_actions = self.return_flattened_action_ranges(
             0, self.env.action_space
-        )  # TODO: binary search for which bucket you're in
-        print(self.action_ranges)
-        self.action_space = gym.spaces.MultiBinary(num_actions)
+        )
+
+        # for each obs, I need to divide by the range (so it's normalized between 0 and 1)
+        self.observation_space = gym.spaces.Box(
+            low=0.0, high=1.0, shape=self.env.observation_space.shape, dtype=np.float32
+        )
 
     def return_flattened_action_ranges(
         self,
