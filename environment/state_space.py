@@ -121,7 +121,7 @@ shop_num_foods_space = spaces.Box(
 )
 
 shop_gold_space = spaces.Box(low=0, high=MAX_GOLD, shape=(1,), dtype=np.int32)
-turn_number_space = spaces.Box(low=0, high=MAX_GAMES_LENGTH, shape=(1,), dtype=np.int32)
+turn_number_space = spaces.Box(low=1, high=MAX_GAMES_LENGTH, shape=(1,), dtype=np.int32)
 num_wins_space = spaces.Box(low=0, high=NUM_WINS_TO_WIN, shape=(1,), dtype=np.int32)
 
 # TODO: On the very last round, the player can have 0 hearts. To avoid potential problems, I set it to low=0. not low=1

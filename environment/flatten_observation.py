@@ -21,7 +21,7 @@ class FlattenObservation(gym.ObservationWrapper):
     def __init__(self, env):
         super(FlattenObservation, self).__init__(env)
         # self.action_space = gym.spaces.flatten_space(self.env.action_space)
-        self.action_ranges, num_actions = self.return_flatten_observation_defs(
+        self.observation_ranges, num_actions = self.return_flatten_observation_defs(
             self.env.observation_space
         )
 
@@ -48,6 +48,7 @@ class FlattenObservation(gym.ObservationWrapper):
                 observation_defs.extend(flattened_ranges)
             else:
                 path_key = root_path + "_" + key
+                observation_size = np.sum(value.shape)
                 if type(value) is gym.spaces.MultiBinary:
                     observation_defs.append(
                         FlattenObservationDefinition(
@@ -55,7 +56,7 @@ class FlattenObservation(gym.ObservationWrapper):
                             normalization_shift=0,
                             normalization_amount=1.0,
                             start_idx=start_idx,
-                            size=value.n,
+                            size=observation_size,
                         )
                     )
                 elif type(value) is gym.spaces.Box:
@@ -64,14 +65,14 @@ class FlattenObservation(gym.ObservationWrapper):
                         FlattenObservationDefinition(
                             path_key=path_key,
                             normalization_shift=-value.low[0],
-                            normalization_amount=value.high[0] - value.low[0],
+                            normalization_amount=value.high[0] + 1 - value.low[0],
                             start_idx=start_idx,
-                            size=np.prod(value.shape),
+                            size=observation_size,
                         )
                     )
                 else:
                     raise ValueError(f"Unknown type {type(value)}")
-                start_idx += observation_defs[-1].size
+                start_idx += observation_size
         return observation_defs, start_idx
 
     def action(self, action):
