@@ -3,7 +3,8 @@ from typing import Union
 import gymnasium as gym
 import numpy as np
 
-from environment.action_space import get_action_masks
+from all_types_and_consts import SelectedAction
+
 # https://gist.github.com/colllin/1172e042edf267d5ec667fa9802673cf
 
 
@@ -12,6 +13,9 @@ class FlattenActionDefinition:
     path_key: str  # path to the action (in the dictionary)
     start_idx: int = 0
     size: int = 0
+    shape: tuple[
+        int, ...
+    ]  # if the action has multiple indices, this shape is important to determine WHICH INDEX the model chose to use (e.g. swap pets at index 1 and 3)
 
 
 class FlattenAction(gym.ActionWrapper):
@@ -79,15 +83,17 @@ class FlattenAction(gym.ActionWrapper):
             else:
                 size = np.prod(value.shape)
                 action_def_map[path_key] = FlattenActionDefinition(
-                    path_key=path_key, start_idx=start_idx, size=size
+                    path_key=path_key, start_idx=start_idx, size=size, shape=value.shape
                 )
                 start_idx += size
         return start_idx
 
-    def action(self, action: np.int64):
-        # I need to somehow turn this action into the right action key, and then get the proper params
-        # return gym.spaces.unflatten(self.env.action_space, action)
-        pass
-
-    def reverse_action(self, action):
-        return gym.spaces.flatten(self.env.action_space, action)
+    def action(self, action: np.int64) -> SelectedAction:
+        action_idx = action.item()
+        for path_key, action_def in self.action_def_map.items():
+            start_idx = action_def.start_idx
+            end_idx = start_idx + action_def.size
+            if start_idx <= action_idx < end_idx:
+                corresponding_indices = np.unravel_index(action_idx, action_def.shape)
+                return SelectedAction(path_key=path_key, params=corresponding_indices)
+        raise ValueError(f"Invalid action index {action_idx}")

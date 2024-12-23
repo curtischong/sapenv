@@ -25,7 +25,7 @@ class SuperAutoPetsEnv(gym.Env):
     def action_masks(self):
         return get_action_masks(self.player)
 
-    def step(self, action):
+    def step(self, action: tuple[str, tuple[int, ...]]):
         # Implement your logic for applying the action and transitioning to the next state
         observation = get_observation(self.player)
 
