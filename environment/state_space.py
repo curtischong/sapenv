@@ -141,22 +141,6 @@ env_observation_space = spaces.Dict(
 )
 
 
-# def get_observation(player: Player):
-#     # TODO: we should also any extra "permanent stat increases" the shop has, or temporary buffs pets have
-#     return spaces.flatten_space(
-#         spaces.Dict(
-#             {"team": player.team.get_observation()}
-#             | player.shop.get_observation()
-#             | {
-#                 "shop_gold": np.array([player.shop.gold], dtype=np.int32),
-#                 "turn_number": np.array([player.turn_number], dtype=np.int32),
-#                 "num_wins": np.array([player.num_wins], dtype=np.int32),
-#                 "num_hearts": np.array([player.hearts], dtype=np.int32),
-#             }
-#         )
-#     )
-
-
 def get_observation(player: Player):
     # TODO: we should also any extra "permanent stat increases" the shop has, or temporary buffs pets have
     return (
