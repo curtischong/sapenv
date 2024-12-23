@@ -159,7 +159,7 @@ env_observation_space = spaces.Dict(
 
 def get_observation(player: Player):
     # TODO: we should also any extra "permanent stat increases" the shop has, or temporary buffs pets have
-    return spaces.Dict(
+    return (
         {"team": player.team.get_observation()}
         | player.shop.get_observation()
         | {
