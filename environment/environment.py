@@ -53,7 +53,8 @@ class SuperAutoPetsEnv(gym.Env):
             reward = -100 + self.player.num_wins * 10
             done = True
 
-        return observation, reward, done, info
+        truncated = False  # if they don't wain the game in max number of turns, the model obviously isn't good enough
+        return observation, reward, truncated, done, info
 
     def render(self):
         # Render environment for human viewing
