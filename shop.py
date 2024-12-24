@@ -68,11 +68,19 @@ class ShopSlot:
         self.pet = pet
         self.is_frozen: bool = False
 
+    def __repr__(self):
+        if self.is_frozen:
+            return f"🧊{self.pet}🧊"
+        return str(self.pet)
+
 
 class LinkedShopSlot:
     def __init__(self, pet1: Pet, pet2: Pet):
         self.pet1 = pet1
         self.pet2 = pet2
+
+    def __repr__(self):
+        return f"{self.pet1}|--|{self.pet2})"
 
 
 class Shop:
@@ -120,7 +128,7 @@ class Shop:
             chosen_species_idx_in_tier = chosen_species % 10
             base_pet = shop_tier_to_pets_map[chosen_species_tier][
                 chosen_species_idx_in_tier
-            ]
+            ].clone()  # we need to clone the pet so we don't modify the original
             new_slots.append(ShopSlot(base_pet))
 
         self.slots = new_slots
@@ -212,3 +220,12 @@ class Shop:
             #     (2,), dtype=np.int32
             # ),  # todo: this is wrong. we need to init, but one hot encode
         }
+
+    def __repr__(self):
+        res = f"{self.gold}💰\n"
+        for slot in self.slots:
+            res += f" {slot} "
+        res += "\n"
+        for linked_slot in self.linked_slots:
+            res += f" {linked_slot} "
+        return res

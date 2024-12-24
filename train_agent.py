@@ -82,29 +82,24 @@ def train_with_masks(ret):
 
     # train
     log.info("Starting training...")
-    training_flag = True
-    retry_counter = 0
-    while training_flag:
+    for episode in range(ret.nb_games):
         # reset environment before starting to train (useful when retrying)
         obs = env.reset()
 
-        # stop training if number of retries reaches user-defined value
-        if retry_counter == ret.nb_retries:
-            break
         # setup trainer and start learning
         model.set_logger(logger)
         model.learn(total_timesteps=ret.nb_steps, callback=checkpoint_callback)
+        env.env.render()
         # evaluate_policy(model, env, n_eval_episodes=100, reward_threshold=0, warn=False)
         obs = env.reset()
 
-        # if we reach 1M iterations, then training can stop, else, restart!
-        # training_flag = False
         log.info("One full iter is done")
+        if episode % 10 == 0:
+            model.save("./models/" + ret.model_name)
 
-    # save best model
-    model.save("./models/" + ret.model_name)
-    del model  # delete the old model for sanity checking, because we are going to load model from disk next
 
+def eval_model(ret):
+    env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
     # load model
     trained_model = MaskablePPO.load("./models/" + ret.model_name)
 

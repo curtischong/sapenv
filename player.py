@@ -225,6 +225,8 @@ class Player:
         self.shop.toggle_freeze_slot(slot_idx)
 
     def toggle_freeze_slot_action_mask(self) -> np.ndarray:
+        # for now, disable toggle freeze slot
+        return np.zeros((MAX_SHOP_SLOTS), dtype=bool)
         mask = np.zeros((MAX_SHOP_SLOTS), dtype=bool)
 
         # ensure the slots we freeze/unfreeze are available
@@ -276,3 +278,9 @@ class Player:
             return np.zeros((1), dtype=bool)
         else:
             return np.ones((1), dtype=bool)
+
+    def __repr__(self):
+        stats = f"turn: {self.turn_number}, team:\n"
+        for pet in self.team.pets:
+            stats += f"{pet}\n"
+        return stats

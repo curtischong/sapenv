@@ -43,6 +43,7 @@ class SuperAutoPetsEnv(gym.Env):
             )  # Get the game result after the action
         else:
             game_result = GameResult.CONTINUE
+        print(f"turn: {self.player.turn_number}, action: {action_name}")
 
         # Determine if the game is done based on the result
         info = {"game_result": game_result}
@@ -61,4 +62,5 @@ class SuperAutoPetsEnv(gym.Env):
 
     def render(self):
         # Render environment for human viewing
-        pass
+        print(self.player)
+        print(f"shop: {self.player.shop}")
