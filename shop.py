@@ -128,7 +128,7 @@ class Shop:
             chosen_species_idx_in_tier = chosen_species % 10
             base_pet = shop_tier_to_pets_map[chosen_species_tier][
                 chosen_species_idx_in_tier
-            ]
+            ].clone()  # we need to clone the pet so we don't modify the original
             new_slots.append(ShopSlot(base_pet))
 
         self.slots = new_slots
