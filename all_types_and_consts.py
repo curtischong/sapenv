@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Literal
 from enum import Enum, auto
 
@@ -192,3 +193,9 @@ class GameResult(Enum):
     CONTINUE = auto()
     WIN = auto()
     LOSE = auto()
+
+
+@dataclass
+class SelectedAction:
+    path_key: str
+    params: tuple[int, ...]
