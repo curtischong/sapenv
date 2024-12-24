@@ -1,5 +1,8 @@
+from dataclasses import dataclass
 from enum import Enum, auto
+from typing import Callable
 from gymnasium import spaces
+import numpy as np
 
 from all_types_and_consts import MAX_SHOP_LINKED_SLOTS, MAX_SHOP_SLOTS, MAX_TEAM_SIZE
 from player import Player
@@ -32,6 +35,23 @@ class ActionName(Enum):
     TOGGLE_FREEZE_SLOT = auto()
     FREEZE_PET_AT_LINKED_SLOT = auto()
     END_TURN = auto()
+
+
+@dataclass
+class Action:
+    space: spaces.Space
+    get_mask: Callable[[Player], np.ndarray]
+    perform_action: Callable[[tuple[int, ...]], np.ndarray]
+
+
+# TDOO: finish this dict
+actions_dict = {
+    ActionName.REORDER_TEAM: Action(
+        space=reorder_team_space,
+        get_mask=lambda player: player.reorder_team_action_mask(),
+        perform_action=lambda params: player.reorder_team_action(params[0], params[1]),
+    ),
+}
 
 
 env_action_space = spaces.Dict(
