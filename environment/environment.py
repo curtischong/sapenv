@@ -43,7 +43,9 @@ class SuperAutoPetsEnv(gym.Env):
             )  # Get the game result after the action
         else:
             game_result = GameResult.CONTINUE
-        print(f"turn: {self.player.turn_number}, action: {action_name}")
+        # print(
+        #     f"turn: {self.player.turn_number}, action: {action_name}, result: {game_result}"
+        # )
 
         # Determine if the game is done based on the result
         info = {"game_result": game_result}
@@ -58,9 +60,10 @@ class SuperAutoPetsEnv(gym.Env):
             done = True
 
         truncated = False  # if they don't wain the game in max number of turns, the model obviously isn't good enough
-        return observation, reward, truncated, done, info
+        return observation, reward, done, truncated, info
 
     def render(self):
         # Render environment for human viewing
         print(self.player)
         print(f"shop: {self.player.shop}")
+        print("----------------------------------")

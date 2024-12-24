@@ -280,7 +280,7 @@ class Player:
             return np.ones((1), dtype=bool)
 
     def __repr__(self):
-        stats = f"turn: {self.turn_number}, team:\n"
+        stats = f"turn: {self.turn_number}, lives: {self.hearts}\u2764\ufe0f, team:\n"
         for pet in self.team.pets:
             stats += f"{pet}\n"
         return stats
