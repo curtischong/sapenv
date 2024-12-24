@@ -106,7 +106,7 @@ def eval_model(ret):
     log.info("Predicting...")
 
     # predict
-    obs = env.reset()
+    obs, info = env.reset()
     rewards = []
     for i in tqdm(range(ret.nb_games), "Games:"):
         # Predict outcome with model
@@ -115,7 +115,7 @@ def eval_model(ret):
             obs, action_masks=action_masks, deterministic=True
         )
 
-        obs, reward, done, info = env.step(action)
+        obs, reward, truncated, done, info = env.step(action)
         if done:
             obs = env.reset()
         rewards.append(reward)
