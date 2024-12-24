@@ -94,8 +94,13 @@ class FlattenAction(gym.ActionWrapper):
             start_idx = action_def.start_idx
             end_idx = start_idx + action_def.size
             if start_idx <= action_idx < end_idx:
-                corresponding_indices = np.unravel_index(
-                    action_idx - start_idx, action_def.shape
-                )
-                return SelectedAction(path_key=path_key, params=corresponding_indices)
+                if action_def.size == 1:
+                    return SelectedAction(path_key=path_key, params=[])
+                else:
+                    corresponding_indices = np.unravel_index(
+                        action_idx - start_idx, action_def.shape
+                    )
+                    return SelectedAction(
+                        path_key=path_key, params=corresponding_indices
+                    )
         raise ValueError(f"Invalid action index {action_idx}")
