@@ -85,13 +85,13 @@ class Player:
         # the mask is NOT of size n choose 2 since the order of the merged pet matters (dictates who we're merging ONTO).
         mask = np.ones((MAX_TEAM_SIZE, MAX_TEAM_SIZE), dtype=bool)
 
+        for i in range(MAX_TEAM_SIZE):
+            # this must be done outside the itertools.combinations loop since this index is outside the cases for n choose 2
+            # you cannot combine a pet with itself
+            mask[i, i] = False
+
         # we can use itertools since combine_pets validity commutes
         for pet1_idx, pet2_idx in itertools.combinations(range(MAX_TEAM_SIZE), 2):
-            # you cannot combine a pet with itself
-            if pet1_idx == pet2_idx:
-                mask[pet1_idx, pet2_idx] = False
-                continue
-
             # you cannot combine pets of different species
             pet1 = self.team.pets[pet1_idx]
             pet2 = self.team.pets[pet2_idx]
