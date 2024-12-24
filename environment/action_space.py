@@ -27,15 +27,15 @@ end_turn_space = spaces.MultiBinary(1)  # 1
 
 
 class ActionName(Enum):
-    REORDER_TEAM = auto()
-    COMBINE_PETS = auto()
-    BUY_PET = auto()
-    BUY_LINKED_PET = auto()
-    SELL_PET = auto()
-    ROLL_SHOP = auto()
-    TOGGLE_FREEZE_SLOT = auto()
-    FREEZE_PET_AT_LINKED_SLOT = auto()
-    END_TURN = auto()
+    REORDER_TEAM = "reorder_team"
+    COMBINE_PETS = "combine_pets"
+    BUY_PET = "buy_pet"
+    BUY_LINKED_PET = "buy_linked_pet"
+    SELL_PET = "sell_pet"
+    ROLL_SHOP = "roll_shop"
+    TOGGLE_FREEZE_SLOT = "toggle_freeze_slot"
+    FREEZE_PET_AT_LINKED_SLOT = "freeze_pet_at_linked_slot"
+    END_TURN = "end_turn"
 
 
 @dataclass
@@ -97,12 +97,12 @@ actions_dict: dict[ActionName, Action] = {
 
 
 env_action_space = spaces.Dict(
-    {action_name: action.space for action_name, action in actions_dict.items()}
+    {action_name.value: action.space for action_name, action in actions_dict.items()}
 )
 
 
 def get_action_masks(player: Player) -> dict[ActionName, np.ndarray]:
     return {
-        action_name: action.get_mask(player)
+        action_name.value: action.get_mask(player)
         for action_name, action in actions_dict.items()
     }

@@ -1,10 +1,15 @@
 import gymnasium as gym
-from all_types_and_consts import GameResult
+from all_types_and_consts import GameResult, SelectedAction
 from environment.state_space import (
     env_observation_space,
     get_observation,
 )
-from environment.action_space import env_action_space, get_action_masks
+from environment.action_space import (
+    ActionName,
+    env_action_space,
+    get_action_masks,
+    actions_dict,
+)
 from player import Player
 
 
@@ -25,8 +30,9 @@ class SuperAutoPetsEnv(gym.Env):
     def action_masks(self):
         return get_action_masks(self.player)
 
-    def step(self, action: tuple[str, tuple[int, ...]]):
-        # Implement your logic for applying the action and transitioning to the next state
+    def step(self, selected_action: SelectedAction):
+        action = actions_dict[ActionName(selected_action.path_key[1:])]
+        action.perform_action(self.player, selected_action.params)
         observation = get_observation(self.player)
 
         game_result = GameResult.CONTINUE
@@ -38,6 +44,7 @@ class SuperAutoPetsEnv(gym.Env):
         # Determine if the game is done based on the result
         info = {"game_result": game_result}
         reward = 0
+        done = False
         if game_result == GameResult.WIN:
             reward = 100
             done = True
