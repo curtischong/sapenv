@@ -37,6 +37,10 @@ STARTING_HEARTS = 5
 TURN_AT_WHICH_THEY_GAIN_ONE_LOST_HEART = 3
 
 
+# RL constants:
+MAX_ACTIONS_IN_TURN = 10
+
+
 def dummy_trigger_fn():
     pass
 
@@ -193,6 +197,7 @@ class GameResult(Enum):
     CONTINUE = auto()
     WIN = auto()
     LOSE = auto()
+    TRUNCATED = auto()
 
 
 @dataclass

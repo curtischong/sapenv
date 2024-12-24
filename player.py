@@ -264,8 +264,10 @@ class Player:
         # since we moved onto the next round, we need to init it for the current round
         self.shop.init_shop_for_round(self.turn_number)
 
+        if self.turn_number >= MAX_GAMES_LENGTH:
+            return GameResult.TRUNCATED
         # if the player has no more lives, they lose
-        if self.hearts <= 0 or self.turn_number >= MAX_GAMES_LENGTH:
+        if self.hearts <= 0:
             return GameResult.LOSE
         if self.num_wins == NUM_WINS_TO_WIN:
             return GameResult.WIN

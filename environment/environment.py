@@ -1,5 +1,5 @@
 import gymnasium as gym
-from all_types_and_consts import GameResult, SelectedAction
+from all_types_and_consts import MAX_ACTIONS_IN_TURN, GameResult, SelectedAction
 from battle import battle
 from environment.state_space import (
     env_observation_space,
@@ -21,10 +21,12 @@ class SuperAutoPetsEnv(gym.Env):
         self.observation_space = env_observation_space
         self.action_space = env_action_space
         self.player = Player.init_starting_player()
+        self.num_actions_in_turn = 0
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
         self.player = Player.init_starting_player()
+        self.num_actions_in_turn = 0
         obs = get_observation(self.player)
         return obs, {}
 
@@ -38,14 +40,25 @@ class SuperAutoPetsEnv(gym.Env):
         observation = get_observation(self.player)
 
         if action_name == ActionName.END_TURN:
+            self.num_actions_in_turn = 0
             game_result = (
                 self.player.end_turn_action()
             )  # Get the game result after the action
         else:
             game_result = GameResult.CONTINUE
+            self.num_actions_in_turn += 1
         # print(
         #     f"turn: {self.player.turn_number}, action: {action_name}, result: {game_result}"
         # )
+
+        if (
+            game_result == GameResult.TRUNCATED
+            or self.num_actions_in_turn > MAX_ACTIONS_IN_TURN
+        ):
+            done = True
+            truncated = True
+            info = {}
+            return observation, -100, done, truncated, info
 
         # Determine if the game is done based on the result
         info = {"game_result": game_result}
@@ -59,7 +72,7 @@ class SuperAutoPetsEnv(gym.Env):
             reward = -100 + self.player.num_wins * 10
             done = True
 
-        truncated = False  # if they don't wain the game in max number of turns, the model obviously isn't good enough
+        truncated = False
         return observation, reward, done, truncated, info
 
     def render(self):
