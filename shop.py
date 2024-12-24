@@ -68,11 +68,17 @@ class ShopSlot:
         self.pet = pet
         self.is_frozen: bool = False
 
+    def __repr__(self):
+        return f"ShopSlot(pet={self.pet}, is_frozen={self.is_frozen})"
+
 
 class LinkedShopSlot:
     def __init__(self, pet1: Pet, pet2: Pet):
         self.pet1 = pet1
         self.pet2 = pet2
+
+    def __repr__(self):
+        return f"LinkedShopSlot(pet1={self.pet1}, pet2={self.pet2})"
 
 
 class Shop:
@@ -212,3 +218,6 @@ class Shop:
             #     (2,), dtype=np.int32
             # ),  # todo: this is wrong. we need to init, but one hot encode
         }
+
+    def __repr__(self):
+        return f"Shop(gold={self.gold}, slots={self.slots}, linked_slots={self.linked_slots})"

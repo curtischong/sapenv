@@ -276,3 +276,9 @@ class Player:
             return np.zeros((1), dtype=bool)
         else:
             return np.ones((1), dtype=bool)
+
+    def __repr__(self):
+        stats = f"turn: {self.turn_number}, gold: {self.shop.gold}, team:"
+        for pet in self.team.pets:
+            stats += f"{pet}\n"
+        return stats

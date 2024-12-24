@@ -131,4 +131,4 @@ class Pet:
         level = self.get_level()
         level_experience = self.get_level_experience()
         # TODO: print effect
-        return f"Pet({self.species}, attack={self.attack}, health={self.health}, lvl{level}-{level_experience})"
+        return f"{self.species.name}: {self.attack}🗡 {self.health}♥ lvl{level}-{level_experience}"
