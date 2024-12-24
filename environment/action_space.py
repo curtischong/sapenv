@@ -44,12 +44,11 @@ class Action:
     perform_action: Callable[[tuple[int, ...]], np.ndarray]
 
 
-# TDOO: finish this dict
-actions_dict = {
+actions_dict: dict[str, Action] = {
     ActionName.REORDER_TEAM: Action(
         space=reorder_team_space,
         get_mask=lambda player: player.reorder_team_action_mask(),
-        perform_action=lambda params: player.reorder_team_action(params[0], params[1]),
+        perform_action=lambda player, params: player.reorder_team_action(*params),
     ),
 }
 
