@@ -232,7 +232,7 @@ class Player:
             mask[slot_idx] = True
         return mask
 
-    def freeze_pet_at_linked_slot(self, slot_idx: int, is_freezing_pet1: bool):
+    def freeze_pet_at_linked_slot_action(self, slot_idx: int, is_freezing_pet1: bool):
         self.shop.freeze_pet_at_linked_slot(slot_idx, is_freezing_pet1)
 
     def freeze_pet_at_linked_slot_action_mask(self) -> np.ndarray:
