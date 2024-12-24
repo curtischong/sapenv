@@ -11,8 +11,8 @@ from all_types_and_consts import SelectedAction
 @dataclass
 class FlattenActionDefinition:
     path_key: str  # path to the action (in the dictionary)
-    start_idx: int = 0
-    size: int = 0
+    start_idx: int
+    size: int
     shape: tuple[
         int, ...
     ]  # if the action has multiple indices, this shape is important to determine WHICH INDEX the model chose to use (e.g. swap pets at index 1 and 3)
@@ -94,6 +94,8 @@ class FlattenAction(gym.ActionWrapper):
             start_idx = action_def.start_idx
             end_idx = start_idx + action_def.size
             if start_idx <= action_idx < end_idx:
-                corresponding_indices = np.unravel_index(action_idx, action_def.shape)
+                corresponding_indices = np.unravel_index(
+                    action_idx - start_idx, action_def.shape
+                )
                 return SelectedAction(path_key=path_key, params=corresponding_indices)
         raise ValueError(f"Invalid action index {action_idx}")
