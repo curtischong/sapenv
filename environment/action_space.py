@@ -97,29 +97,12 @@ actions_dict: dict[ActionName, Action] = {
 
 
 env_action_space = spaces.Dict(
-    {
-        ActionName.REORDER_TEAM: reorder_team_space,
-        ActionName.COMBINE_PETS: combine_pets_space,
-        ActionName.BUY_PET: buy_pet_space,
-        ActionName.BUY_LINKED_PET: buy_linked_pet_space,
-        ActionName.SELL_PET: sell_pet_space,
-        ActionName.ROLL_SHOP: roll_shop_space,
-        ActionName.TOGGLE_FREEZE_SLOT: toggle_freeze_slot_space,
-        ActionName.FREEZE_PET_AT_LINKED_SLOT: freeze_pet_at_linked_slot_space,
-        ActionName.END_TURN: end_turn_space,
-    }
+    {action_name: action.space for action_name, action in actions_dict.items()}
 )
 
 
-def get_action_masks(player: Player):
+def get_action_masks(player: Player) -> dict[ActionName, np.ndarray]:
     return {
-        ActionName.REORDER_TEAM: player.reorder_team_action_mask(),
-        ActionName.COMBINE_PETS: player.combine_pets_action_mask(),
-        ActionName.BUY_PET: player.buy_pet_action_mask(),
-        ActionName.BUY_LINKED_PET: player.buy_linked_pet_action_mask(),
-        ActionName.SELL_PET: player.sell_pet_action_mask(),
-        ActionName.ROLL_SHOP: player.roll_shop_action_mask(),
-        ActionName.TOGGLE_FREEZE_SLOT: player.toggle_freeze_slot_action_mask(),
-        ActionName.FREEZE_PET_AT_LINKED_SLOT: player.freeze_pet_at_linked_slot_action_mask(),
-        ActionName.END_TURN: player.end_turn_action_mask(),
+        action_name: action.get_mask(player)
+        for action_name, action in actions_dict.items()
     }
