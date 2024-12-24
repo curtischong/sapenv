@@ -2,3 +2,5 @@
 __pycache__/
 /models/
 /history/
+
+*.DS_Store

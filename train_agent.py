@@ -94,7 +94,7 @@ def train_with_masks(ret):
         # setup trainer and start learning
         model.set_logger(logger)
         model.learn(total_timesteps=ret.nb_steps, callback=checkpoint_callback)
-        evaluate_policy(model, env, n_eval_episodes=100, reward_threshold=0, warn=False)
+        # evaluate_policy(model, env, n_eval_episodes=100, reward_threshold=0, warn=False)
         obs = env.reset()
 
         # if we reach 1M iterations, then training can stop, else, restart!

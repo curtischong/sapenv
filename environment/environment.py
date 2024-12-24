@@ -1,5 +1,6 @@
 import gymnasium as gym
 from all_types_and_consts import GameResult, SelectedAction
+from battle import battle
 from environment.state_space import (
     env_observation_space,
     get_observation,
@@ -31,15 +32,17 @@ class SuperAutoPetsEnv(gym.Env):
         return get_action_masks(self.player)
 
     def step(self, selected_action: SelectedAction):
-        action = actions_dict[ActionName(selected_action.path_key[1:])]
+        action_name = ActionName(selected_action.path_key[1:])
+        action = actions_dict[action_name]
         action.perform_action(self.player, selected_action.params)
         observation = get_observation(self.player)
 
-        game_result = GameResult.CONTINUE
-        if False:  # TODO: only run this if they run end turn
+        if action_name == ActionName.END_TURN:
             game_result = (
                 self.player.end_turn_action()
             )  # Get the game result after the action
+        else:
+            game_result = GameResult.CONTINUE
 
         # Determine if the game is done based on the result
         info = {"game_result": game_result}
