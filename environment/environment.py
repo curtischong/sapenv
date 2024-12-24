@@ -43,6 +43,7 @@ class SuperAutoPetsEnv(gym.Env):
             )  # Get the game result after the action
         else:
             game_result = GameResult.CONTINUE
+        # print(f"turn: {self.player.turn_number}")
 
         # Determine if the game is done based on the result
         info = {"game_result": game_result}
