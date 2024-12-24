@@ -66,3 +66,4 @@ class SuperAutoPetsEnv(gym.Env):
         # Render environment for human viewing
         print(self.player)
         print(f"shop: {self.player.shop}")
+        print("----------------------------------")

@@ -84,14 +84,14 @@ def train_with_masks(ret):
     log.info("Starting training...")
     for episode in range(ret.nb_games):
         # reset environment before starting to train (useful when retrying)
-        obs = env.reset()
+        obs, info = env.reset()
 
         # setup trainer and start learning
         model.set_logger(logger)
         model.learn(total_timesteps=ret.nb_steps, callback=checkpoint_callback)
         env.env.render()
         # evaluate_policy(model, env, n_eval_episodes=100, reward_threshold=0, warn=False)
-        obs = env.reset()
+        obs, info = env.reset()
 
         log.info("One full iter is done")
         if episode % 10 == 0:
@@ -115,9 +115,13 @@ def eval_model(ret):
             obs, action_masks=action_masks, deterministic=True
         )
 
-        obs, reward, truncated, done, info = env.step(action)
+        obs, reward, done, truncated, info = env.step(action)
         if done:
-            obs = env.reset()
+            env.env.render()
+            obs, info = env.reset()
         rewards.append(reward)
-    log.info(" ".join([str(sum(rewards)), str(len(rewards)), str(np.mean(rewards))]))
+    # log.info(" ".join([str(sum(rewards)), str(len(rewards)), str(np.mean(rewards))]))
+    print(f"sum rewards: {sum(rewards)}")
+    print(f"len rewards: {len(rewards)}")
+    print(f"mean rewards: {np.mean(rewards)}")
     env.close()
