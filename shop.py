@@ -69,7 +69,9 @@ class ShopSlot:
         self.is_frozen: bool = False
 
     def __repr__(self):
-        return f"ShopSlot(pet={self.pet}, is_frozen={self.is_frozen})"
+        if self.is_frozen:
+            return f"🧊{self.pet}🧊"
+        return str(self.pet)
 
 
 class LinkedShopSlot:
@@ -78,7 +80,7 @@ class LinkedShopSlot:
         self.pet2 = pet2
 
     def __repr__(self):
-        return f"LinkedShopSlot(pet1={self.pet1}, pet2={self.pet2})"
+        return f"{self.pet1}|--|{self.pet2})"
 
 
 class Shop:
@@ -220,4 +222,10 @@ class Shop:
         }
 
     def __repr__(self):
-        return f"Shop(gold={self.gold}, slots={self.slots}, linked_slots={self.linked_slots})"
+        res = f"{self.gold}💰\n"
+        for slot in self.slots:
+            res += f" {slot} "
+        res += "\n"
+        for linked_slot in self.linked_slots:
+            res += f" {linked_slot} "
+        return res
