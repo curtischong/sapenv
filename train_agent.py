@@ -23,7 +23,7 @@ from torch import nn
 
 custom_network = dict(
     activation_fn=nn.SiLU,
-    net_arch=[dict(pi=[64, 64], vf=[64, 64])],
+    net_arch=[dict(pi=[64, 64, 32], vf=[64, 64, 32])],
 )
 
 
