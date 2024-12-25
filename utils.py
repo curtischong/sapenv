@@ -20,3 +20,10 @@ def extend_pet_array_to_length(arr: list[Species], length: int):
     return extend_array_to_length(
         arr, length, get_padded_value=lambda: get_base_pet(Species.NONE)
     )
+
+
+def require_consent(prompt: str):
+    response = input(prompt).strip().lower()
+    if response != "yes":
+        print("Operation canceled.")
+        exit(0)

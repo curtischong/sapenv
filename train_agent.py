@@ -18,6 +18,15 @@ from environment.environment import SuperAutoPetsEnv
 from environment.flatten_observation import FlattenObservation
 import wandb
 from wandb.integration.sb3 import WandbCallback
+from torch import nn
+
+from utils import require_consent
+
+
+custom_network = dict(
+    activation_fn=nn.SiLU,
+    net_arch=dict(pi=[64, 64, 32], vf=[64, 64, 32]),
+)
 
 
 def train_with_masks(ret):
@@ -80,10 +89,17 @@ def train_with_masks(ret):
             "MlpPolicy",
             env,
             verbose=0,
+            policy_kwargs=custom_network,
             batch_size=ret.batch_size,
             learning_rate=ret.learning_rate,
             gamma=ret.gamma,
         )
+        # require the user to say yes if the path already exists: "./models/" + ret.model_name
+        path = f"./models/{ret.model_name}.zip"
+        if os.path.exists(path):
+            require_consent(
+                f"The path '{path}' already exists. Do you want to proceed? (yes/no): "
+            )
 
     # train
     log.info("Starting training...")
