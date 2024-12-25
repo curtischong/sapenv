@@ -59,6 +59,11 @@ class SuperAutoPetsEnv(gym.Env):
             done = True
             truncated = True
             info = {}
+            self.wandb_run.log(
+                {
+                    "truncated": True,
+                }
+            )
             return observation, -100, done, truncated, info
 
         # Determine if the game is done based on the result
@@ -74,7 +79,7 @@ class SuperAutoPetsEnv(gym.Env):
             done = True
         if done:
             if self.wandb_run:
-                self.wandb_run.log({"reward": reward})
+                self.wandb_run.log({"reward": reward, "truncated": False})
 
         truncated = False
         return observation, reward, done, truncated, info
