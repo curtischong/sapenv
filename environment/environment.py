@@ -73,7 +73,6 @@ class SuperAutoPetsEnv(gym.Env):
             reward = -100 + self.player.num_wins * 10
             done = True
         if done:
-            # print("reward: ", reward)
             if self.wandb_run:
                 self.wandb_run.log({"reward": reward})
 

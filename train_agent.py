@@ -24,11 +24,7 @@ def train_with_masks(ret):
     # Initialize wandb
     run = wandb.init(
         project="sap-ai",  # Choose an appropriate project name
-        config={
-            "algorithm": "PPO",  # Or whatever algorithm you're using
-            "learning_rate": 0.0003,  # Add your hyperparameters here
-            # Add other relevant config parameters
-        },
+        config={},
     )
 
     # initialize environment
@@ -102,7 +98,7 @@ def train_with_masks(ret):
             callback=[
                 checkpoint_callback,
                 WandbCallback(
-                    gradient_save_freq=100,
+                    # gradient_save_freq=100,
                     model_save_path=f"models/{run.id}",
                     verbose=2,
                 ),
