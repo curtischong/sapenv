@@ -29,7 +29,7 @@ def main(virtual_screen=False):
         "--nb_games",
         type=int,
         nargs="?",
-        default=1,
+        default=1024,
         help="number of games to run when evaluating model after training.",
     )
     parser.add_argument(
