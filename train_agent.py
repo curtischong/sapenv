@@ -116,7 +116,9 @@ def eval_model(ret):
             action, _states = trained_model.predict(
                 obs, action_masks=action_masks, deterministic=True
             )
+            env.readable_action_mask()
             print("actionname", env.action(action))
+            print("-----------------------------------")
 
             obs, reward, done, truncated, info = env.step(action)
             if truncated:
