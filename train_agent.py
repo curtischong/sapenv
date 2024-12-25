@@ -131,8 +131,10 @@ def eval_model(ret):
             # Predict outcome with model
             action_masks = get_action_masks(env)
             env.env.render()
+
+            # using deterministic=False helps it get stuck out of local minima: https://stackoverflow.com/questions/76510709/ppo-model-learns-well-then-predicts-only-negative-actions
             action, _states = trained_model.predict(
-                obs, action_masks=action_masks, deterministic=True
+                obs, action_masks=action_masks, deterministic=False
             )
             env.readable_action_mask()
             print("actionname", env.action(action))
