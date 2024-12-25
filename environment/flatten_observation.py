@@ -20,7 +20,7 @@ class FlattenObservation(gym.ObservationWrapper):
 
     def __init__(self, env):
         super(FlattenObservation, self).__init__(env)
-        observation_ranges, observation_space_size = (
+        observation_ranges, self.observation_space_size = (
             self.return_flatten_observation_defs(self.env.observation_space)
         )
 
@@ -30,7 +30,7 @@ class FlattenObservation(gym.ObservationWrapper):
 
         # for each obs, I need to divide by the range (so it's normalized between 0 and 1)
         self.observation_space = gym.spaces.Box(
-            low=0.0, high=1.0, shape=(observation_space_size,), dtype=np.float32
+            low=0.0, high=1.0, shape=(self.observation_space_size,), dtype=np.float32
         )
 
     # we need 2 functions: one to flatten the env into a box env to define the gym environment
@@ -73,12 +73,16 @@ class FlattenObservation(gym.ObservationWrapper):
                     )
                 else:
                     raise ValueError(f"Unknown type {type(value)}")
+                print(path_key, observation_size)
                 start_idx += observation_size
         return observation_defs, start_idx
 
     def observation(self, obs: Dict[str, Dict | np.ndarray]):
         obs_arr = np.ndarray(self.observation_space.shape, dtype=np.float32)
-        self._recursively_flatten_obs(obs, obs_arr)
+        obs_size = self._recursively_flatten_obs(obs, obs_arr)
+        assert (
+            obs_size == self.observation_space_size
+        ), "The defined observation size does not match the observation size the environment produces"
         return obs_arr
 
     def _recursively_flatten_obs(
@@ -87,10 +91,13 @@ class FlattenObservation(gym.ObservationWrapper):
         obs_arr: np.ndarray,
         root_path: str = "",
     ):
+        obs_size = 0
         for key, value in obs.items():
             path_key = root_path + "|" + key
             if type(value) is dict:
-                self._recursively_flatten_obs(value, obs_arr, root_path=path_key)
+                obs_size += self._recursively_flatten_obs(
+                    value, obs_arr, root_path=path_key
+                )
             else:
                 observation_def = self.observation_normalization[path_key]
                 start_idx = observation_def.start_idx
@@ -99,3 +106,6 @@ class FlattenObservation(gym.ObservationWrapper):
                 obs_arr[start_idx:end_idx] = (
                     flattened_value + observation_def.normalization_shift
                 ) / observation_def.normalization_amount
+                assert np.all(obs_arr[start_idx:end_idx] != np.nan)
+                obs_size += end_idx - start_idx
+        return obs_size

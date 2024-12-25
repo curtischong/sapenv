@@ -45,12 +45,6 @@ team_space = spaces.Dict(
             shape=(MAX_TEAM_SIZE,),
             dtype=np.int32,
         ),
-        "levels": spaces.Box(
-            low=MIN_PET_LEVEL,
-            high=MAX_PET_LEVEL,
-            shape=(MAX_TEAM_SIZE,),
-            dtype=np.int32,
-        ),
         "experiences": spaces.Box(
             low=MIN_PET_EXPERIENCE,
             high=MAX_PET_EXPERIENCE,

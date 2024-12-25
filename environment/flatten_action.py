@@ -42,6 +42,7 @@ class FlattenAction(gym.ActionWrapper):
             action_dict=dict_action_mask,
         )
 
+        assert not np.all(mask == 0)
         return mask
 
     def build_action_mask(
