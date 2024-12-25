@@ -33,7 +33,7 @@ def train_with_masks(ret):
 
     # initialize environment
     # env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
-    env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
+    env = FlattenAction(FlattenObservation(SuperAutoPetsEnv(wandb_run=run)))
 
     # eval_env = SuperAutoPetsEnv(opponent_generator, valid_actions_only=True)  # need separate eval env for
     # EvalCallback (this is the wrong env - not working)
