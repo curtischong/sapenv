@@ -73,6 +73,7 @@ class FlattenObservation(gym.ObservationWrapper):
                     )
                 else:
                     raise ValueError(f"Unknown type {type(value)}")
+                print(path_key, observation_size)
                 start_idx += observation_size
         return observation_defs, start_idx
 
@@ -99,3 +100,4 @@ class FlattenObservation(gym.ObservationWrapper):
                 obs_arr[start_idx:end_idx] = (
                     flattened_value + observation_def.normalization_shift
                 ) / observation_def.normalization_amount
+                assert np.all(obs_arr[start_idx:end_idx] != np.nan)
