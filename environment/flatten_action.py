@@ -31,6 +31,12 @@ class FlattenAction(gym.ActionWrapper):
         print(self.action_def_map)
         self.action_space: gym.spaces.Discrete = gym.spaces.Discrete(num_actions)
 
+    def readable_action_mask(self):
+        action_mask_dict = self.env.env.action_masks()
+        for key, mask in action_mask_dict.items():
+            is_action_avail = np.all(mask)
+            print(f"{key}: {is_action_avail}")
+
     def action_masks(self) -> np.ndarray:
         # given the dictionary action mask of the environment, return a flattened version of it
         dict_action_mask = self.env.env.action_masks()
