@@ -18,6 +18,13 @@ from environment.environment import SuperAutoPetsEnv
 from environment.flatten_observation import FlattenObservation
 import wandb
 from wandb.integration.sb3 import WandbCallback
+from torch import nn
+
+
+custom_network = dict(
+    activation_fn=nn.SiLU,
+    net_arch=[dict(pi=[64, 64], vf=[64, 64])],
+)
 
 
 def train_with_masks(ret):
@@ -80,6 +87,7 @@ def train_with_masks(ret):
             "MlpPolicy",
             env,
             verbose=0,
+            policy_kwargs=custom_network,
             batch_size=ret.batch_size,
             learning_rate=ret.learning_rate,
             gamma=ret.gamma,
