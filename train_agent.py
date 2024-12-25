@@ -93,7 +93,7 @@ def train_with_masks(ret):
         # evaluate_policy(model, env, n_eval_episodes=100, reward_threshold=0, warn=False)
         obs, info = env.reset()
 
-        log.info("One full iter is done")
+        # log.info("One full iter is done")
         if episode % 10 == 0:
             model.save("./models/" + ret.model_name)
 

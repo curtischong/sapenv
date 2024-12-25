@@ -29,7 +29,7 @@ def main(virtual_screen=False):
         "--nb_games",
         type=int,
         nargs="?",
-        default=1024,
+        default=1,
         help="number of games to run when evaluating model after training.",
     )
     parser.add_argument(
@@ -123,7 +123,7 @@ def main(virtual_screen=False):
         from train_agent import train_with_masks
 
         train_with_masks(ret)
-    if ret.task == "eval":
+    elif ret.task == "eval":
         from train_agent import eval_model
 
         eval_model(ret)

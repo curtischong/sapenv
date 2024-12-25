@@ -34,7 +34,7 @@ class FlattenAction(gym.ActionWrapper):
     def readable_action_mask(self):
         action_mask_dict = self.env.env.action_masks()
         for key, mask in action_mask_dict.items():
-            is_action_avail = np.all(mask)
+            is_action_avail = np.any(mask)
             print(f"{key}: {is_action_avail}")
 
     def action_masks(self) -> np.ndarray:

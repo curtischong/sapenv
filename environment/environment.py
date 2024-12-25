@@ -71,6 +71,8 @@ class SuperAutoPetsEnv(gym.Env):
             # the more wins you have, less the penalty
             reward = -100 + self.player.num_wins * 10
             done = True
+        if done:
+            print("reward: ", reward)
 
         truncated = False
         return observation, reward, done, truncated, info
