@@ -17,11 +17,12 @@ from player import Player
 class SuperAutoPetsEnv(gym.Env):
     metadata = {"render_modes": ["human"]}
 
-    def __init__(self):
+    def __init__(self, wandb_run=None):
         self.observation_space = env_observation_space
         self.action_space = env_action_space
         self.player = Player.init_starting_player()
         self.num_actions_in_turn = 0
+        self.wandb_run = wandb_run
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
@@ -72,7 +73,8 @@ class SuperAutoPetsEnv(gym.Env):
             reward = -100 + self.player.num_wins * 10
             done = True
         if done:
-            print("reward: ", reward)
+            if self.wandb_run:
+                self.wandb_run.log({"reward": reward})
 
         truncated = False
         return observation, reward, done, truncated, info
