@@ -103,22 +103,22 @@ def eval_model(ret):
     # load model
     trained_model = MaskablePPO.load("./models/" + ret.model_name)
 
-    log.info("Predicting...")
-
     # predict
     rewards = []
     for i in tqdm(range(ret.nb_games), "Games:"):
+        print("Game:", i)
         obs, info = env.reset()
         # run the episode
         while True:
             # Predict outcome with model
             action_masks = get_action_masks(env)
+            env.env.render()
             action, _states = trained_model.predict(
                 obs, action_masks=action_masks, deterministic=True
             )
+            print("actionname", env.action(action))
 
             obs, reward, done, truncated, info = env.step(action)
-            env.env.render()
             if truncated:
                 log.info("Episode truncated")
                 break
