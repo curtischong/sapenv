@@ -16,12 +16,21 @@ from environment.flatten_action import FlattenAction
 
 from environment.environment import SuperAutoPetsEnv
 from environment.flatten_observation import FlattenObservation
+import wandb
+from wandb.integration.sb3 import WandbCallback
 
 
 def train_with_masks(ret):
-    """
-    method for performing agent training
-    """
+    # Initialize wandb
+    run = wandb.init(
+        project="sap-ai",  # Choose an appropriate project name
+        config={
+            "algorithm": "PPO",  # Or whatever algorithm you're using
+            "learning_rate": 0.0003,  # Add your hyperparameters here
+            # Add other relevant config parameters
+        },
+    )
+
     # initialize environment
     # env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
     env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
@@ -88,7 +97,17 @@ def train_with_masks(ret):
 
         # setup trainer and start learning
         model.set_logger(logger)
-        model.learn(total_timesteps=ret.nb_steps, callback=checkpoint_callback)
+        model.learn(
+            total_timesteps=ret.nb_steps,
+            callback=[
+                checkpoint_callback,
+                WandbCallback(
+                    gradient_save_freq=100,
+                    model_save_path=f"models/{run.id}",
+                    verbose=2,
+                ),
+            ],
+        )
         env.env.render()
         # evaluate_policy(model, env, n_eval_episodes=100, reward_threshold=0, warn=False)
         obs, info = env.reset()
@@ -96,6 +115,9 @@ def train_with_masks(ret):
         # log.info("One full iter is done")
         if episode % 10 == 0:
             model.save("./models/" + ret.model_name)
+
+    # Close wandb run when done
+    run.finish()
 
 
 def eval_model(ret):
