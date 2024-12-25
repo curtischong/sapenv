@@ -103,23 +103,29 @@ def eval_model(ret):
     # load model
     trained_model = MaskablePPO.load("./models/" + ret.model_name)
 
-    log.info("Predicting...")
-
     # predict
-    obs, info = env.reset()
     rewards = []
     for i in tqdm(range(ret.nb_games), "Games:"):
-        # Predict outcome with model
-        action_masks = get_action_masks(env)
-        action, _states = trained_model.predict(
-            obs, action_masks=action_masks, deterministic=True
-        )
-
-        obs, reward, done, truncated, info = env.step(action)
-        if done:
+        print("Game:", i)
+        obs, info = env.reset()
+        # run the episode
+        while True:
+            # Predict outcome with model
+            action_masks = get_action_masks(env)
             env.env.render()
-            obs, info = env.reset()
-        rewards.append(reward)
+            action, _states = trained_model.predict(
+                obs, action_masks=action_masks, deterministic=True
+            )
+            print("actionname", env.action(action))
+
+            obs, reward, done, truncated, info = env.step(action)
+            if truncated:
+                log.info("Episode truncated")
+                break
+            if done:
+                log.info("Episode finished", info)
+                rewards.append(reward)
+                break
     # log.info(" ".join([str(sum(rewards)), str(len(rewards)), str(np.mean(rewards))]))
     print(f"sum rewards: {sum(rewards)}")
     print(f"len rewards: {len(rewards)}")

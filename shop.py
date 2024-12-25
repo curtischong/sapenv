@@ -91,7 +91,11 @@ class Shop:
         self.gold: int = STARTING_GOLD
 
     def init_shop_for_round(self, round_number: int):
-        self.gold = STARTING_GOLD  # TODO: add additional gold from swans. we should call pet callbacks to do this? maybe there is no logic required here
+        # TODO: add additional gold from swans. we should call pet callbacks to do this? maybe there is no logic required here
+        self.gold = (
+            STARTING_GOLD + 1
+        )  # add 1 gold since when we roll_shop we lose 1 gold
+
         if round_number in ROUND_TO_SHOP_TIER:
             self.shop_tier = ROUND_TO_SHOP_TIER[round_number]
         self.roll_shop()
