@@ -27,3 +27,7 @@ def require_consent(prompt: str):
     if response != "yes":
         print("Operation canceled.")
         exit(0)
+
+
+def apply_permutation[T](array: list[T], permutation: list[int]) -> list[T]:
+    return [array[i] for i in permutation]

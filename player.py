@@ -1,4 +1,5 @@
 import itertools
+import math
 from all_types_and_consts import (
     MAX_GAMES_LENGTH,
     MAX_SHOP_LINKED_SLOTS,
@@ -20,6 +21,8 @@ from shop import Shop
 from team import Team
 import numpy as np
 
+from utils import apply_permutation
+
 
 class Player:
     def __init__(self, team: Team):
@@ -30,41 +33,39 @@ class Player:
         self.num_actions_taken_in_turn = 0
         self.hearts = STARTING_HEARTS
 
+        self.permutations: list[list[int]] = [
+            p for p in itertools.permutations(list(range(MAX_TEAM_SIZE)))
+        ]
+
     @staticmethod
     def init_starting_player():
         player = Player(Team.init_starting_team())
         player.shop.init_shop_for_round(round_number=1)
         return player
 
-    def reorder_team_action(self, start_idx: int, end_idx: int):
+    def reorder_team_action(self, reorder_type: int):
         pets = self.team.pets
-        assert pets[start_idx].species != Species.NONE
-        assert start_idx != end_idx
+        assert reorder_type < len(self.permutations)
+        reorders = self.permutations[reorder_type]
+        for old_idx, new_idx in enumerate(reorders):
+            if new_idx != old_idx:
+                # ensure that the species that we're reordering is not NONE
+                assert pets[old_idx].species != Species.NONE
 
-        # Remove the pet from the old position
-        pet_to_move = pets.pop(start_idx)
-
-        # Insert it into the new position
-        pets.insert(end_idx, pet_to_move)
-
-        return True
+        self.team.pets = apply_permutation(pets, reorders)
 
     def reorder_team_action_mask(self) -> np.ndarray:
         # return np.zeros( (MAX_TEAM_SIZE, MAX_TEAM_SIZE), dtype=bool)  # comment this out to disable toggle freeze slot
-        mask = np.ones((MAX_TEAM_SIZE, MAX_TEAM_SIZE), dtype=bool)
+        mask = np.ones((math.factorial(MAX_TEAM_SIZE)), dtype=bool)
 
-        # cannot use itertools.combinations since reordering does NOT commute (who is the first pet matters)
-        for pet_start_idx in range(MAX_TEAM_SIZE):
-            for pet_end_idx in range(MAX_TEAM_SIZE):
-                # you cannot move a pet to the same spot
-                if pet_start_idx == pet_end_idx:
-                    mask[pet_start_idx, pet_end_idx] = False
-                    continue
+        for i, reorders in enumerate(self.permutations):
+            for old_idx, new_idx in enumerate(reorders):
+                pet = self.team.pets[old_idx]
+                if old_idx != new_idx and pet.species == Species.NONE:
+                    mask[i] = False
+                    break
 
-                # you cannot move an empty pet
-                pet = self.team.pets[pet_start_idx]
-                if pet.species == Species.NONE:
-                    mask[pet_start_idx, pet_end_idx] = False
+        mask[0] = False  # you cannot reorder into the same order
         return mask
 
     # Note: if a pet is level 3, you cannot combine it AT ALL

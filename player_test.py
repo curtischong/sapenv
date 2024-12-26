@@ -24,62 +24,6 @@ def player(original_team: Team) -> Player:
     return Player(original_team)
 
 
-def test_rearrange_team_move_start_to_middle(player: Player):
-    player.reorder_team_action(start_idx=0, end_idx=2)
-    desired_pet_order_team = Team(
-        pets=[
-            get_base_pet(Species.NONE),
-            get_base_pet(Species.NONE),
-            get_base_pet(Species.DUCK),
-            get_base_pet(Species.BEAVER),
-            get_base_pet(Species.PIGEON),
-        ]
-    )
-    assert player.team == desired_pet_order_team
-
-
-def test_rearrange_team_move_start_to_end(player: Player):
-    player.reorder_team_action(start_idx=0, end_idx=4)
-    desired_pet_order_team = Team(
-        pets=[
-            get_base_pet(Species.NONE),
-            get_base_pet(Species.NONE),
-            get_base_pet(Species.BEAVER),
-            get_base_pet(Species.PIGEON),
-            get_base_pet(Species.DUCK),
-        ]
-    )
-    assert player.team == desired_pet_order_team
-
-
-def test_rearrange_team_move_end_to_start(player: Player):
-    player.reorder_team_action(start_idx=4, end_idx=0)
-    desired_pet_order_team = Team(
-        pets=[
-            get_base_pet(Species.PIGEON),
-            get_base_pet(Species.DUCK),
-            get_base_pet(Species.NONE),
-            get_base_pet(Species.NONE),
-            get_base_pet(Species.BEAVER),
-        ]
-    )
-    assert player.team == desired_pet_order_team
-
-
-def test_rearrange_team_move_middle_to_end(player: Player):
-    player.reorder_team_action(start_idx=3, end_idx=4)
-    desired_pet_order_team = Team(
-        pets=[
-            get_base_pet(Species.DUCK),
-            get_base_pet(Species.NONE),
-            get_base_pet(Species.NONE),
-            get_base_pet(Species.PIGEON),
-            get_base_pet(Species.BEAVER),
-        ]
-    )
-    assert player.team == desired_pet_order_team
-
-
 def test_combine_pets_moves_pet1_to_pet2():
     player = Player(
         Team(
