@@ -20,13 +20,14 @@ import wandb
 from wandb.integration.sb3 import WandbCallback
 from torch import nn
 from stable_baselines3.common.callbacks import BaseCallback
+from ppo_policy import CustomAttentionPolicy
 from utils import require_consent
 
 
-custom_network = dict(
-    activation_fn=nn.SiLU,
-    net_arch=dict(pi=[64] * 20, vf=[64] * 20),
-)
+# custom_network = dict(
+#     activation_fn=nn.SiLU,
+#     net_arch=dict(pi=[64] * 20, vf=[64] * 20),
+# )
 
 
 def train_with_masks(ret):
@@ -86,10 +87,10 @@ def train_with_masks(ret):
     else:
         log.info("Training from scratch...")
         model = MaskablePPO(
-            "MlpPolicy",
+            CustomAttentionPolicy,
             env,
             verbose=0,
-            policy_kwargs=custom_network,
+            # policy_kwargs=custom_network,
             batch_size=ret.batch_size,
             learning_rate=ret.learning_rate,
             gamma=ret.gamma,
