@@ -25,7 +25,7 @@ from utils import require_consent
 
 custom_network = dict(
     activation_fn=nn.SiLU,
-    net_arch=dict(pi=[512, 512, 512, 512], vf=[512, 512, 512, 512]),
+    net_arch=dict(pi=[64] * 20, vf=[64] * 20),
 )
 
 
