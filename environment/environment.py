@@ -21,13 +21,11 @@ class SuperAutoPetsEnv(gym.Env):
         self.observation_space = env_observation_space
         self.action_space = env_action_space
         self.player = Player.init_starting_player()
-        self.num_actions_in_turn = 0
         self.wandb_run = wandb_run
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
         self.player = Player.init_starting_player()
-        self.num_actions_in_turn = 0
         obs = get_observation(self.player)
         return obs, {}
 
@@ -41,20 +39,20 @@ class SuperAutoPetsEnv(gym.Env):
         observation = get_observation(self.player)
 
         if action_name == ActionName.END_TURN:
-            self.num_actions_in_turn = 0
+            self.player.num_actions_taken_in_turn = 0
             game_result = (
                 self.player.end_turn_action()
             )  # Get the game result after the action
         else:
             game_result = GameResult.CONTINUE
-            self.num_actions_in_turn += 1
+            self.player.num_actions_taken_in_turn += 1
         # print(
         #     f"turn: {self.player.turn_number}, action: {action_name}, result: {game_result}"
         # )
 
         if (
             game_result == GameResult.TRUNCATED
-            or self.num_actions_in_turn > MAX_ACTIONS_IN_TURN
+            or self.player.num_actions_taken_in_turn > MAX_ACTIONS_IN_TURN
         ):
             done = True
             truncated = True

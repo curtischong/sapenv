@@ -27,6 +27,7 @@ class Player:
         self.shop = Shop()
         self.turn_number = 0
         self.num_wins = 0
+        self.num_actions_taken_in_turn = 0
         self.hearts = STARTING_HEARTS
 
     @staticmethod
