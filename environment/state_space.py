@@ -15,9 +15,11 @@ from all_types_and_consts import (
     MIN_PET_LEVEL,
     NUM_WINS_TO_WIN,
     STARTING_HEARTS,
+    ActionName,
     Species,
     MAX_GOLD,
     Foods,
+    action_name_to_idx,
 )
 from gymnasium import spaces
 import numpy as np
@@ -130,6 +132,8 @@ actions_taken_in_turn_space = spaces.Box(
     dtype=np.int32,
 )
 
+last_action_name_space = spaces.MultiBinary([len(ActionName)])
+
 env_observation_space = spaces.Dict(
     {
         "team": team_space,
@@ -140,6 +144,7 @@ env_observation_space = spaces.Dict(
         "num_wins": num_wins_space,
         "num_hearts": num_hearts_space,
         "actions_taken_in_turn": actions_taken_in_turn_space,
+        "last_action_name": last_action_name_space,
         # "shop_num_foods": shop_num_foods_space,
     }
 )
@@ -147,6 +152,8 @@ env_observation_space = spaces.Dict(
 
 def get_observation(player: Player):
     # TODO: we should also any extra "permanent stat increases" the shop has, or temporary buffs pets have
+    last_action_name = np.zeros((len(ActionName),), dtype=bool)
+    last_action_name[action_name_to_idx[player.last_action_name]] = True
     observation = (
         {"team": player.team.get_observation()}
         | player.shop.get_observation()
@@ -158,6 +165,7 @@ def get_observation(player: Player):
             "actions_taken_in_turn": np.array(
                 [player.num_actions_taken_in_turn], dtype=np.int32
             ),
+            "last_action_name": last_action_name,
         }
     )
     return observation

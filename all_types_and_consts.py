@@ -207,6 +207,7 @@ class SelectedAction:
 
 
 class ActionName(Enum):
+    NONE = "none"
     REORDER_TEAM = "reorder_team"
     COMBINE_PETS = "combine_pets"
     BUY_PET = "buy_pet"
@@ -216,3 +217,6 @@ class ActionName(Enum):
     TOGGLE_FREEZE_SLOT = "toggle_freeze_slot"
     FREEZE_PET_AT_LINKED_SLOT = "freeze_pet_at_linked_slot"
     END_TURN = "end_turn"
+
+
+action_name_to_idx = {action: idx for idx, action in enumerate(ActionName)}

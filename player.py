@@ -37,7 +37,7 @@ class Player:
         self.permutations: list[list[int]] = [
             p for p in itertools.permutations(list(range(MAX_TEAM_SIZE)))
         ]
-        self.last_action_name: ActionName | None = None
+        self.last_action_name = ActionName.NONE
 
     @staticmethod
     def init_starting_player():
