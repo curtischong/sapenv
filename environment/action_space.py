@@ -5,7 +5,12 @@ from typing import Callable
 from gymnasium import spaces
 import numpy as np
 
-from all_types_and_consts import MAX_SHOP_LINKED_SLOTS, MAX_SHOP_SLOTS, MAX_TEAM_SIZE
+from all_types_and_consts import (
+    MAX_SHOP_LINKED_SLOTS,
+    MAX_SHOP_SLOTS,
+    MAX_TEAM_SIZE,
+    ActionName,
+)
 from player import Player
 
 # moves the pet from start_idx to end_idx
@@ -25,18 +30,6 @@ roll_shop_space = spaces.MultiBinary(1)  # 1
 toggle_freeze_slot_space = spaces.MultiBinary(MAX_SHOP_SLOTS)  # 7
 freeze_pet_at_linked_slot_space = spaces.MultiBinary(MAX_SHOP_LINKED_SLOTS)  # 5
 end_turn_space = spaces.MultiBinary(1)  # 1
-
-
-class ActionName(Enum):
-    REORDER_TEAM = "reorder_team"
-    COMBINE_PETS = "combine_pets"
-    BUY_PET = "buy_pet"
-    BUY_LINKED_PET = "buy_linked_pet"
-    SELL_PET = "sell_pet"
-    ROLL_SHOP = "roll_shop"
-    TOGGLE_FREEZE_SLOT = "toggle_freeze_slot"
-    FREEZE_PET_AT_LINKED_SLOT = "freeze_pet_at_linked_slot"
-    END_TURN = "end_turn"
 
 
 @dataclass

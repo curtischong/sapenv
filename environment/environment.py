@@ -1,17 +1,16 @@
 import gymnasium as gym
 from all_types_and_consts import (
     MAX_ACTIONS_IN_TURN,
+    ActionName,
     BattleResult,
     GameResult,
     SelectedAction,
 )
-from battle import battle
 from environment.state_space import (
     env_observation_space,
     get_observation,
 )
 from environment.action_space import (
-    ActionName,
     env_action_space,
     get_action_masks,
     actions_dict,

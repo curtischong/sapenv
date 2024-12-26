@@ -204,3 +204,15 @@ class GameResult(Enum):
 class SelectedAction:
     path_key: str
     params: tuple[int, ...]
+
+
+class ActionName(Enum):
+    REORDER_TEAM = "reorder_team"
+    COMBINE_PETS = "combine_pets"
+    BUY_PET = "buy_pet"
+    BUY_LINKED_PET = "buy_linked_pet"
+    SELL_PET = "sell_pet"
+    ROLL_SHOP = "roll_shop"
+    TOGGLE_FREEZE_SLOT = "toggle_freeze_slot"
+    FREEZE_PET_AT_LINKED_SLOT = "freeze_pet_at_linked_slot"
+    END_TURN = "end_turn"
