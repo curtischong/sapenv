@@ -25,7 +25,7 @@ from utils import require_consent
 
 custom_network = dict(
     activation_fn=nn.SiLU,
-    net_arch=dict(pi=[512, 512, 512, 512], vf=[512, 512, 512, 512]),
+    net_arch=dict(pi=[64] * 20, vf=[64] * 20),
 )
 
 
@@ -95,7 +95,7 @@ def train_with_masks(ret):
             gamma=ret.gamma,
         )
         # require the user to say yes if the path already exists: "./models/" + ret.model_name
-        path = f"./models/{ret.model_name}.zip"
+        path = f"./models/{ret.model_name}_2048_steps.zip"
         if os.path.exists(path):
             require_consent(
                 f"The path '{path}' already exists. Do you want to proceed? (yes/no): "
@@ -124,11 +124,6 @@ def train_with_masks(ret):
         )
         env.env.render()
         # evaluate_policy(model, env, n_eval_episodes=100, reward_threshold=0, warn=False)
-        obs, info = env.reset()
-
-        # log.info("One full iter is done")
-        if episode % 10 == 0:
-            model.save("./models/" + ret.model_name)
 
     # Close wandb run when done
     run.finish()
@@ -137,7 +132,7 @@ def train_with_masks(ret):
 def eval_model(ret):
     env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
     # load model
-    trained_model = MaskablePPO.load("./models/" + ret.model_name)
+    trained_model = MaskablePPO.load(f"./models/{ret.model_name}_2048_steps.zip")
 
     # predict
     rewards = []

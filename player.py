@@ -14,7 +14,7 @@ from all_types_and_consts import (
     MAX_SHOP_SLOTS,
 )
 from battle import battle
-from gen_opponent import get_pig_team
+from gen_opponent import get_horse_team, get_pig_team
 from pet_data import get_base_pet
 from shop import Shop
 from team import Team
@@ -50,6 +50,7 @@ class Player:
         return True
 
     def reorder_team_action_mask(self) -> np.ndarray:
+        # return np.zeros( (MAX_TEAM_SIZE, MAX_TEAM_SIZE), dtype=bool)  # comment this out to disable toggle freeze slot
         mask = np.ones((MAX_TEAM_SIZE, MAX_TEAM_SIZE), dtype=bool)
 
         # cannot use itertools.combinations since reordering does NOT commute (who is the first pet matters)
@@ -245,7 +246,7 @@ class Player:
 
     def end_turn_action(self) -> GameResult:
         # todo: smarter opponent team
-        battle_result = battle(self.team, get_pig_team(self.turn_number))
+        battle_result = battle(self.team, get_horse_team(self.turn_number))
 
         # update based on result of battle
         self.turn_number += 1
@@ -265,13 +266,13 @@ class Player:
         self.shop.init_shop_for_round(self.turn_number)
 
         if self.turn_number >= MAX_GAMES_LENGTH:
-            return GameResult.TRUNCATED
+            return GameResult.TRUNCATED, battle_result
         # if the player has no more lives, they lose
         if self.hearts <= 0:
-            return GameResult.LOSE
+            return GameResult.LOSE, battle_result
         if self.num_wins == NUM_WINS_TO_WIN:
             return GameResult.WIN
-        return GameResult.CONTINUE
+        return GameResult.CONTINUE, battle_result
 
     # to help the model, you can only end turn if you have no gold
     # we can remove this restriction in the future?
