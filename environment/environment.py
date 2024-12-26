@@ -53,6 +53,7 @@ class SuperAutoPetsEnv(gym.Env):
 
     def step(self, selected_action: SelectedAction):
         action_name = ActionName(selected_action.path_key[1:])
+        self.player.last_action_name = action_name
         action = actions_dict[action_name]
         action_result = action.perform_action(self.player, selected_action.params)
         observation = get_observation(self.player)

@@ -15,6 +15,7 @@ from all_types_and_consts import (
     MAX_SHOP_SLOTS,
 )
 from battle import battle
+from environment.action_space import ActionName
 from gen_opponent import get_horse_team, get_pig_team
 from pet_data import get_base_pet
 from shop import Shop
@@ -36,6 +37,7 @@ class Player:
         self.permutations: list[list[int]] = [
             p for p in itertools.permutations(list(range(MAX_TEAM_SIZE)))
         ]
+        self.last_action_name: ActionName | None = None
 
     @staticmethod
     def init_starting_player():
@@ -55,7 +57,10 @@ class Player:
         self.team.pets = apply_permutation(pets, reorders)
 
     def reorder_team_action_mask(self) -> np.ndarray:
-        # return np.zeros( (MAX_TEAM_SIZE, MAX_TEAM_SIZE), dtype=bool)  # comment this out to disable toggle freeze slot
+        if self.last_action_name == ActionName.REORDER_TEAM:
+            # disable reordering if the last action was reorder
+            return np.zeros((math.factorial(MAX_TEAM_SIZE)), dtype=bool)
+
         mask = np.ones((math.factorial(MAX_TEAM_SIZE)), dtype=bool)
 
         for i, reorders in enumerate(self.permutations):
