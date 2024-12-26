@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, auto
+import math
 from typing import Callable
 from gymnasium import spaces
 import numpy as np
@@ -8,7 +9,7 @@ from all_types_and_consts import MAX_SHOP_LINKED_SLOTS, MAX_SHOP_SLOTS, MAX_TEAM
 from player import Player
 
 # moves the pet from start_idx to end_idx
-reorder_team_space = spaces.MultiBinary([MAX_TEAM_SIZE, MAX_TEAM_SIZE])  # 25
+reorder_team_space = spaces.MultiBinary(math.factorial(MAX_TEAM_SIZE))  # 120
 
 combine_pets_space = spaces.MultiBinary([MAX_TEAM_SIZE, MAX_TEAM_SIZE])  # 25
 
