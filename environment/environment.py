@@ -46,13 +46,11 @@ class SuperAutoPetsEnv(gym.Env):
         else:
             game_result = GameResult.CONTINUE
             self.player.num_actions_taken_in_turn += 1
-            if (
-                self._roll_but_no_shop_pets_to_combine_with(action_name)
-                and self.wandb_run
-            ):
-                self.wandb_run.log({"roll_but_no_shop_pets_to_combine_with": 1})
-            else:
-                self.wandb_run.log({"roll_but_no_shop_pets_to_combine_with": 0})
+            if self.wandb_run:
+                if self._roll_but_no_shop_pets_to_combine_with(action_name):
+                    self.wandb_run.log({"roll_but_no_shop_pets_to_combine_with": 1})
+                else:
+                    self.wandb_run.log({"roll_but_no_shop_pets_to_combine_with": 0})
         # print(
         #     f"turn: {self.player.turn_number}, action: {action_name}, result: {game_result}"
         # )
