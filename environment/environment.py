@@ -111,7 +111,7 @@ class SuperAutoPetsEnv(gym.Env):
             # the more wins you have, less the penalty
             done = True
             reward = -100 + self.gentle_exponential(self.player.num_wins)
-        if done:
+        if game_result != GameResult.CONTINUE:
             if self.wandb_run:
                 self.wandb_run.log({"reward": reward, "is_truncated": 0})
 
