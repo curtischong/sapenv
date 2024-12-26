@@ -78,7 +78,7 @@ def train_with_masks(ret):
         save_freq=ret.save_freq, save_path="./models/", name_prefix=ret.model_name
     )
 
-    custom_callback = CustomWandbCallback(wandb_run=run)
+    # custom_callback = CustomWandbCallback(wandb_run=run)
 
     # save best model, using deterministic eval
     # eval_callback = EvalCallback(eval_env, best_model_save_path='./models/', log_path='./logs/', eval_freq=1000,
@@ -133,13 +133,13 @@ def train_with_masks(ret):
             log_interval=4,
             callback=[
                 checkpoint_callback,
-                custom_callback,
-                # WandbCallback(
-                #     # gradient_save_freq=100,
-                #     model_save_path=f"models/{run.id}",
-                #     verbose=2,
-                #     log_loss=True,
-                # ),
+                # custom_callback,
+                WandbCallback(
+                    # gradient_save_freq=100,
+                    # model_save_path=f"models/{run.id}",
+                    # verbose=2,
+                    # log_loss=True,
+                ),
             ],
         )
         env.env.render()
