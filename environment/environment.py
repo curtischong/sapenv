@@ -35,14 +35,12 @@ class SuperAutoPetsEnv(gym.Env):
     def step(self, selected_action: SelectedAction):
         action_name = ActionName(selected_action.path_key[1:])
         action = actions_dict[action_name]
-        action.perform_action(self.player, selected_action.params)
+        action_result = action.perform_action(self.player, selected_action.params)
         observation = get_observation(self.player)
 
         if action_name == ActionName.END_TURN:
             self.player.num_actions_taken_in_turn = 0
-            game_result = (
-                self.player.end_turn_action()
-            )  # Get the game result after the action
+            game_result = action_result
         else:
             game_result = GameResult.CONTINUE
             self.player.num_actions_taken_in_turn += 1
