@@ -29,23 +29,6 @@ custom_network = dict(
 )
 
 
-class CustomWandbCallback(BaseCallback):
-    """
-    Custom callback to log additional metrics like loss to Weights & Biases.
-    """
-
-    def __init__(self, wandb_run, verbose=0):
-        super(CustomWandbCallback, self).__init__(verbose)
-        self.wandb_run = wandb_run
-
-    def _on_step(self) -> bool:
-        if "loss" in self.locals:
-            # Log the loss value
-            loss = self.locals["loss"]
-            self.wandb_run.log({"loss": loss, "time_steps": self.num_timesteps})
-        return True
-
-
 def train_with_masks(ret):
     # Initialize wandb
     run = wandb.init(
@@ -77,8 +60,6 @@ def train_with_masks(ret):
     checkpoint_callback = CheckpointCallback(
         save_freq=ret.save_freq, save_path="./models/", name_prefix=ret.model_name
     )
-
-    # custom_callback = CustomWandbCallback(wandb_run=run)
 
     # save best model, using deterministic eval
     # eval_callback = EvalCallback(eval_env, best_model_save_path='./models/', log_path='./logs/', eval_freq=1000,
@@ -133,7 +114,6 @@ def train_with_masks(ret):
             log_interval=4,
             callback=[
                 checkpoint_callback,
-                # custom_callback,
                 WandbCallback(
                     # gradient_save_freq=100,
                     # model_save_path=f"models/{run.id}",
