@@ -132,7 +132,7 @@ def train_with_masks(ret):
 def eval_model(ret):
     env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
     # load model
-    trained_model = MaskablePPO.load("./models/" + ret.model_name)
+    trained_model = MaskablePPO.load(f"./models/{ret.model_name}_2048_steps.zip")
 
     # predict
     rewards = []
