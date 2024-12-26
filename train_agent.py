@@ -19,14 +19,31 @@ from environment.flatten_observation import FlattenObservation
 import wandb
 from wandb.integration.sb3 import WandbCallback
 from torch import nn
-
+from stable_baselines3.common.callbacks import BaseCallback
 from utils import require_consent
 
 
 custom_network = dict(
     activation_fn=nn.SiLU,
-    net_arch=dict(pi=[128, 128, 128, 128], vf=[128, 128, 128, 128]),
+    net_arch=dict(pi=[128, 128, 128, 128, 128, 128, 128], vf=[128, 128, 128, 128]),
 )
+
+
+class CustomWandbCallback(BaseCallback):
+    """
+    Custom callback to log additional metrics like loss to Weights & Biases.
+    """
+
+    def __init__(self, wandb_run, verbose=0):
+        super(CustomWandbCallback, self).__init__(verbose)
+        self.wandb_run = wandb_run
+
+    def _on_step(self) -> bool:
+        if "loss" in self.locals:
+            # Log the loss value
+            loss = self.locals["loss"]
+            self.wandb_run.log({"loss": loss, "time_steps": self.num_timesteps})
+        return True
 
 
 def train_with_masks(ret):
@@ -60,6 +77,8 @@ def train_with_masks(ret):
     checkpoint_callback = CheckpointCallback(
         save_freq=ret.save_freq, save_path="./models/", name_prefix=ret.model_name
     )
+
+    custom_callback = CustomWandbCallback(wandb_run=run)
 
     # save best model, using deterministic eval
     # eval_callback = EvalCallback(eval_env, best_model_save_path='./models/', log_path='./logs/', eval_freq=1000,
@@ -114,11 +133,13 @@ def train_with_masks(ret):
             log_interval=4,
             callback=[
                 checkpoint_callback,
-                WandbCallback(
-                    # gradient_save_freq=100,
-                    model_save_path=f"models/{run.id}",
-                    verbose=2,
-                ),
+                custom_callback,
+                # WandbCallback(
+                #     # gradient_save_freq=100,
+                #     model_save_path=f"models/{run.id}",
+                #     verbose=2,
+                #     log_loss=True,
+                # ),
             ],
         )
         env.env.render()
