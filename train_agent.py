@@ -111,6 +111,7 @@ def train_with_masks(ret):
         model.set_logger(logger)
         model.learn(
             total_timesteps=ret.nb_steps,
+            log_interval=4,
             callback=[
                 checkpoint_callback,
                 WandbCallback(
