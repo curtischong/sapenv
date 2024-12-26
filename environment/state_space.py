@@ -1,4 +1,5 @@
 from all_types_and_consts import (
+    MAX_ACTIONS_IN_TURN,
     MAX_ATTACK,
     MAX_GAMES_LENGTH,
     MAX_HEALTH,
@@ -122,6 +123,13 @@ num_wins_space = spaces.Box(low=0, high=NUM_WINS_TO_WIN, shape=(1,), dtype=np.in
 # TODO: On the very last round, the player can have 0 hearts. To avoid potential problems, I set it to low=0. not low=1
 num_hearts_space = spaces.Box(low=0, high=STARTING_HEARTS, shape=(1,), dtype=np.int32)
 
+actions_taken_in_turn_space = spaces.Box(
+    low=0,
+    high=MAX_ACTIONS_IN_TURN,
+    shape=(1,),
+    dtype=np.int32,
+)
+
 env_observation_space = spaces.Dict(
     {
         "team": team_space,
@@ -131,6 +139,7 @@ env_observation_space = spaces.Dict(
         "turn_number": turn_number_space,
         "num_wins": num_wins_space,
         "num_hearts": num_hearts_space,
+        "actions_taken_in_turn": actions_taken_in_turn_space,
         # "shop_num_foods": shop_num_foods_space,
     }
 )
@@ -146,6 +155,9 @@ def get_observation(player: Player):
             "turn_number": np.array([player.turn_number], dtype=np.int32),
             "num_wins": np.array([player.num_wins], dtype=np.int32),
             "num_hearts": np.array([player.hearts], dtype=np.int32),
+            "actions_taken_in_turn": np.array(
+                [player.num_actions_taken_in_turn], dtype=np.int32
+            ),
         }
     )
     return observation

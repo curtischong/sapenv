@@ -19,13 +19,13 @@ from environment.flatten_observation import FlattenObservation
 import wandb
 from wandb.integration.sb3 import WandbCallback
 from torch import nn
-
+from stable_baselines3.common.callbacks import BaseCallback
 from utils import require_consent
 
 
 custom_network = dict(
     activation_fn=nn.SiLU,
-    net_arch=dict(pi=[64, 64, 32], vf=[64, 64, 32]),
+    net_arch=dict(pi=[512, 512, 512, 512], vf=[512, 512, 512, 512]),
 )
 
 
@@ -111,12 +111,14 @@ def train_with_masks(ret):
         model.set_logger(logger)
         model.learn(
             total_timesteps=ret.nb_steps,
+            log_interval=4,
             callback=[
                 checkpoint_callback,
                 WandbCallback(
                     # gradient_save_freq=100,
-                    model_save_path=f"models/{run.id}",
-                    verbose=2,
+                    # model_save_path=f"models/{run.id}",
+                    # verbose=2,
+                    # log_loss=True,
                 ),
             ],
         )
