@@ -28,8 +28,8 @@ def get_horse_team(round_number: int):
         [
             get_base_pet(Species.HORSE).add_stats(attack=0, health=additional_stats),
             # get_base_pet(Species.HORSE),
-            get_base_pet(Species.HORSE),
-            get_base_pet(Species.HORSE),
+            get_base_pet(Species.HORSE).add_stats(attack=0, health=additional_stats),
+            get_base_pet(Species.HORSE).add_stats(attack=0, health=additional_stats),
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),
         ]

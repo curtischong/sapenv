@@ -266,13 +266,13 @@ class Player:
         self.shop.init_shop_for_round(self.turn_number)
 
         if self.turn_number >= MAX_GAMES_LENGTH:
-            return GameResult.TRUNCATED
+            return GameResult.TRUNCATED, battle_result
         # if the player has no more lives, they lose
         if self.hearts <= 0:
-            return GameResult.LOSE
+            return GameResult.LOSE, battle_result
         if self.num_wins == NUM_WINS_TO_WIN:
             return GameResult.WIN
-        return GameResult.CONTINUE
+        return GameResult.CONTINUE, battle_result
 
     # to help the model, you can only end turn if you have no gold
     # we can remove this restriction in the future?

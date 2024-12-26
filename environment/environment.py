@@ -1,5 +1,10 @@
 import gymnasium as gym
-from all_types_and_consts import MAX_ACTIONS_IN_TURN, GameResult, SelectedAction
+from all_types_and_consts import (
+    MAX_ACTIONS_IN_TURN,
+    BattleResult,
+    GameResult,
+    SelectedAction,
+)
 from battle import battle
 from environment.state_space import (
     env_observation_space,
@@ -32,6 +37,20 @@ class SuperAutoPetsEnv(gym.Env):
     def action_masks(self):
         return get_action_masks(self.player)
 
+    def gentle_exponential(self, x: float) -> float:
+        # https://www.desmos.com/calculator/tayqvz7cxl
+        assert 0 <= x <= 10
+
+        # Base slightly greater than 1 for a gentle curve
+        base = 1.1
+        # Scale the exponential to fit the range [0, 10]
+        scale_factor = 10 / (base**10 - 1)
+
+        # Calculate the exponential value
+        value = scale_factor * (base**x - 1)
+
+        return value
+
     def step(self, selected_action: SelectedAction):
         action_name = ActionName(selected_action.path_key[1:])
         action = actions_dict[action_name]
@@ -40,9 +59,18 @@ class SuperAutoPetsEnv(gym.Env):
 
         if action_name == ActionName.END_TURN:
             self.player.num_actions_taken_in_turn = 0
-            game_result = action_result
+            game_result, battle_result = action_result
+            if battle_result == BattleResult.TEAM1_WIN:
+                reward = self.gentle_exponential(self.player.num_wins)
+            elif battle_result == BattleResult.TEAM2_WIN:
+                reward = -1
+            elif battle_result == BattleResult.TIE:
+                reward = 0.5 * self.gentle_exponential(self.player.num_wins)
+            else:
+                raise ValueError(f"Unknown battle result: {battle_result}")
         else:
             game_result = GameResult.CONTINUE
+            reward = 0
             self.player.num_actions_taken_in_turn += 1
             if self.wandb_run:
                 if self._roll_but_no_shop_pets_to_combine_with(action_name):
@@ -60,7 +88,6 @@ class SuperAutoPetsEnv(gym.Env):
             done = True
             truncated = True
             info = {}
-            reward = -100 + self.player.num_wins * 10
             if self.wandb_run:
                 self.wandb_run.log(
                     {
@@ -75,12 +102,11 @@ class SuperAutoPetsEnv(gym.Env):
         reward = 0
         done = False
         if game_result == GameResult.WIN:
-            reward = 100
             done = True
         elif game_result == GameResult.LOSE:
             # the more wins you have, less the penalty
-            reward = -100 + self.player.num_wins * 10
             done = True
+            reward = -100 + self.gentle_exponential(self.player.num_wins)
         if done:
             if self.wandb_run:
                 self.wandb_run.log({"reward": reward, "is_truncated": 0})
