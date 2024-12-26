@@ -46,6 +46,11 @@ class SuperAutoPetsEnv(gym.Env):
         else:
             game_result = GameResult.CONTINUE
             self.player.num_actions_taken_in_turn += 1
+            if (
+                self._roll_but_no_shop_pets_to_combine_with(action_name)
+                and self.wandb_run
+            ):
+                self.wandb_run.log({"roll_but_no_shop_pets_to_combine_with": 1})
         # print(
         #     f"turn: {self.player.turn_number}, action: {action_name}, result: {game_result}"
         # )
@@ -84,6 +89,16 @@ class SuperAutoPetsEnv(gym.Env):
 
         truncated = False
         return observation, reward, done, truncated, info
+
+    def _roll_but_no_shop_pets_to_combine_with(self, action_name: ActionName):
+        if action_name != ActionName.ROLL_SHOP:
+            return False
+        my_pet_species = [pet.species for pet in self.player.team.pets]
+        # Note: we don't need to compare with linked pets since on roll, they disappear
+        for shop_pet in self.player.shop.slots:
+            if shop_pet.pet.species in my_pet_species:
+                return False
+        return True
 
     def render(self):
         # Render environment for human viewing
