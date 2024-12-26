@@ -225,9 +225,7 @@ class Player:
         self.shop.toggle_freeze_slot(slot_idx)
 
     def toggle_freeze_slot_action_mask(self) -> np.ndarray:
-        return np.zeros(
-            (MAX_SHOP_SLOTS), dtype=bool
-        )  # comment this out to disable toggle freeze slot
+        # return np.zeros( (MAX_SHOP_SLOTS), dtype=bool)  # comment this out to disable toggle freeze slot
         mask = np.zeros((MAX_SHOP_SLOTS), dtype=bool)
 
         # ensure the slots we freeze/unfreeze are available
