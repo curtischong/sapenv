@@ -89,8 +89,9 @@ class SuperAutoPetsEnv(gym.Env):
             truncated = True
             self.reset()
             info = {}
-            if reward > 0:
-                reward = reward / 2
+            # if reward > 0:
+            #     reward = reward / 2
+            reward = -200
             if self.wandb_run:
                 self.wandb_run.log(
                     {
