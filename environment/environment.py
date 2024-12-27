@@ -1,6 +1,8 @@
 import gymnasium as gym
 from all_types_and_consts import (
     MAX_ACTIONS_IN_TURN,
+    ActionResult,
+    ActionReturn,
     BattleResult,
     GameResult,
     SelectedAction,
@@ -80,7 +82,8 @@ class SuperAutoPetsEnv(gym.Env):
         slowness_penalty = self.player.num_actions_taken_in_turn / MAX_ACTIONS_IN_TURN
 
         if action_name == ActionName.END_TURN:
-            game_result, battle_result = action_result
+            battle_result = action_result[ActionReturn.BATTLE_RESULT]
+            game_result = action_result[ActionReturn.GAME_RESULT]
             if battle_result == BattleResult.TEAM1_WIN:
                 reward = self.gentle_exponential(self.player.num_wins)
             elif battle_result == BattleResult.TEAM2_WIN:

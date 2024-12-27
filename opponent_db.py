@@ -64,3 +64,8 @@ class OpponentDB:
                 target_games_played -= 1
         selected_opponent = random.choice(opponents_with_similar_strength)
         return decompress_team(selected_opponent[0])
+
+    def flush(self):
+        with sqlite3.connect(self.db_file) as conn:
+            conn.execute("DROP TABLE opponents")
+        self._init_tables()
