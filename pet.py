@@ -109,6 +109,13 @@ class Pet:
         self.health = health
         return self
 
+    # TODO: add effect
+    def set_stats_all(self, *, attack: int, health: int, experience: int):
+        self.attack = attack
+        self.health = health
+        self.experience = experience
+        return self
+
     @staticmethod
     def get_base_stats_observation(pets: list["Pet"]):
         num_pets = len(pets)
@@ -132,3 +139,11 @@ class Pet:
         level_experience = self.get_level_experience()
         # TODO: print effect
         return f"{self.species.name}: {self.attack}🗡 {self.health}\u2764\ufe0f lvl{level}-{level_experience}"
+
+    def state(self):
+        return {
+            "species": self.species.value,
+            "attack": self.attack,
+            "health": self.health,
+            "experience": self.experience,
+        }

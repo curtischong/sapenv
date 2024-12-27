@@ -77,7 +77,7 @@ def main(virtual_screen=False):
         "--batch_size",
         type=int,
         nargs="?",
-        default=512,
+        default=256,
         help="set which batch size to use for training.",
     )
     parser.add_argument(

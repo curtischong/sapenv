@@ -16,6 +16,7 @@ from all_types_and_consts import (
 )
 from battle import battle
 from gen_opponent import get_horse_team, get_pig_team
+from opponent_db import OpponentDB
 from pet_data import get_base_pet
 from shop import Shop
 from team import Team
@@ -30,10 +31,12 @@ class Player:
         self.num_wins = 0
         self.num_actions_taken_in_turn = 0
         self.hearts = STARTING_HEARTS
+        self.opponent_db: OpponentDB = None
 
     @staticmethod
-    def init_starting_player():
+    def init_starting_player(opponent_db: OpponentDB):
         player = Player(Team.init_starting_team())
+        player.opponent_db = opponent_db
         player.shop.init_shop_for_round(round_number=1)
         return player
 
@@ -250,7 +253,15 @@ class Player:
 
     def end_turn_action(self) -> GameResult:
         # todo: smarter opponent team
-        battle_result = battle(self.team, get_horse_team(self.turn_number))
+        battle_result = battle(
+            self.team,
+            self.opponent_db.get_opponent_similar_in_stregth(
+                team=self.team,
+                num_wins=self.num_wins,
+                num_games_played=self.turn_number,
+                num_lives_remaining=self.hearts,
+            ),
+        )
 
         # update based on result of battle
         self.turn_number += 1
