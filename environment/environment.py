@@ -108,6 +108,8 @@ class SuperAutoPetsEnv(gym.Env):
         done = game_result == GameResult.WIN or game_result == GameResult.LOSE
         if self.wandb_run:
             self.wandb_run.log({"reward": reward, "is_truncated": 0})
+        if done:
+            self.wandb_run.log({"num_wins": self.player.num_wins, "num_hearts": self.player.hearts})
 
         truncated = False
         return observation, reward, done, truncated, info
