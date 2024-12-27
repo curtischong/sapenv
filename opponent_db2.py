@@ -13,13 +13,12 @@ class OpponentDBInMemory:
     def __init__(
         self,
     ):
-        # self.db_file = db_file
         self._init_tables()
 
-        # maps (num_games_played, lives_remaining) -> list[compressed_team]
-        self.teams = dict[tuple[int, int], list[str]] = {}
 
     def _init_tables(self):
+        # maps (num_games_played, lives_remaining) -> list[compressed_team]
+        self.teams: dict[tuple[int, int], list[str]] = {}
         team = get_horse_team(round_number=1)
         # compressed_team = compress_team(team)
         self.insert_to_db(team, 0, 0, 5)
@@ -49,3 +48,6 @@ class OpponentDBInMemory:
             target_games_played -= 1
         selected_opponent = random.choice(opponents_with_similar_strength)
         return decompress_team(selected_opponent[0])
+
+    def flush(self):
+        self._init_tables()

@@ -33,6 +33,7 @@ class SuperAutoPetsEnv(gym.Env):
         self.player = Player.init_starting_player(self.opponent_db)
         self.wandb_run = wandb_run
         self.metrics_tracker = MetricsTracker(wandb_run)
+        self.step_num=0
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
@@ -104,6 +105,11 @@ class SuperAutoPetsEnv(gym.Env):
         #     f"turn: {self.player.turn_number}, action: {action_name}, result: {game_result}"
         # )
         self.metrics_tracker.add_step_metrics(selected_action, action_result)
+
+        self.step_num += 1
+        if self.step_num%1000 == 0:
+            self.step_num = 0
+            self.opponent_db.flush()
 
         if (
             game_result == GameResult.TRUNCATED
