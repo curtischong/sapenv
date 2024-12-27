@@ -47,7 +47,6 @@ class OpponentDB2:
             ):
                 opponents_with_similar_strength = self.teams[(target_games_played, target_lives_remaining)]
                 target_lives_remaining -= 1
-                print("hi")
             target_games_played -= 1
         selected_opponent = random.choice(opponents_with_similar_strength)
         return decompress_team(selected_opponent[0])

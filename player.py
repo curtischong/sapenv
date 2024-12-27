@@ -253,7 +253,6 @@ class Player:
 
     def end_turn_action(self) -> GameResult:
         # todo: smarter opponent team
-        print("get_opponent_similar_in_stregth")
         battle_result = battle(
             self.team,
             self.opponent_db.get_opponent_similar_in_stregth(
@@ -263,7 +262,6 @@ class Player:
                 num_lives_remaining=self.hearts,
             ),
         )
-        print("get_opponent_similar_in_stregth fin")
 
         # update based on result of battle
         self.turn_number += 1

@@ -50,9 +50,9 @@ class OpponentDB:
     ) -> Team:
         opponents_with_similar_strength = []
         target_games_played = num_games_played
-        target_lives_remaining = num_lives_remaining
         with sqlite3.connect(self.db_file) as conn:
             while len(opponents_with_similar_strength) == 0:
+                target_lives_remaining = num_lives_remaining
                 while (
                     len(opponents_with_similar_strength) == 0 and target_lives_remaining > 0
                 ):
@@ -61,7 +61,6 @@ class OpponentDB:
                         (target_games_played, target_lives_remaining),
                     ).fetchall()
                     target_lives_remaining -= 1
-                    print("hi")
                 target_games_played -= 1
         selected_opponent = random.choice(opponents_with_similar_strength)
         return decompress_team(selected_opponent[0])
