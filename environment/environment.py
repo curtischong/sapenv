@@ -58,7 +58,6 @@ class SuperAutoPetsEnv(gym.Env):
         observation = get_observation(self.player)
 
         if action_name == ActionName.END_TURN:
-            self.player.num_actions_taken_in_turn = 0
             game_result, battle_result = action_result
             if battle_result == BattleResult.TEAM1_WIN:
                 reward = self.gentle_exponential(self.player.num_wins)
@@ -68,6 +67,7 @@ class SuperAutoPetsEnv(gym.Env):
                 reward = 0.5 * self.gentle_exponential(self.player.num_wins)
             else:
                 raise ValueError(f"Unknown battle result: {battle_result}")
+            self.player.num_actions_taken_in_turn = 0
         else:
             game_result = GameResult.CONTINUE
             reward = 0
