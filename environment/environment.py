@@ -63,7 +63,7 @@ class SuperAutoPetsEnv(gym.Env):
             if battle_result == BattleResult.TEAM1_WIN:
                 reward = self.gentle_exponential(self.player.num_wins)
             elif battle_result == BattleResult.TEAM2_WIN:
-                reward = 0.2
+                reward = 0.2  # even though team2 won, reward them for not having their episode truncated
             elif battle_result == BattleResult.TIE:
                 reward = 0.5 * self.gentle_exponential(self.player.num_wins)
             else:
