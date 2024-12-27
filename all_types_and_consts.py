@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import Any, Callable, Literal
 from enum import Enum, auto
 
 MAX_TEAM_SIZE = 5

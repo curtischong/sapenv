@@ -29,6 +29,13 @@ def battle_only_consider_health_and_attack(team1: Team, team2: Team) -> BattleRe
         return BattleResult.TEAM2_WIN
 
 
+def battle_with_effects(team1: Team, team2: Team) -> BattleResult:
+    pets1 = (
+        team1.clone().get_pets_without_none_species()
+    )  # we need to clone the pets so the original team doesn't get modified
+    pets2 = team2.clone().get_pets_without_none_species()
+
+
 def attack_pets(pet: Pet, opponent_pets: list[Pet]):
     top_pet = opponent_pets[-1]
     top_pet.health -= pet.attack

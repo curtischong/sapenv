@@ -1,10 +1,13 @@
 import numpy as np
 from all_types_and_consts import (
+    MAX_ATTACK,
+    MAX_HEALTH,
     MAX_PET_EXPERIENCE,
     PetExperience,
     Species,
     dummy_trigger_fn,
 )
+from pet_callback_consts import OnSell
 
 
 class Pet:
@@ -19,6 +22,7 @@ class Pet:
         effect=None,
         on_level_up=dummy_trigger_fn,
         on_buy=dummy_trigger_fn,
+        on_sell=dummy_trigger_fn,
     ):
         self.species = species
         self.attack = attack
@@ -27,6 +31,7 @@ class Pet:
         self.effect = effect
         self.on_level_up = on_level_up
         self.on_buy = on_buy
+        self.on_sell = on_sell
 
     @staticmethod
     def define_base_stats(*, species: Species, attack: int, health: int):
@@ -37,6 +42,9 @@ class Pet:
             experience=1,
             effect=None,
         )
+
+    def set_on_sell(self, on_sell: OnSell):
+        self.on_sell = on_sell
 
     def clone(self):
         return Pet(
@@ -100,8 +108,8 @@ class Pet:
         return self_stats >= other_stats
 
     def add_stats(self, *, attack: int, health: int):
-        self.attack += attack
-        self.health += health
+        self.attack = min(MAX_ATTACK, self.attack + attack)
+        self.health = min(MAX_HEALTH, self.health + health)
         return self
 
     def set_stats(self, *, attack: int, health: int):
