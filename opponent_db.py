@@ -54,9 +54,9 @@ class OpponentDB:
                 len(opponents_with_similar_strength) == 0 and target_lives_remaining > 0
             ):
                 opponents_with_similar_strength = self.conn.execute(
-                    "SELECT * FROM opponents WHERE num_games_played == ? AND num_lives_remaining == lives_remaining",
+                    "SELECT * FROM opponents WHERE num_games_played == ? AND num_lives_remaining == ?",
                     (target_games_played, target_lives_remaining),
-                )
+                ).fetchall()
                 target_lives_remaining -= 1
             target_games_played -= 1
         selected_opponent = random.choice(opponents_with_similar_strength)

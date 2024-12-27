@@ -34,7 +34,7 @@ def require_consent(prompt: str):
         exit(0)
 
 
-def compress_team(team: list[Pet]) -> bytes:
+def compress_team(team: Team) -> bytes:
     """
     Convert a list of Pet objects into a compressed binary blob.
 
@@ -50,7 +50,7 @@ def compress_team(team: list[Pet]) -> bytes:
     buffer = bytearray()
 
     # Pack each Pet’s attributes using a fixed 2-byte representation (big-endian)
-    for pet in team:
+    for pet in team.pets:
         buffer += struct.pack(">H", pet.species.value)
         buffer += struct.pack(">H", pet.attack)
         buffer += struct.pack(">H", pet.health)
