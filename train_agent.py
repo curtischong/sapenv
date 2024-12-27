@@ -26,7 +26,7 @@ from utils import require_consent
 
 custom_network = dict(
     activation_fn=nn.SiLU,
-    net_arch=dict(pi=[64] * 10, vf=[32] * 10),
+    net_arch=dict(pi=[256] * 2, vf=[256] * 2),
 )
 
 
@@ -87,8 +87,8 @@ def train_with_masks(ret):
     else:
         log.info("Training from scratch...")
         model = MaskablePPO(
-            # CustomAttentionPolicy,
-            "MlpPolicy",
+            CustomAttentionPolicy,
+            # "MlpPolicy",
             env,
             verbose=0,
             policy_kwargs=custom_network,

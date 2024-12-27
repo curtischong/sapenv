@@ -18,7 +18,7 @@ class Attention1DExtractor(BaseFeaturesExtractor):
     """
 
     def __init__(
-        self, observation_space, features_dim=256, n_heads=2, n_layers=2, embed_dim=64
+        self, observation_space, features_dim=256, n_heads=2, n_layers=6, embed_dim=64
     ):
         """
         :param observation_space: (gym.Space) The observation space (1D).
