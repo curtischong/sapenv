@@ -127,7 +127,7 @@ class Player:
             self.team.pets[target_team_idx] = bought_pet.combine_onto(pet_at_team_idx)
         else:
             self.team.pets[target_team_idx] = bought_pet
-        return {[ActionReturn.BOUGHT_PET_SPECIES]: shop_pet_species}
+        return {ActionReturn.BOUGHT_PET_SPECIES: shop_pet_species}
 
     def buy_pet_action_mask(self) -> np.ndarray:
         # prevent buying if the player does not have enough gold
@@ -207,7 +207,7 @@ class Player:
         self.shop.gold += pet.get_level()
 
         self.team.pets[idx] = get_base_pet(Species.NONE)
-        return {[ActionReturn.SOLD_PET_SPECIES]: pet_species}
+        return {ActionReturn.SOLD_PET_SPECIES: pet_species}
 
     def sell_pet_action_mask(self) -> np.ndarray:
         mask = np.ones((MAX_TEAM_SIZE), dtype=bool)
@@ -280,8 +280,8 @@ class Player:
             game_result = GameResult.CONTINUE
 
         return {
-            [ActionReturn.GAME_RESULT]: game_result,
-            [ActionReturn.BATTLE_RESULT]: battle_result,
+            ActionReturn.GAME_RESULT: game_result,
+            ActionReturn.BATTLE_RESULT: battle_result,
         }
 
     # to help the model, you can only end turn if you have no gold

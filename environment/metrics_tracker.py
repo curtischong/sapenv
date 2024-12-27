@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import Any
 from all_types_and_consts import ActionReturn, BattleResult, GameResult, SelectedAction
 from environment.action_space import ActionName
 from wandb import wandb_run as Run
@@ -12,7 +13,7 @@ class MetricsTracker:
     def add_step_metrics(
         self,
         selected_action: SelectedAction,
-        action_result: None | tuple[GameResult, BattleResult],
+        action_result: None | dict[ActionReturn, Any],
     ):
         if self.wandb_run is None:
             # this is empty during inference

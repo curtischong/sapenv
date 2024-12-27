@@ -115,16 +115,6 @@ class SuperAutoPetsEnv(gym.Env):
         truncated = False
         return observation, reward, done, truncated, info
 
-    def _roll_but_no_shop_pets_to_combine_with(self, action_name: ActionName):
-        if action_name != ActionName.ROLL_SHOP:
-            return False
-        my_pet_species = [pet.species for pet in self.player.team.pets]
-        # Note: we don't need to compare with linked pets since on roll, they disappear
-        for shop_pet in self.player.shop.slots:
-            if shop_pet.pet.species in my_pet_species:
-                return False
-        return True
-
     def render(self):
         # Render environment for human viewing
         print(self.player)
