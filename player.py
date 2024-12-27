@@ -271,7 +271,7 @@ class Player:
         if self.hearts <= 0:
             return GameResult.LOSE, battle_result
         if self.num_wins == NUM_WINS_TO_WIN:
-            return GameResult.WIN
+            return GameResult.WIN, battle_result
         return GameResult.CONTINUE, battle_result
 
     # to help the model, you can only end turn if you have no gold
