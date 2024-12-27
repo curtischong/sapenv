@@ -5,6 +5,7 @@ from all_types_and_consts import (
     GameResult,
     SelectedAction,
 )
+from opponent_db import OpponentDB
 from battle import battle
 from environment.metrics_tracker import MetricsTracker
 from environment.state_space import (
@@ -26,13 +27,14 @@ class SuperAutoPetsEnv(gym.Env):
     def __init__(self, wandb_run=None):
         self.observation_space = env_observation_space
         self.action_space = env_action_space
-        self.player = Player.init_starting_player()
+        self.opponent_db = OpponentDB("opponents.sqlite")
+        self.player = Player.init_starting_player(self.opponent_db)
         self.wandb_run = wandb_run
         self.metrics_tracker = MetricsTracker(wandb_run)
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
-        self.player = Player.init_starting_player()
+        self.player = Player.init_starting_player(self.opponent_db)
         obs = get_observation(self.player)
         return obs, {}
 
@@ -56,6 +58,19 @@ class SuperAutoPetsEnv(gym.Env):
     def step(self, selected_action: SelectedAction):
         action_name = ActionName(selected_action.path_key[1:])
         action = actions_dict[action_name]
+
+        if (
+            action_name == ActionName.END_TURN
+            and self.player.num_actions_taken_in_turn <= MAX_ACTIONS_IN_TURN
+            and self.player.turn_number
+            == 0  # only insert BEFORE the battle on the first turn
+        ):
+            self.opponent_db.insert_to_db(
+                self.player.team,
+                self.player.num_wins,
+                self.player.num_actions_taken_in_turn,
+                self.player.hearts,
+            )
         action_result = action.perform_action(self.player, selected_action.params)
         observation = get_observation(self.player)
 
@@ -72,6 +87,13 @@ class SuperAutoPetsEnv(gym.Env):
             else:
                 raise ValueError(f"Unknown battle result: {battle_result}")
             self.player.num_actions_taken_in_turn = 0
+
+            self.opponent_db.insert_to_db(
+                self.player.team,
+                self.player.num_wins,
+                self.player.num_actions_taken_in_turn,
+                self.player.hearts,
+            )
         else:
             game_result = GameResult.CONTINUE
             reward = -1 / MAX_ACTIONS_IN_TURN
