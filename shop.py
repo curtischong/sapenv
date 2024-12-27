@@ -213,8 +213,8 @@ class Shop:
         return {
             "shop_animals": slot_pets_observation | {"is_frozen": is_slot_pet_frozen},
             "shop_linked_animals": {
-                # "species1": linked_slot_observation1["species"],
-                # "species2": linked_slot_observation2["species"],
+                "species1": linked_slot_observation1["species"],
+                "species2": linked_slot_observation2["species"],
                 "attacks1": linked_slot_observation1["attacks"],
                 "attacks2": linked_slot_observation2["attacks"],
                 "healths1": linked_slot_observation1["healths"],

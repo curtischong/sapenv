@@ -122,7 +122,7 @@ class Pet:
             healths[idx] = pet.health
 
         return {
-            # "species": species,
+            "species": species,
             "attacks": attacks,
             "healths": healths,
         }
