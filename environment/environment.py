@@ -18,6 +18,7 @@ from environment.action_space import (
     get_action_masks,
     actions_dict,
 )
+from opponent_db2 import OpponentDBInMemory
 from player import Player
 
 
@@ -27,7 +28,8 @@ class SuperAutoPetsEnv(gym.Env):
     def __init__(self, wandb_run=None):
         self.observation_space = env_observation_space
         self.action_space = env_action_space
-        self.opponent_db = OpponentDB("opponents.sqlite")
+        # self.opponent_db = OpponentDB("opponents.sqlite")
+        self.opponent_db = OpponentDBInMemory()
         self.player = Player.init_starting_player(self.opponent_db)
         self.wandb_run = wandb_run
         self.metrics_tracker = MetricsTracker(wandb_run)

@@ -5,14 +5,13 @@ from team import Team
 from utils import compress_team, decompress_team
 
 
-class OpponentDB2:
+class OpponentDBInMemory:
     """
     The goal of this database is to store teams the model created. The model will then play against these teams as a form a self-play
     """
 
     def __init__(
         self,
-        db_file="",
     ):
         # self.db_file = db_file
         self._init_tables()
