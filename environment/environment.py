@@ -63,7 +63,7 @@ class SuperAutoPetsEnv(gym.Env):
             if battle_result == BattleResult.TEAM1_WIN:
                 reward = self.gentle_exponential(self.player.num_wins)
             elif battle_result == BattleResult.TEAM2_WIN:
-                reward = -1
+                reward = 0.2
             elif battle_result == BattleResult.TIE:
                 reward = 0.5 * self.gentle_exponential(self.player.num_wins)
             else:
@@ -89,8 +89,9 @@ class SuperAutoPetsEnv(gym.Env):
             truncated = True
             self.reset()
             info = {}
-            if reward > 0:
-                reward = reward / 2
+            # if reward > 0:
+            #     reward = reward / 2
+            reward = -10
             if self.wandb_run:
                 self.wandb_run.log(
                     {
@@ -102,14 +103,13 @@ class SuperAutoPetsEnv(gym.Env):
 
         # Determine if the game is done based on the result
         info = {"game_result": game_result}
-        reward = 0
         done = False
         if game_result == GameResult.WIN:
             done = True
         elif game_result == GameResult.LOSE:
             # the more wins you have, less the penalty
             done = True
-            reward = -100 + self.gentle_exponential(self.player.num_wins)
+            reward = -10 + self.gentle_exponential(self.player.num_wins)
         if done:
             if self.wandb_run:
                 self.wandb_run.log({"reward": reward, "is_truncated": 0})

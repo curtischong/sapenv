@@ -101,7 +101,7 @@ def main(virtual_screen=False):
         "--gamma",
         type=float,
         nargs="?",
-        default=0.99,
+        default=0.96,
         help="set which gamma to use for MaskablePPO training.",
     )
     parser.add_argument(
