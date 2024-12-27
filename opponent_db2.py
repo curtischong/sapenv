@@ -1,8 +1,10 @@
+from collections import defaultdict
 import random
 
 from gen_opponent import get_horse_team
 from team import Team
 from utils import compress_team, decompress_team
+from random import randrange
 
 
 class OpponentDBInMemory:
@@ -18,7 +20,7 @@ class OpponentDBInMemory:
 
     def _init_tables(self):
         # maps (num_games_played, lives_remaining) -> list[compressed_team]
-        self.teams: dict[tuple[int, int], list[str]] = {}
+        self.teams: dict[tuple[int, int], list[str]] = defaultdict(list)
         team = get_horse_team(round_number=1)
         # compressed_team = compress_team(team)
         self.insert_to_db(team, 0, 0, 5)
@@ -26,7 +28,7 @@ class OpponentDBInMemory:
     def insert_to_db(
         self, team: Team, wins: int, games_played: int, lives_remaining: int
     ):
-        self.teams[(games_played, lives_remaining)] = compress_team(team)
+        self.teams[(games_played, lives_remaining)].append(compress_team(team))
 
     def get_opponent_similar_in_stregth(
         self,
@@ -46,8 +48,9 @@ class OpponentDBInMemory:
                 opponents_with_similar_strength = self.teams[(target_games_played, target_lives_remaining)]
                 target_lives_remaining -= 1
             target_games_played -= 1
+
         selected_opponent = random.choice(opponents_with_similar_strength)
-        return decompress_team(selected_opponent[0])
+        return decompress_team(selected_opponent)
 
     def flush(self):
         self._init_tables()
