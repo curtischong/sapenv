@@ -1,14 +1,11 @@
 import gymnasium as gym
 from all_types_and_consts import (
     MAX_ACTIONS_IN_TURN,
-    ActionResult,
     ActionReturn,
     BattleResult,
     GameResult,
     SelectedAction,
 )
-from opponent_db import OpponentDB
-from battle import battle
 from environment.metrics_tracker import MetricsTracker
 from environment.state_space import (
     env_observation_space,
@@ -21,6 +18,7 @@ from environment.action_space import (
     actions_dict,
 )
 from opponent_db2 import OpponentDBInMemory
+from pet_callback import set_pet_callbacks
 from player import Player
 
 
@@ -30,12 +28,13 @@ class SuperAutoPetsEnv(gym.Env):
     def __init__(self, wandb_run=None):
         self.observation_space = env_observation_space
         self.action_space = env_action_space
+        set_pet_callbacks()
         # self.opponent_db = OpponentDB("opponents.sqlite")
         self.opponent_db = OpponentDBInMemory()
         self.player = Player.init_starting_player(self.opponent_db)
         self.wandb_run = wandb_run
         self.metrics_tracker = MetricsTracker(wandb_run)
-        self.step_num=0
+        self.step_num = 0
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
@@ -82,8 +81,9 @@ class SuperAutoPetsEnv(gym.Env):
         slowness_penalty = self.player.num_actions_taken_in_turn / MAX_ACTIONS_IN_TURN
 
         if action_name == ActionName.END_TURN:
-            battle_result = action_result[ActionReturn.BATTLE_RESULT]
             game_result = action_result[ActionReturn.GAME_RESULT]
+            battle_result = action_result[ActionReturn.BATTLE_RESULT]
+
             if battle_result == BattleResult.TEAM1_WIN:
                 reward = self.gentle_exponential(self.player.num_wins)
             elif battle_result == BattleResult.TEAM2_WIN:
@@ -110,7 +110,7 @@ class SuperAutoPetsEnv(gym.Env):
         self.metrics_tracker.add_step_metrics(selected_action, action_result)
 
         self.step_num += 1
-        if self.step_num%1000 == 0:
+        if self.step_num % 1000 == 0:
             self.step_num = 0
             self.opponent_db.flush()
 

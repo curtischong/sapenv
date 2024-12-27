@@ -14,8 +14,7 @@ from all_types_and_consts import (
     Species,
     MAX_SHOP_SLOTS,
 )
-from battle import battle
-from gen_opponent import get_horse_team, get_pig_team
+from battle import battle_only_consider_health_and_attack
 from opponent_db import OpponentDB
 from pet_data import get_base_pet
 from shop import Shop
@@ -207,6 +206,7 @@ class Player:
         pet = self.team.pets[idx]
         pet_species = pet.species
         assert pet_species != Species.NONE
+        pet.on_sell(pet_level=pet.get_level(), shop=self.shop, team=self.team)
         self.shop.gold += pet.get_level()
 
         self.team.pets[idx] = get_base_pet(Species.NONE)
@@ -253,7 +253,7 @@ class Player:
 
     def end_turn_action(self) -> GameResult:
         # todo: smarter opponent team
-        battle_result = battle(
+        battle_result = battle_only_consider_health_and_attack(
             self.team,
             self.opponent_db.get_opponent_similar_in_stregth(
                 team=self.team,

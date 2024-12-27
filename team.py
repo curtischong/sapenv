@@ -31,3 +31,12 @@ class Team:
 
     def get_pets_without_none_species(self) -> list[Pet]:
         return [pet for pet in self.pets if pet.species != Species.NONE]
+
+    def get_random_pets(self, select_num_pets: int) -> list[Pet]:
+        list_copy = self.pets.copy()
+        res = []
+        while select_num_pets > 0:
+            idx = np.random.randint(0, len(list_copy))
+            res.append(list_copy.pop(idx))
+            select_num_pets -= 1
+        return res
