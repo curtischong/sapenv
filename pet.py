@@ -7,7 +7,7 @@ from all_types_and_consts import (
     Species,
     dummy_trigger_fn,
 )
-from pet_callback_consts import OnSell
+from pet_callback_consts import OnBuy, OnSell
 
 
 class Pet:
@@ -21,7 +21,7 @@ class Pet:
         # effect: Effect | None,  # TODO: add effect
         effect=None,
         on_level_up=dummy_trigger_fn,
-        on_buy=dummy_trigger_fn,
+        on_buy: OnBuy = dummy_trigger_fn,
         on_sell: OnSell = dummy_trigger_fn,
     ):
         self.species = species
@@ -44,6 +44,9 @@ class Pet:
         )
 
     def set_on_sell(self, on_sell: OnSell):
+        self.on_sell = on_sell
+
+    def set_on_buy(self, on_sell: OnBuy):
         self.on_sell = on_sell
 
     def clone(self):
