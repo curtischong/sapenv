@@ -37,6 +37,7 @@ class OpponentDB:
             "INSERT INTO opponents VALUES (?, ?, ?, ?)",
             (compress_team(team), wins, games_played, lives_remaining),
         )
+        self.conn.commit()
 
     def get_opponent_similar_in_stregth(
         self,
