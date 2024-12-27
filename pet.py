@@ -5,7 +5,6 @@ from all_types_and_consts import (
     Species,
     dummy_trigger_fn,
 )
-from pet_data import get_base_pet
 
 
 class Pet:
@@ -148,12 +147,3 @@ class Pet:
             "health": self.health,
             "experience": self.experience,
         }
-
-    @staticmethod
-    def from_state(state):
-        # TODO: apply the handlers as well
-        return get_base_pet(Species(state["species"])).set_stats_all(
-            attack=state["attack"],
-            health=state["health"],
-            experience=state["experience"],
-        )

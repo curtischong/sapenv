@@ -5,6 +5,8 @@ from pet_data import get_base_pet
 import struct
 import zlib
 
+from team import Team
+
 
 # this function is a bit sus since it modifies the original array AND returns the modified array
 def extend_array_to_length[T](
@@ -61,7 +63,7 @@ def compress_team(team: list[Pet]) -> bytes:
 
 def decompress_team(blob: bytes) -> list[Pet]:
     decompressed = zlib.decompress(blob)
-    team = []
+    pets: list[Pet] = []
     # Read 8 bytes for each pet (4 x 2-byte fields)
     chunk_size = 2 * 4
     for i in range(0, len(decompressed), chunk_size):
@@ -70,11 +72,10 @@ def decompress_team(blob: bytes) -> list[Pet]:
         )
         # Turn these back into a Pet
         # NOTE: You may need to map species_val -> PetSpeciesEnum
-        pet = Pet(
-            species=Species(species_val),
+        pet = get_base_pet(Species(species_val)).set_stats_all(
             attack=attack,
             health=health,
             experience=exp,
         )
-        team.append(pet)
-    return team
+        pets.append(pet)
+    return Team(pets)

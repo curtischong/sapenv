@@ -45,7 +45,7 @@ class OpponentDB:
         num_wins: int,
         num_games_played: int,
         num_lives_remaining: int,
-    ):
+    ) -> Team:
         opponents_with_similar_strength = []
         target_games_played = num_games_played
         target_lives_remaining = num_lives_remaining
