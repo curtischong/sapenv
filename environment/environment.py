@@ -74,11 +74,6 @@ class SuperAutoPetsEnv(gym.Env):
             game_result = GameResult.CONTINUE
             reward = -1 / MAX_ACTIONS_IN_TURN
             self.player.num_actions_taken_in_turn += 1
-            if self.wandb_run:
-                if self._roll_but_no_shop_pets_to_combine_with(action_name):
-                    self.wandb_run.log({"roll_but_no_shop_pets_to_combine_with": 1})
-                else:
-                    self.wandb_run.log({"roll_but_no_shop_pets_to_combine_with": 0})
         # print(
         #     f"turn: {self.player.turn_number}, action: {action_name}, result: {game_result}"
         # )
@@ -109,7 +104,9 @@ class SuperAutoPetsEnv(gym.Env):
         if self.wandb_run:
             self.wandb_run.log({"reward": reward, "is_truncated": 0})
         if done:
-            self.wandb_run.log({"num_wins": self.player.num_wins, "num_hearts": self.player.hearts})
+            self.wandb_run.log(
+                {"num_wins": self.player.num_wins, "num_hearts": self.player.hearts}
+            )
 
         truncated = False
         return observation, reward, done, truncated, info
