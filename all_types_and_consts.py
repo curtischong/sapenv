@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Literal
+from typing import Any, Literal
 from enum import Enum, auto
 
 MAX_TEAM_SIZE = 5
@@ -204,3 +204,12 @@ class GameResult(Enum):
 class SelectedAction:
     path_key: str
     params: tuple[int, ...]
+
+
+class ActionReturn(Enum):
+    GAME_RESULT = auto()  # Did the player win/lose/continue the game?
+    BATTLE_RESULT = auto()  # did the player lose or win the battle it just fought?
+    BOUGHT_PET_SPECIES = auto()
+
+
+ActionResult = dict[ActionReturn, Any]
