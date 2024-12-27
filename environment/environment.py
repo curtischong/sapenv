@@ -1,13 +1,11 @@
 import gymnasium as gym
 from all_types_and_consts import (
     MAX_ACTIONS_IN_TURN,
-    ActionResult,
     ActionReturn,
     BattleResult,
     GameResult,
     SelectedAction,
 )
-from opponent_db import OpponentDB
 from environment.metrics_tracker import MetricsTracker
 from environment.state_space import (
     env_observation_space,
