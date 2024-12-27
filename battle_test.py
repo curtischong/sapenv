@@ -1,5 +1,5 @@
 from all_types_and_consts import BattleResult, Species
-from battle import battle
+from battle import battle_only_consider_health_and_attack
 from pet_data import get_base_pet
 from team import Team
 
@@ -23,7 +23,9 @@ def test_single_pet_can_beat_team_with_more_pets():
             get_base_pet(Species.NONE),
         ]
     )
-    assert battle(team1, team2) == BattleResult.TEAM2_WIN
+    assert (
+        battle_only_consider_health_and_attack(team1, team2) == BattleResult.TEAM2_WIN
+    )
 
 
 def test_pets_attack_in_proper_order():
@@ -48,4 +50,4 @@ def test_pets_attack_in_proper_order():
             get_base_pet(Species.SNAIL).set_stats(attack=1, health=1),
         ]
     )
-    assert battle(team1, team2) == BattleResult.TIE
+    assert battle_only_consider_health_and_attack(team1, team2) == BattleResult.TIE

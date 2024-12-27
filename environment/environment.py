@@ -8,7 +8,7 @@ from all_types_and_consts import (
     SelectedAction,
 )
 from opponent_db import OpponentDB
-from battle import battle
+from battle import battle_only_consider_health_and_attack
 from environment.metrics_tracker import MetricsTracker
 from environment.state_space import (
     env_observation_space,
@@ -35,7 +35,7 @@ class SuperAutoPetsEnv(gym.Env):
         self.player = Player.init_starting_player(self.opponent_db)
         self.wandb_run = wandb_run
         self.metrics_tracker = MetricsTracker(wandb_run)
-        self.step_num=0
+        self.step_num = 0
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
@@ -110,7 +110,7 @@ class SuperAutoPetsEnv(gym.Env):
         self.metrics_tracker.add_step_metrics(selected_action, action_result)
 
         self.step_num += 1
-        if self.step_num%1000 == 0:
+        if self.step_num % 1000 == 0:
             self.step_num = 0
             self.opponent_db.flush()
 

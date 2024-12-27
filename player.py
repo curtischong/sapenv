@@ -14,7 +14,7 @@ from all_types_and_consts import (
     Species,
     MAX_SHOP_SLOTS,
 )
-from battle import battle
+from battle import battle_only_consider_health_and_attack
 from gen_opponent import get_horse_team, get_pig_team
 from opponent_db import OpponentDB
 from pet_data import get_base_pet
@@ -253,7 +253,7 @@ class Player:
 
     def end_turn_action(self) -> GameResult:
         # todo: smarter opponent team
-        battle_result = battle(
+        battle_result = battle_only_consider_health_and_attack(
             self.team,
             self.opponent_db.get_opponent_similar_in_stregth(
                 team=self.team,
