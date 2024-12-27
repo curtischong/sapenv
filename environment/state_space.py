@@ -17,7 +17,7 @@ from all_types_and_consts import (
     STARTING_HEARTS,
     Species,
     MAX_GOLD,
-    Foods,
+    Food,
 )
 from gymnasium import spaces
 import numpy as np
@@ -105,12 +105,19 @@ shop_linked_animals_space = spaces.Dict(
     }
 )
 
+shop_num_foods_space = spaces.Box(
+    low=0, high=MAX_SHOP_FOOD_SLOTS, shape=(len(Food),), dtype=np.int32
+)
+shop_num_frozen_foods_space = spaces.Box(
+    low=0, high=MAX_SHOP_FOOD_SLOTS, shape=(len(Food),), dtype=np.int32
+)
+
 # since the shop foods are ALWAYS the same. we can represent it like this:
 # For each food type, specify the number of that kind we can buy
 shop_num_foods_space = spaces.Box(
     low=0,
     high=MAX_SHOP_FOOD_SLOTS,
-    shape=(len(Foods),),
+    shape=(len(Food),),
     dtype=np.int32,
 )
 
@@ -138,7 +145,8 @@ env_observation_space = spaces.Dict(
         "num_wins": num_wins_space,
         "num_hearts": num_hearts_space,
         "actions_taken_in_turn": actions_taken_in_turn_space,
-        # "shop_num_foods": shop_num_foods_space,
+        "shop_num_foods": shop_num_foods_space,
+        "shop_num_frozen_foods": shop_num_frozen_foods_space,
     }
 )
 

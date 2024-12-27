@@ -1,13 +1,17 @@
+from collections import defaultdict
 import itertools
 from all_types_and_consts import (
+    FOOD_COST,
     MAX_SHOP_LINKED_SLOTS,
     MAX_SHOP_SLOTS,
     PET_COST,
     ROLL_COST,
     STARTING_GOLD,
+    Food,
     ShopTier,
     Species,
     hidden_species,
+    food_in_tiers,
 )
 from pet import Pet
 import random
@@ -32,6 +36,15 @@ SHOP_TIER_TO_MAX_SHOP_SLOTS: dict[ShopTier, int] = {
     4: 4,
     5: 5,
     6: 5,
+}
+
+SHOP_TIER_TO_MAX_FOOD_SLOTS: dict[ShopTier, int] = {
+    1: 2,
+    2: 2,
+    3: 2,
+    4: 3,
+    5: 3,
+    6: 3,
 }
 
 
@@ -89,6 +102,8 @@ class Shop:
         self.slots: list[ShopSlot] = []
         self.linked_slots: list[LinkedShopSlot] = []
         self.gold: int = STARTING_GOLD
+        self.num_foods = defaultdict(int)
+        self.num_frozen_foods = defaultdict(int)
 
     def init_shop_for_round(self, round_number: int):
         # TODO: add additional gold from swans. we should call pet callbacks to do this? maybe there is no logic required here
@@ -137,6 +152,22 @@ class Shop:
 
         self.slots = new_slots
 
+    def roll_food(self):
+        self.num_foods.clear()
+        available_foods = food_in_tiers[self.shop_tier]
+        num_food_slots = SHOP_TIER_TO_MAX_FOOD_SLOTS[self.shop_tier]
+        for _ in range(num_food_slots):
+            chosen_food = random.choice(available_foods)
+            self.num_foods[chosen_food] += 1
+
+    def freeze_food(self, food_type: Food):
+        assert self.num_frozen_foods[food_type] < self.num_foods[food_type]
+        self.num_frozen_foods[food_type] += 1
+
+    def unfreeze_food(self, food_type: Food):
+        assert self.num_frozen_foods[food_type] > 0
+        self.num_frozen_foods[food_type] -= 1
+
     def toggle_freeze_slot(self, slot_idx: int):
         assert slot_idx < len(self.slots)
         self.slots[slot_idx].is_frozen = not self.slots[slot_idx].is_frozen
@@ -183,6 +214,11 @@ class Shop:
         else:
             return bought_linked_slot.pet2
 
+    def buy_food(self, food_type: Food):
+        assert self.gold >= FOOD_COST
+        assert self.num_foods[food_type] > 0
+        self.gold -= FOOD_COST
+
     def get_observation(self):
         slot_pets_observation = Pet.get_base_stats_observation(
             extend_pet_array_to_length(
@@ -210,6 +246,14 @@ class Shop:
                 length=MAX_SHOP_LINKED_SLOTS,
             )
         )
+        num_foods_observation = np.zeros((len(Food),), dtype=np.int32)
+        for food_type, num_foods in self.num_foods.items():
+            num_foods_observation[food_type.value] = num_foods
+
+        num_frozen_foods_observation = np.zeros((len(Food),), dtype=np.int32)
+        for food_type, num_foods in self.num_frozen_foods.items():
+            num_frozen_foods_observation[food_type.value] = num_foods
+
         return {
             "shop_animals": slot_pets_observation | {"is_frozen": is_slot_pet_frozen},
             "shop_linked_animals": {
@@ -220,9 +264,8 @@ class Shop:
                 "healths1": linked_slot_observation1["healths"],
                 "healths2": linked_slot_observation2["healths"],
             },
-            # "shop_num_foods": np.zeros(
-            #     (2,), dtype=np.int32
-            # ),  # todo: this is wrong. we need to init, but one hot encode
+            "shop_num_foods": num_foods_observation,
+            "shop_num_frozen_foods": num_foods_observation,
         }
 
     def __repr__(self):
