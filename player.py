@@ -15,7 +15,6 @@ from all_types_and_consts import (
     MAX_SHOP_SLOTS,
 )
 from battle import battle_only_consider_health_and_attack
-from gen_opponent import get_horse_team, get_pig_team
 from opponent_db import OpponentDB
 from pet_data import get_base_pet
 from shop import Shop

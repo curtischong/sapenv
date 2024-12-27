@@ -1,12 +1,10 @@
 # pet callbacks
-from typing import Literal, Callable, Protocol
-
-from shop import Shop
-from team import Team
-
+from typing import Any, Literal, Callable, Protocol
 
 PetLevel = Literal[1, 2, 3]
-triggen_fn = Callable[[PetLevel, Shop], None]
+Shop = Any  # prevent circular import
+Team = Any
+triggen_fn = Callable[[PetLevel, Shop, Team], None]
 
 
 class OnSell(Protocol):

@@ -41,7 +41,7 @@ TURN_AT_WHICH_THEY_GAIN_ONE_LOST_HEART = 3
 MAX_ACTIONS_IN_TURN = 20
 
 
-def dummy_trigger_fn():
+def dummy_trigger_fn(**kwargs):
     pass
 
 

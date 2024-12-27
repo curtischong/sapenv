@@ -8,7 +8,6 @@ from all_types_and_consts import (
     SelectedAction,
 )
 from opponent_db import OpponentDB
-from battle import battle_only_consider_health_and_attack
 from environment.metrics_tracker import MetricsTracker
 from environment.state_space import (
     env_observation_space,
@@ -21,6 +20,7 @@ from environment.action_space import (
     actions_dict,
 )
 from opponent_db2 import OpponentDBInMemory
+from pet_callback import set_pet_callbacks
 from player import Player
 
 
@@ -30,6 +30,7 @@ class SuperAutoPetsEnv(gym.Env):
     def __init__(self, wandb_run=None):
         self.observation_space = env_observation_space
         self.action_space = env_action_space
+        set_pet_callbacks()
         # self.opponent_db = OpponentDB("opponents.sqlite")
         self.opponent_db = OpponentDBInMemory()
         self.player = Player.init_starting_player(self.opponent_db)
@@ -82,8 +83,9 @@ class SuperAutoPetsEnv(gym.Env):
         slowness_penalty = self.player.num_actions_taken_in_turn / MAX_ACTIONS_IN_TURN
 
         if action_name == ActionName.END_TURN:
-            battle_result = action_result[ActionReturn.BATTLE_RESULT]
             game_result = action_result[ActionReturn.GAME_RESULT]
+            battle_result = action_result[ActionReturn.BATTLE_RESULT]
+
             if battle_result == BattleResult.TEAM1_WIN:
                 reward = self.gentle_exponential(self.player.num_wins)
             elif battle_result == BattleResult.TEAM2_WIN:

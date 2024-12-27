@@ -1,15 +1,10 @@
 from all_types_and_consts import ShopTier, Species
 from pet import Pet
-from pet_callback import on_sell_beaver, on_sell_duck
 
 
 tier_1_pets: list[Pet] = [
-    Pet.define_base_stats(species=Species.DUCK, attack=2, health=3).set_on_sell(
-        on_sell_duck
-    ),
-    Pet.define_base_stats(species=Species.BEAVER, attack=3, health=2).set_on_sell(
-        on_sell_beaver
-    ),
+    Pet.define_base_stats(species=Species.DUCK, attack=2, health=3),
+    Pet.define_base_stats(species=Species.BEAVER, attack=3, health=2),
     Pet.define_base_stats(species=Species.PIGEON, attack=3, health=1),
     Pet.define_base_stats(species=Species.OTTER, attack=1, health=3),
     Pet.define_base_stats(species=Species.PIG, attack=4, health=1),
