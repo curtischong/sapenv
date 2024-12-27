@@ -202,10 +202,12 @@ class Player:
 
     def sell_pet_action(self, idx: int):
         pet = self.team.pets[idx]
-        assert pet.species != Species.NONE
+        pet_species = pet.species
+        assert pet_species != Species.NONE
         self.shop.gold += pet.get_level()
 
         self.team.pets[idx] = get_base_pet(Species.NONE)
+        return {[ActionReturn.SOLD_PET_SPECIES]: pet_species}
 
     def sell_pet_action_mask(self) -> np.ndarray:
         mask = np.ones((MAX_TEAM_SIZE), dtype=bool)

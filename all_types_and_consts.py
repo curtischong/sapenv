@@ -210,6 +210,7 @@ class ActionReturn(Enum):
     GAME_RESULT = auto()  # Did the player win/lose/continue the game?
     BATTLE_RESULT = auto()  # did the player lose or win the battle it just fought?
     BOUGHT_PET_SPECIES = auto()
+    SOLD_PET_SPECIES = auto()
 
 
 ActionResult = dict[ActionReturn, Any]

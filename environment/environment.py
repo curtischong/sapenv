@@ -6,6 +6,7 @@ from all_types_and_consts import (
     SelectedAction,
 )
 from battle import battle
+from environment.metrics_tracker import MetricsTracker
 from environment.state_space import (
     env_observation_space,
     get_observation,
@@ -27,6 +28,7 @@ class SuperAutoPetsEnv(gym.Env):
         self.action_space = env_action_space
         self.player = Player.init_starting_player()
         self.wandb_run = wandb_run
+        self.metrics_tracker = MetricsTracker(wandb_run)
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
@@ -77,6 +79,7 @@ class SuperAutoPetsEnv(gym.Env):
         # print(
         #     f"turn: {self.player.turn_number}, action: {action_name}, result: {game_result}"
         # )
+        self.metrics_tracker.add_step_metrics(selected_action, action_result)
 
         if (
             game_result == GameResult.TRUNCATED
@@ -104,6 +107,7 @@ class SuperAutoPetsEnv(gym.Env):
         if self.wandb_run:
             self.wandb_run.log({"reward": reward, "is_truncated": 0})
         if done:
+            self.metrics_tracker.log_episode_metrics()
             self.wandb_run.log(
                 {"num_wins": self.player.num_wins, "num_hearts": self.player.hearts}
             )
