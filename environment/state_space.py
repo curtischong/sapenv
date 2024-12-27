@@ -31,9 +31,7 @@ from player import Player
 # Each animal: ID, Attack, Health, Level
 team_space = spaces.Dict(
     {
-        #     species_space = spaces.Discrete(len(Species))  # Each species is represented by an integer
-        # team_space = spaces.Tuple([species_space] * MAX_TEAM_SIZE)
-        # "species": spaces.MultiBinary([len(Species)] * MAX_TEAM_SIZE),
+        "species": spaces.MultiBinary([len(Species)] * MAX_TEAM_SIZE),
         "attacks": spaces.Box(
             low=MIN_ATTACK,
             high=MAX_ATTACK,
@@ -59,7 +57,7 @@ team_space = spaces.Dict(
 shop_animals_space = spaces.Dict(
     {
         # Create a space for each shop slot
-        # "species": spaces.MultiBinary([len(Species)] * MAX_SHOP_SLOTS),
+        "species": spaces.MultiBinary([len(Species)] * MAX_SHOP_SLOTS),
         "attacks": spaces.Box(
             low=MIN_ATTACK,
             high=MAX_ATTACK,
@@ -78,8 +76,8 @@ shop_animals_space = spaces.Dict(
 shop_linked_animals_space = spaces.Dict(
     {
         # Create a space for each shop slot
-        # "species1": spaces.MultiBinary([len(Species)] * MAX_SHOP_LINKED_SLOTS),
-        # "species2": spaces.MultiBinary([len(Species)] * MAX_SHOP_LINKED_SLOTS),
+        "species1": spaces.MultiBinary([len(Species)] * MAX_SHOP_LINKED_SLOTS),
+        "species2": spaces.MultiBinary([len(Species)] * MAX_SHOP_LINKED_SLOTS),
         "attacks1": spaces.Box(
             low=MIN_ATTACK,
             high=MAX_ATTACK,

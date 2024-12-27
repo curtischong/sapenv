@@ -57,20 +57,22 @@ class SuperAutoPetsEnv(gym.Env):
         action_result = action.perform_action(self.player, selected_action.params)
         observation = get_observation(self.player)
 
+        slowness_penalty = self.player.num_actions_taken_in_turn / MAX_ACTIONS_IN_TURN
+
         if action_name == ActionName.END_TURN:
-            self.player.num_actions_taken_in_turn = 0
             game_result, battle_result = action_result
             if battle_result == BattleResult.TEAM1_WIN:
                 reward = self.gentle_exponential(self.player.num_wins)
             elif battle_result == BattleResult.TEAM2_WIN:
-                reward = 0.2
+                reward = 1 - slowness_penalty
             elif battle_result == BattleResult.TIE:
                 reward = 0.5 * self.gentle_exponential(self.player.num_wins)
             else:
                 raise ValueError(f"Unknown battle result: {battle_result}")
+            self.player.num_actions_taken_in_turn = 0
         else:
             game_result = GameResult.CONTINUE
-            reward = 0
+            reward = -1 / MAX_ACTIONS_IN_TURN
             self.player.num_actions_taken_in_turn += 1
             if self.wandb_run:
                 if self._roll_but_no_shop_pets_to_combine_with(action_name):
@@ -91,7 +93,7 @@ class SuperAutoPetsEnv(gym.Env):
             info = {}
             # if reward > 0:
             #     reward = reward / 2
-            reward = -10
+            reward = -10 - slowness_penalty
             if self.wandb_run:
                 self.wandb_run.log(
                     {
@@ -103,16 +105,11 @@ class SuperAutoPetsEnv(gym.Env):
 
         # Determine if the game is done based on the result
         info = {"game_result": game_result}
-        done = False
-        if game_result == GameResult.WIN:
-            done = True
-        elif game_result == GameResult.LOSE:
-            # the more wins you have, less the penalty
-            done = True
-            reward = -10 + self.gentle_exponential(self.player.num_wins)
+        done = game_result == GameResult.WIN or game_result == GameResult.LOSE
+        if self.wandb_run:
+            self.wandb_run.log({"reward": reward, "is_truncated": 0})
         if done:
-            if self.wandb_run:
-                self.wandb_run.log({"reward": reward, "is_truncated": 0})
+            self.wandb_run.log({"num_wins": self.player.num_wins, "num_hearts": self.player.hearts})
 
         truncated = False
         return observation, reward, done, truncated, info

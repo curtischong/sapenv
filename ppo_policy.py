@@ -18,7 +18,7 @@ class Attention1DExtractor(BaseFeaturesExtractor):
     """
 
     def __init__(
-        self, observation_space, features_dim=256, n_heads=2, n_layers=2, embed_dim=64
+        self, observation_space, features_dim=256, n_heads=2, n_layers=6, embed_dim=64
     ):
         """
         :param observation_space: (gym.Space) The observation space (1D).
@@ -87,10 +87,10 @@ class CustomAttentionPolicy(MaskableActorCriticPolicy):
             features_extractor_class=Attention1DExtractor,
             # Adjust these arguments as desired
             features_extractor_kwargs=dict(
-                features_dim=256, n_heads=2, n_layers=2, embed_dim=64
+                features_dim=32, n_heads=2, n_layers=2, embed_dim=32
             ),
             # net_arch can be customized if you want additional MLP layers
-            net_arch=[dict(pi=[128, 128, 128], vf=[32, 32])],
+            # net_arch=[dict(pi=[64] * 8, vf=[32, 32])],
             **kwargs,
         )
 
