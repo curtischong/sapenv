@@ -8,6 +8,7 @@ from all_types_and_consts import (
     ROLL_COST,
     STARTING_HEARTS,
     TURN_AT_WHICH_THEY_GAIN_ONE_LOST_HEART,
+    ActionReturn,
     BattleResult,
     GameResult,
     Species,
@@ -126,6 +127,7 @@ class Player:
             self.team.pets[target_team_idx] = bought_pet.combine_onto(pet_at_team_idx)
         else:
             self.team.pets[target_team_idx] = bought_pet
+        return {ActionReturn.BOUGHT_PET_SPECIES: shop_pet_species}
 
     def buy_pet_action_mask(self) -> np.ndarray:
         # prevent buying if the player does not have enough gold
@@ -200,10 +202,12 @@ class Player:
 
     def sell_pet_action(self, idx: int):
         pet = self.team.pets[idx]
-        assert pet.species != Species.NONE
+        pet_species = pet.species
+        assert pet_species != Species.NONE
         self.shop.gold += pet.get_level()
 
         self.team.pets[idx] = get_base_pet(Species.NONE)
+        return {ActionReturn.SOLD_PET_SPECIES: pet_species}
 
     def sell_pet_action_mask(self) -> np.ndarray:
         mask = np.ones((MAX_TEAM_SIZE), dtype=bool)
@@ -266,13 +270,19 @@ class Player:
         self.shop.init_shop_for_round(self.turn_number)
 
         if self.turn_number >= MAX_GAMES_LENGTH:
-            return GameResult.TRUNCATED, battle_result
+            game_result = GameResult.TRUNCATED
         # if the player has no more lives, they lose
-        if self.hearts <= 0:
-            return GameResult.LOSE, battle_result
-        if self.num_wins == NUM_WINS_TO_WIN:
-            return GameResult.WIN, battle_result
-        return GameResult.CONTINUE, battle_result
+        elif self.hearts <= 0:
+            game_result = GameResult.LOSE
+        elif self.num_wins == NUM_WINS_TO_WIN:
+            game_result = GameResult.WIN
+        else:
+            game_result = GameResult.CONTINUE
+
+        return {
+            ActionReturn.GAME_RESULT: game_result,
+            ActionReturn.BATTLE_RESULT: battle_result,
+        }
 
     # to help the model, you can only end turn if you have no gold
     # we can remove this restriction in the future?

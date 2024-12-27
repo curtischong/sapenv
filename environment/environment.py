@@ -6,6 +6,7 @@ from all_types_and_consts import (
     SelectedAction,
 )
 from battle import battle
+from environment.metrics_tracker import MetricsTracker
 from environment.state_space import (
     env_observation_space,
     get_observation,
@@ -27,6 +28,7 @@ class SuperAutoPetsEnv(gym.Env):
         self.action_space = env_action_space
         self.player = Player.init_starting_player()
         self.wandb_run = wandb_run
+        self.metrics_tracker = MetricsTracker(wandb_run)
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
@@ -74,14 +76,10 @@ class SuperAutoPetsEnv(gym.Env):
             game_result = GameResult.CONTINUE
             reward = -1 / MAX_ACTIONS_IN_TURN
             self.player.num_actions_taken_in_turn += 1
-            if self.wandb_run:
-                if self._roll_but_no_shop_pets_to_combine_with(action_name):
-                    self.wandb_run.log({"roll_but_no_shop_pets_to_combine_with": 1})
-                else:
-                    self.wandb_run.log({"roll_but_no_shop_pets_to_combine_with": 0})
         # print(
         #     f"turn: {self.player.turn_number}, action: {action_name}, result: {game_result}"
         # )
+        self.metrics_tracker.add_step_metrics(selected_action, action_result)
 
         if (
             game_result == GameResult.TRUNCATED
@@ -109,20 +107,13 @@ class SuperAutoPetsEnv(gym.Env):
         if self.wandb_run:
             self.wandb_run.log({"reward": reward, "is_truncated": 0})
         if done:
-            self.wandb_run.log({"num_wins": self.player.num_wins, "num_hearts": self.player.hearts})
+            self.metrics_tracker.log_episode_metrics()
+            self.wandb_run.log(
+                {"num_wins": self.player.num_wins, "num_hearts": self.player.hearts}
+            )
 
         truncated = False
         return observation, reward, done, truncated, info
-
-    def _roll_but_no_shop_pets_to_combine_with(self, action_name: ActionName):
-        if action_name != ActionName.ROLL_SHOP:
-            return False
-        my_pet_species = [pet.species for pet in self.player.team.pets]
-        # Note: we don't need to compare with linked pets since on roll, they disappear
-        for shop_pet in self.player.shop.slots:
-            if shop_pet.pet.species in my_pet_species:
-                return False
-        return True
 
     def render(self):
         # Render environment for human viewing

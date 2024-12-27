@@ -4,7 +4,12 @@ from typing import Callable
 from gymnasium import spaces
 import numpy as np
 
-from all_types_and_consts import MAX_SHOP_LINKED_SLOTS, MAX_SHOP_SLOTS, MAX_TEAM_SIZE
+from all_types_and_consts import (
+    MAX_SHOP_LINKED_SLOTS,
+    MAX_SHOP_SLOTS,
+    MAX_TEAM_SIZE,
+    ActionResult,
+)
 from player import Player
 
 # moves the pet from start_idx to end_idx
@@ -42,7 +47,7 @@ class ActionName(Enum):
 class Action:
     space: spaces.Space
     get_mask: Callable[[Player], np.ndarray]
-    perform_action: Callable[[Player, tuple[int, ...]], np.ndarray]
+    perform_action: Callable[[Player, tuple[int, ...]], ActionResult]
 
 
 actions_dict: dict[ActionName, Action] = {
