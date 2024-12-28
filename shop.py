@@ -105,7 +105,7 @@ class Shop:
         self.linked_slots: list[LinkedShopSlot] = []
         self.gold: int = STARTING_GOLD
         self.num_foods: defaultdict[Food, int] = defaultdict(int)
-        self.num_frozen_foods = defaultdict(int)
+        self.num_frozen_foods: defaultdict[Food, int] = defaultdict(int)
 
     def init_shop_for_round(self, round_number: int):
         # TODO: add additional gold from swans. we should call pet callbacks to do this? maybe there is no logic required here

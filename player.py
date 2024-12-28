@@ -218,7 +218,10 @@ class Player:
     def buy_food_action_mask(self) -> np.ndarray:
         mask = np.zeros((len(foods_that_apply_globally)), dtype=bool)
         for i, food_type in enumerate(foods_that_apply_globally):
-            if self.shop.num_foods[food_type] > 0:
+            if (
+                self.shop.num_foods[food_type] > 0  # food is available
+                and self.shop.food_cost(food_type) <= self.shop.gold  # can afford
+            ):
                 mask[i] = True
         return mask
 
@@ -231,13 +234,17 @@ class Player:
     def buy_food_for_pet_action_mask(self) -> np.ndarray:
         mask = np.zeros((len(foods_for_pet), MAX_TEAM_SIZE), dtype=bool)
         for i, food_type in enumerate(foods_for_pet):
-            if self.shop.num_foods[food_type] == 0:
+            if (
+                self.shop.num_foods[food_type] == 0  # food is not available
+                or self.shop.food_cost(food_type) > self.shop.gold  # too poor to buy
+            ):
                 continue
             non_empty_pets = [pet.species != Species.NONE for pet in self.team.pets]
             mask[i] = non_empty_pets
         return mask
 
-    def freeze_food_action(self, food_type: Food):
+    def freeze_food_action(self, food_type_idx: int):
+        food_type = Food(food_type_idx)
         self.shop.freeze_food(food_type)
 
     def freeze_food_action_mask(self) -> np.ndarray:
@@ -247,12 +254,13 @@ class Player:
                 mask[food_type.value] = True
         return mask
 
-    def unfreeze_food_action(self, food_type: Food):
+    def unfreeze_food_action(self, food_type_idx: Food):
+        food_type = Food(food_type_idx)
         self.shop.unfreeze_food(food_type)
 
     def unfreeze_food_action_mask(self) -> np.ndarray:
         mask = np.zeros((len(Food)), dtype=bool)
-        for food_type in self.shop.num_foods:
+        for food_type in self.shop.num_frozen_foods:
             if self.shop.num_frozen_foods[food_type] > 0:
                 mask[food_type.value] = True
         return mask
