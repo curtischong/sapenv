@@ -46,7 +46,6 @@ class SuperAutoPetsEnv(gym.Env):
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
-        print("reset called")
         self.player = Player.init_starting_player(self.opponent_db)
         obs = get_observation(self.player)
         return obs, {}
@@ -129,13 +128,11 @@ class SuperAutoPetsEnv(gym.Env):
             )
             reward = -10 - slowness_penalty
             self.metrics_tracker.log_episode_metrics(is_truncated=True)
-            print("truncated")
             return observation, reward, done, truncated, info
 
         # Determine if the game is done based on the result
         done = game_result == GameResult.WIN or game_result == GameResult.LOSE
         if done:
-            print("done")
             self.metrics_tracker.log_episode_metrics(
                 is_truncated=False, player=self.player
             )
