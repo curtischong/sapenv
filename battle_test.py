@@ -24,7 +24,7 @@ def test_single_pet_can_beat_team_with_more_pets():
         ]
     )
     assert (
-        battle_only_consider_health_and_attack(team1, team2) == BattleResult.TEAM2_WIN
+        battle_only_consider_health_and_attack(team1, team2) == BattleResult.LOST_BATTLE
     )
 
 

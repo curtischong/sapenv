@@ -337,9 +337,9 @@ class Player:
 
         # update based on result of battle
         self.turn_number += 1
-        if battle_result == BattleResult.TEAM1_WIN:
+        if battle_result == BattleResult.WON_BATTLE:
             self.num_wins += 1
-        elif battle_result == BattleResult.TEAM2_WIN:
+        elif battle_result == BattleResult.LOST_BATTLE:
             self.hearts -= 1
 
         # recover lost heart if the round is early enough

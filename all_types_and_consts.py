@@ -217,8 +217,8 @@ assert len(foods_that_apply_globally) + len(foods_for_pet) == len(Food)
 
 
 class BattleResult(Enum):
-    TEAM1_WIN = auto()
-    TEAM2_WIN = auto()
+    WON_BATTLE = auto()
+    LOST_BATTLE = auto()
     TIE = auto()
 
 

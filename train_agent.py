@@ -137,13 +137,14 @@ def train_with_masks(ret):
             ],
         )
         env.env.render()
+        eval_model(model, run)
         # evaluate_policy(model, env, n_eval_episodes=100, reward_threshold=0, warn=False)
 
     # Close wandb run when done
     run.finish()
 
 
-def eval_model(ret, model: MaskablePPO, run: Run):
+def eval_model(model: MaskablePPO, run: Run):
     # save best model, using deterministic eval
     env = FlattenAction(
         FlattenObservation(

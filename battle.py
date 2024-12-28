@@ -3,9 +3,9 @@ from pet import Pet
 from team import Team
 
 
-def battle_only_consider_health_and_attack(team1: Team, team2: Team) -> BattleResult:
+def battle_only_consider_health_and_attack(my_team: Team, team2: Team) -> BattleResult:
     pets1 = (
-        team1.clone().get_pets_without_none_species()
+        my_team.clone().get_pets_without_none_species()
     )  # we need to clone the pets so the original team doesn't get modified
     pets2 = team2.clone().get_pets_without_none_species()
 
@@ -24,9 +24,9 @@ def battle_only_consider_health_and_attack(team1: Team, team2: Team) -> BattleRe
     if len(pets1) == 0 and len(pets2) == 0:
         return BattleResult.TIE
     elif len(pets1) > 0:
-        return BattleResult.TEAM1_WIN
+        return BattleResult.WON_BATTLE
     else:
-        return BattleResult.TEAM2_WIN
+        return BattleResult.LOST_BATTLE
 
 
 def battle_with_effects(team1: Team, team2: Team) -> BattleResult:

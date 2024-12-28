@@ -142,9 +142,9 @@ class SuperAutoPetsEnv(gym.Env):
 
     def get_reward_from_battle_result(self, battle_result: BattleResult):
         slowness_penalty = self.player.num_actions_taken_in_turn / MAX_ACTIONS_IN_TURN
-        if battle_result == BattleResult.TEAM1_WIN:
+        if battle_result == BattleResult.WON_BATTLE:
             return self.gentle_exponential(self.player.num_wins)
-        elif battle_result == BattleResult.TEAM2_WIN:
+        elif battle_result == BattleResult.LOST_BATTLE:
             return 1 - slowness_penalty
         elif battle_result == BattleResult.TIE:
             return 0.5 * self.gentle_exponential(self.player.num_wins)
