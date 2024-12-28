@@ -303,8 +303,8 @@ class Shop:
                 "healths1": linked_slot_observation1["healths"],
                 "healths2": linked_slot_observation2["healths"],
             },
-            "shop_num_foods": num_foods_observation,
-            "shop_num_frozen_foods": num_frozen_foods_observation,
+            # "shop_num_foods": num_foods_observation,
+            # "shop_num_frozen_foods": num_frozen_foods_observation,
         }
 
     def __repr__(self):

@@ -137,8 +137,8 @@ env_observation_space = spaces.Dict(
         "num_wins": num_wins_space,
         "num_hearts": num_hearts_space,
         "actions_taken_in_turn": actions_taken_in_turn_space,
-        "shop_num_foods": shop_num_foods_space,
-        "shop_num_frozen_foods": shop_num_frozen_foods_space,
+        # "shop_num_foods": shop_num_foods_space,
+        # "shop_num_frozen_foods": shop_num_frozen_foods_space,
     }
 )
 
