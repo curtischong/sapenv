@@ -18,6 +18,9 @@ from environment.flatten_observation import FlattenObservation
 import wandb
 from wandb.integration.sb3 import WandbCallback
 from torch import nn
+from environment.metrics_tracker import MetricsTracker
+from environment.metrics_tracker_eval import MetricsTrackerEval
+from opponent_db import OpponentDB
 from opponent_db_eval import OpponentDBEval
 from ppo_policy import CustomAttentionPolicy
 from utils import require_consent
@@ -38,7 +41,14 @@ def train_with_masks(ret):
 
     # initialize environment
     # env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
-    env = FlattenAction(FlattenObservation(SuperAutoPetsEnv(wandb_run=run)))
+    env = FlattenAction(
+        FlattenObservation(
+            SuperAutoPetsEnv(
+                opponent_db=OpponentDB("opponents.sqlite"),
+                metrics_tracker=MetricsTracker(),
+            )
+        )
+    )
 
     # create folder to save log
     history_path = "./history/history_" + ret.model_name + "/"
@@ -61,7 +71,10 @@ def train_with_masks(ret):
     # save best model, using deterministic eval
     eval_env = FlattenAction(
         FlattenObservation(
-            SuperAutoPetsEnv(wandb_run=run, opponent_db=OpponentDBEval())
+            SuperAutoPetsEnv(
+                opponent_db=OpponentDBEval(),
+                metrics_tracker=MetricsTrackerEval(wandb_run=run),
+            )
         )
     )
     eval_callback = EvalCallback(

@@ -1,13 +1,13 @@
 import gymnasium as gym
 from all_types_and_consts import (
     MAX_ACTIONS_IN_TURN,
-    ActionResult,
     ActionReturn,
     BattleResult,
     GameResult,
     SelectedAction,
 )
 from environment.metrics_tracker import MetricsTracker
+from environment.metrics_tracker_eval import MetricsTrackerEval
 from environment.state_space import (
     env_observation_space,
     get_observation,
@@ -21,6 +21,8 @@ from environment.action_space import (
 from opponent_db import OpponentDB
 
 # from opponent_db2 import OpponentDBInMemory
+from opponent_db2 import OpponentDBInMemory
+from opponent_db_eval import OpponentDBEval
 from pet_callback import set_pet_callbacks
 from player import Player
 from wandb.sdk.wandb_run import Run
@@ -30,14 +32,16 @@ class SuperAutoPetsEnv(gym.Env):
     metadata = {"render_modes": ["human"]}
 
     def __init__(
-        self, opponent_db=OpponentDB("opponents.sqlite"), wandb_run: Run = None
+        self,
+        opponent_db: OpponentDB | OpponentDBInMemory | OpponentDBEval,
+        metrics_tracker: MetricsTracker | MetricsTrackerEval,
     ):
         self.observation_space = env_observation_space
         self.action_space = env_action_space
         set_pet_callbacks()
         self.opponent_db = opponent_db
         self.player = Player.init_starting_player(self.opponent_db)
-        self.metrics_tracker = MetricsTracker(wandb_run)
+        self.metrics_tracker = metrics_tracker
         self.step_num = 0
 
     def reset(self, *, seed=None, options=None):
@@ -115,7 +119,7 @@ class SuperAutoPetsEnv(gym.Env):
             game_result == GameResult.TRUNCATED
             or self.player.num_actions_taken_in_turn > MAX_ACTIONS_IN_TURN
         ):
-            done = True
+            done = False
             truncated = True
             self.reset()
             info = {}
@@ -126,11 +130,13 @@ class SuperAutoPetsEnv(gym.Env):
             )
             reward = -10 - slowness_penalty
             self.metrics_tracker.log_episode_metrics(is_truncated=True)
+            print("truncated")
             return observation, reward, done, truncated, info
 
         # Determine if the game is done based on the result
         info = {"game_result": game_result}
         if done:
+            print("done")
             self.metrics_tracker.log_episode_metrics(
                 is_truncated=False, player=self.player
             )

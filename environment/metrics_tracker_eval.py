@@ -8,10 +8,9 @@ from player import Player
 
 
 class MetricsTrackerEval:
-    def __init__(self, wandb_run: Run, player: Player = None):
+    def __init__(self, wandb_run: Run):
         self.stats = defaultdict(int)
         self.wandb_run: Run = wandb_run
-        self.player: Player = player
 
     def add_step_metrics(
         self,
@@ -32,6 +31,6 @@ class MetricsTrackerEval:
                 elif battle_result == ActionReturn.TIE:
                     self.stats["tie"] += 1
 
-    def log_episode_metrics(self, is_truncated: bool):
+    def log_episode_metrics(self, is_truncated: bool, player: Player = None):
         self.wandb_run.log(self.stats)
         self.stats.clear()

@@ -8,7 +8,7 @@ from player import Player
 
 
 class MetricsTracker:
-    def __init__(self, wandb_run: Run = None, player: Player = None):
+    def __init__(self, wandb_run: Run = None):
         self.stats = defaultdict(int)
         self.wandb_run: Run = wandb_run
 
