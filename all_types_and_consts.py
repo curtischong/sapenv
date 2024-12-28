@@ -196,6 +196,9 @@ food_in_tiers = defaultdict(list)
 for tier in range(1, 7):
     food_in_tiers[tier] = food_in_tiers[tier - 1] + food_tiers[tier]
 
+foods_that_apply_globally = [Food.SALAD_BOWL, Food.CANNED_FOOD, Food.SUSHI, Food.PIZZA]
+num_food_for_pet = len(Food) - len(foods_that_apply_globally)
+
 
 class BattleResult(Enum):
     TEAM1_WIN = auto()

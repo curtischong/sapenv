@@ -9,6 +9,8 @@ from all_types_and_consts import (
     MAX_SHOP_SLOTS,
     MAX_TEAM_SIZE,
     ActionResult,
+    foods_that_apply_globally,
+    num_food_for_pet,
 )
 from player import Player
 
@@ -22,6 +24,9 @@ buy_pet_space = spaces.MultiBinary([MAX_SHOP_SLOTS, MAX_TEAM_SIZE])  # 35
 buy_linked_pet_space = spaces.MultiBinary(
     [MAX_SHOP_LINKED_SLOTS, 2, MAX_TEAM_SIZE]
 )  # 50
+
+buy_food_space = spaces.MultiBinary([len(foods_that_apply_globally)])
+buy_food_for_pet_space = spaces.MultiBinary([num_food_for_pet, MAX_TEAM_SIZE])
 
 sell_pet_space = spaces.MultiBinary(MAX_TEAM_SIZE)  # index of pet you're selling # 5
 
@@ -68,6 +73,11 @@ actions_dict: dict[ActionName, Action] = {
     ),
     ActionName.BUY_LINKED_PET: Action(
         space=buy_linked_pet_space,
+        get_mask=lambda player: player.buy_linked_pet_action_mask(),
+        perform_action=lambda player, params: player.buy_linked_pet_action(*params),
+    ),
+    ActionName.BUY_FOOD_ACTION: Action(
+        space=buy_food_space,
         get_mask=lambda player: player.buy_linked_pet_action_mask(),
         perform_action=lambda player, params: player.buy_linked_pet_action(*params),
     ),

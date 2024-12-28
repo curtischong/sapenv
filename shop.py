@@ -5,6 +5,7 @@ from all_types_and_consts import (
     MAX_SHOP_LINKED_SLOTS,
     MAX_SHOP_SLOTS,
     PET_COST,
+    FOOD_COST,
     ROLL_COST,
     STARTING_GOLD,
     Food,
@@ -12,6 +13,7 @@ from all_types_and_consts import (
     Species,
     hidden_species,
     food_in_tiers,
+    foods_that_apply_globally,
 )
 from pet import Pet
 import random
@@ -102,7 +104,7 @@ class Shop:
         self.slots: list[ShopSlot] = []
         self.linked_slots: list[LinkedShopSlot] = []
         self.gold: int = STARTING_GOLD
-        self.num_foods = defaultdict(int)
+        self.num_foods: defaultdict[Food, int] = defaultdict(int)
         self.num_frozen_foods = defaultdict(int)
 
     def init_shop_for_round(self, round_number: int):
@@ -214,10 +216,35 @@ class Shop:
         else:
             return bought_linked_slot.pet2
 
-    def buy_food(self, food_type: Food):
-        assert self.gold >= FOOD_COST
+    def _buy_food_helper(self, food_type: Food):
+        cost = self.food_cost(food_type)
+        assert self.gold >= cost
         assert self.num_foods[food_type] > 0
-        self.gold -= FOOD_COST
+        self.num_foods[food_type] -= 1
+
+        # prioritize buying nonfrozen foods
+        self.num_frozen_foods[food_type] = min(
+            self.num_frozen_foods[food_type], self.num_foods[food_type]
+        )
+        self.gold -= cost
+
+    def buy_food(self, food_type: Food):
+        assert food_type in foods_that_apply_globally
+        self._buy_food_helper(food_type)
+
+    def buy_food_for_pet(self, food_type: Food):
+        self._buy_food_helper(food_type)
+
+    def food_cost(self, food_type: Food):
+        match food_type:
+            case Food.PILL:
+                return 1
+            case Food.BREAD_CRUMB:
+                return 0
+            case Food.MILK:
+                return 0
+            case _:
+                return FOOD_COST
 
     def get_observation(self):
         slot_pets_observation = Pet.get_base_stats_observation(

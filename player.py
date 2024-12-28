@@ -15,6 +15,7 @@ from all_types_and_consts import (
     GameResult,
     Species,
     MAX_SHOP_SLOTS,
+    num_food_for_pet,
 )
 from battle import battle_only_consider_health_and_attack
 from opponent_db import OpponentDB
@@ -211,6 +212,25 @@ class Player:
 
     def buy_food_action(self, food_type: Food):
         self.shop.buy_food(food_type)
+
+    def buy_food_action_mask(self):
+        mask = np.zeros((len(Food)), dtype=bool)
+        for food_type, cnt in self.shop.num_foods.items():
+            if cnt > 0:
+                mask[food_type.value] = True
+
+    def buy_food_for_pet_action(self, food_type: Food, pet_idx: int):
+        self.shop.buy_food_for_pet(food_type)
+        assert self.team.pets[pet_idx].species != Species.NONE
+        # TODO: add food effects
+
+    def buy_food_for_pet_action_mask(self):
+        mask = np.zeros((num_food_for_pet, MAX_TEAM_SIZE), dtype=bool)
+        for food_type, cnt in self.shop.num_foods.items():
+            if cnt == 0:
+                continue
+            non_empty_pets = [pet.species != Species.NONE for pet in self.team.pets]
+            mask[food_type.value] = non_empty_pets
 
     def sell_pet_action(self, idx: int):
         pet = self.team.pets[idx]
