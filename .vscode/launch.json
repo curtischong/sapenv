@@ -5,10 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "main",
+            "name": "train-local",
             "type": "debugpy",
             "request": "launch",
             "program": "main.py",
+            "args": ["--batch_size=4"],
             "console": "integratedTerminal",
             "justMyCode": false
         },

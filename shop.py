@@ -1,13 +1,19 @@
+from collections import defaultdict
 import itertools
 from all_types_and_consts import (
+    FOOD_COST,
     MAX_SHOP_LINKED_SLOTS,
     MAX_SHOP_SLOTS,
     PET_COST,
     ROLL_COST,
     STARTING_GOLD,
+    Food,
     ShopTier,
     Species,
     hidden_species,
+    avail_food_in_tier,
+    foods_that_apply_globally,
+    foods_for_pet,
 )
 from pet import Pet
 import random
@@ -32,6 +38,15 @@ SHOP_TIER_TO_MAX_SHOP_SLOTS: dict[ShopTier, int] = {
     4: 4,
     5: 5,
     6: 5,
+}
+
+SHOP_TIER_TO_MAX_FOOD_SLOTS: dict[ShopTier, int] = {
+    1: 2,
+    2: 2,
+    3: 2,
+    4: 3,
+    5: 3,
+    6: 3,
 }
 
 
@@ -89,6 +104,8 @@ class Shop:
         self.slots: list[ShopSlot] = []
         self.linked_slots: list[LinkedShopSlot] = []
         self.gold: int = STARTING_GOLD
+        self.num_foods: defaultdict[Food, int] = defaultdict(int)
+        self.num_frozen_foods: defaultdict[Food, int] = defaultdict(int)
 
     def init_shop_for_round(self, round_number: int):
         # TODO: add additional gold from swans. we should call pet callbacks to do this? maybe there is no logic required here
@@ -106,7 +123,7 @@ class Shop:
         assert self.gold >= ROLL_COST
         self.gold -= ROLL_COST
 
-        # 1) cary over all the frozen slots
+        # 1) carry over all the frozen slots
 
         # all linked slots disappear after the shop is rolled
         # In my implementation, if you freeze a linked shop slot, it's no longer a linked shop slot. you chose the species you care about.
@@ -136,6 +153,33 @@ class Shop:
             new_slots.append(ShopSlot(base_pet))
 
         self.slots = new_slots
+
+        # now handle food
+        self._roll_food()
+
+    def _roll_food(self):
+        self.num_foods.clear()
+        # carry over all the frozen foods
+        num_frozen_foods = 0
+        for food_type, num_frozen in self.num_frozen_foods.items():
+            self.num_foods[food_type] = num_frozen
+            num_frozen_foods += num_frozen
+
+        available_foods = avail_food_in_tier[self.shop_tier]
+        num_food_slots = SHOP_TIER_TO_MAX_FOOD_SLOTS[self.shop_tier]
+
+        num_foods_to_roll = max(0, num_food_slots - num_frozen_foods)
+        for _ in range(num_foods_to_roll):
+            chosen_food = random.choice(available_foods)
+            self.num_foods[chosen_food] += 1
+
+    def freeze_food(self, food_type: Food):
+        assert self.num_frozen_foods[food_type] < self.num_foods[food_type]
+        self.num_frozen_foods[food_type] += 1
+
+    def unfreeze_food(self, food_type: Food):
+        assert self.num_frozen_foods[food_type] > 0
+        self.num_frozen_foods[food_type] -= 1
 
     def toggle_freeze_slot(self, slot_idx: int):
         assert slot_idx < len(self.slots)
@@ -183,6 +227,37 @@ class Shop:
         else:
             return bought_linked_slot.pet2
 
+    def _buy_food_helper(self, food_type: Food):
+        cost = self.food_cost(food_type)
+        assert self.gold >= cost
+        assert self.num_foods[food_type] > 0
+        self.num_foods[food_type] -= 1
+
+        # prioritize buying nonfrozen foods
+        self.num_frozen_foods[food_type] = min(
+            self.num_frozen_foods[food_type], self.num_foods[food_type]
+        )
+        self.gold -= cost
+
+    def buy_food(self, food_type: Food):
+        assert food_type in foods_that_apply_globally
+        self._buy_food_helper(food_type)
+
+    def buy_food_for_pet(self, food_type: Food):
+        assert food_type in foods_for_pet
+        self._buy_food_helper(food_type)
+
+    def food_cost(self, food_type: Food):
+        match food_type:
+            case Food.PILL:
+                return 1
+            case Food.BREAD_CRUMB:
+                return 0
+            case Food.MILK:
+                return 0
+            case _:
+                return FOOD_COST
+
     def get_observation(self):
         slot_pets_observation = Pet.get_base_stats_observation(
             extend_pet_array_to_length(
@@ -210,6 +285,14 @@ class Shop:
                 length=MAX_SHOP_LINKED_SLOTS,
             )
         )
+        num_foods_observation = np.zeros((len(Food),), dtype=np.int32)
+        for food_type, num_foods in self.num_foods.items():
+            num_foods_observation[food_type.value] = num_foods
+
+        num_frozen_foods_observation = np.zeros((len(Food),), dtype=np.int32)
+        for food_type, num_foods in self.num_frozen_foods.items():
+            num_frozen_foods_observation[food_type.value] = num_foods
+
         return {
             "shop_animals": slot_pets_observation | {"is_frozen": is_slot_pet_frozen},
             "shop_linked_animals": {
@@ -220,9 +303,8 @@ class Shop:
                 "healths1": linked_slot_observation1["healths"],
                 "healths2": linked_slot_observation2["healths"],
             },
-            # "shop_num_foods": np.zeros(
-            #     (2,), dtype=np.int32
-            # ),  # todo: this is wrong. we need to init, but one hot encode
+            "shop_num_foods": num_foods_observation,
+            "shop_num_frozen_foods": num_frozen_foods_observation,
         }
 
     def __repr__(self):

@@ -1,6 +1,10 @@
+from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Callable, Literal
+from typing import Any, Literal
 from enum import Enum, auto
+import numpy as np
+
+IS_TRIGGERS_ENABLED = True
 
 MAX_TEAM_SIZE = 5
 
@@ -27,10 +31,12 @@ ShopTier = Literal[1, 2, 3, 4, 5, 6]
 MAX_SHOP_SLOTS = 7  # you can have at most 7 NORMAL shop indexes (5 from normal - 2 more if you freeze linked indexes)
 MAX_SHOP_LINKED_SLOTS = MAX_TEAM_SIZE  # since you can promote as most this many pets (by dragging from the shop to them)
 
-MAX_SHOP_FOOD_SLOTS = 3  # I think having a pigeon and then selling it at a higher tier will allow you to overflow the existing 2 food slots (so you can have an extra food). Cow CLEARs the shop. so there's no risk of overflowing
+# I think MAX_SHOP_FOOD_SLOTS is 18 because the max foods is 3. however, you can sell 5 pigeons to get 3*5 foods. so the shop can have up to 18 food slots. However, I'll make this number 23 just in case
+MAX_SHOP_FOOD_SLOTS = 23  # I think having a pigeon and then selling it at a higher tier will allow you to overflow the existing 2 food slots (so you can have an extra food). Cow CLEARs the shop. so there's no risk of overflowing
 STARTING_GOLD = 10
 MAX_GOLD = 30
 PET_COST = 3
+FOOD_COST = 3
 ROLL_COST = 1
 
 STARTING_HEARTS = 5
@@ -135,20 +141,30 @@ hidden_species = [
 ]
 
 
-class Foods(Enum):
-    NONE = auto()
+class Food(Enum):
+    # tier 1
     APPLE = auto()
     HONEY = auto()
+
+    # tier 2
     PILL = auto()
     MEAT_BONE = auto()
     CUPCAKE = auto()
+
+    # tier 3
     SALAD_BOWL = auto()
     GARLIC = auto()
+
+    # tier 4
     CANNED_FOOD = auto()
     PEAR = auto()
+
+    # tier 5
     CHILI = auto()
     CHOCOLATE = auto()
     SUSHI = auto()
+
+    # tier 6
     STEAK = auto()
     MELON = auto()
     MUSHROOM = auto()
@@ -161,26 +177,42 @@ class Foods(Enum):
 
 
 hidden_foods = [
-    Foods.MILK,
+    Food.MILK,
     # Foods.PEANUT,
-    Foods.BREAD_CRUMB,
+    Food.BREAD_CRUMB,
 ]
 
-
-# buyable_foods = []
-# for food in Foods:
-#     if food is Foods.NONE or food is Foods.PEANUT:
-#         continue
-#     buyable_foods.append(food)
-
 food_tiers = {
-    1: [Foods.APPLE, Foods.HONEY],
-    2: [Foods.PILL, Foods.MEAT_BONE, Foods.CUPCAKE],
-    3: [Foods.SALAD_BOWL, Foods.GARLIC],
-    4: [Foods.CANNED_FOOD, Foods.PEAR],
-    5: [Foods.CHILI, Foods.CHOCOLATE, Foods.SUSHI],
-    6: [Foods.STEAK, Foods.MELON, Foods.MUSHROOM, Foods.PIZZA],
+    1: [Food.APPLE, Food.HONEY],
+    2: [Food.PILL, Food.MEAT_BONE, Food.CUPCAKE],
+    3: [Food.SALAD_BOWL, Food.GARLIC],
+    4: [Food.CANNED_FOOD, Food.PEAR],
+    5: [Food.CHILI, Food.CHOCOLATE, Food.SUSHI],
+    6: [Food.STEAK, Food.MELON, Food.MUSHROOM, Food.PIZZA],
 }
+
+avail_food_in_tier = defaultdict(list)
+for tier in range(1, 7):
+    avail_food_in_tier[tier] = avail_food_in_tier[tier - 1] + food_tiers[tier]
+
+foods_that_apply_globally = [Food.SALAD_BOWL, Food.CANNED_FOOD, Food.SUSHI, Food.PIZZA]
+foods_for_pet = [
+    Food.APPLE,
+    Food.HONEY,
+    Food.PILL,
+    Food.MEAT_BONE,
+    Food.CUPCAKE,
+    Food.GARLIC,
+    Food.PEAR,
+    Food.CHILI,
+    Food.CHOCOLATE,
+    Food.STEAK,
+    Food.MELON,
+    Food.MUSHROOM,
+]
+assert len(foods_that_apply_globally) + len(foods_for_pet) == len(Food) - len(
+    hidden_foods
+)
 
 
 class BattleResult(Enum):

@@ -1,5 +1,6 @@
 import itertools
 from all_types_and_consts import (
+    IS_TRIGGERS_ENABLED,
     MAX_GAMES_LENGTH,
     MAX_SHOP_LINKED_SLOTS,
     MAX_TEAM_SIZE,
@@ -10,9 +11,12 @@ from all_types_and_consts import (
     TURN_AT_WHICH_THEY_GAIN_ONE_LOST_HEART,
     ActionReturn,
     BattleResult,
+    Food,
     GameResult,
     Species,
     MAX_SHOP_SLOTS,
+    foods_that_apply_globally,
+    foods_for_pet,
 )
 from battle import battle_only_consider_health_and_attack
 from opponent_db import OpponentDB
@@ -125,6 +129,11 @@ class Player:
         assert pet_at_team_idx.species == Species.NONE or is_player_combining_pets
 
         bought_pet = self.shop.buy_pet_at_slot(slot_idx)
+        if IS_TRIGGERS_ENABLED:
+            # I tested this. the otter triggers this BEFORE it is added to the team
+            bought_pet.on_buy(
+                pet_level=bought_pet.get_level(), shop=self.shop, team=self.team
+            )
         if is_player_combining_pets:
             self.team.pets[target_team_idx] = bought_pet.combine_onto(pet_at_team_idx)
         else:
@@ -202,11 +211,66 @@ class Player:
                         mask[linked_slot_idx, buy_pet_idx, target_team_idx] = False
         return mask
 
+    def buy_food_action(self, food_idx: int):
+        food_type = foods_that_apply_globally[food_idx]
+        self.shop.buy_food(food_type)
+
+    def buy_food_action_mask(self) -> np.ndarray:
+        mask = np.zeros((len(foods_that_apply_globally)), dtype=bool)
+        for i, food_type in enumerate(foods_that_apply_globally):
+            if (
+                self.shop.num_foods[food_type] > 0  # food is available
+                and self.shop.food_cost(food_type) <= self.shop.gold  # can afford
+            ):
+                mask[i] = True
+        return mask
+
+    def buy_food_for_pet_action(self, food_idx: int, pet_idx: int):
+        food_type = foods_for_pet[food_idx]
+        self.shop.buy_food_for_pet(food_type)
+        assert self.team.pets[pet_idx].species != Species.NONE
+        # TODO: add food effects
+
+    def buy_food_for_pet_action_mask(self) -> np.ndarray:
+        mask = np.zeros((len(foods_for_pet), MAX_TEAM_SIZE), dtype=bool)
+        for i, food_type in enumerate(foods_for_pet):
+            if (
+                self.shop.num_foods[food_type] == 0  # food is not available
+                or self.shop.food_cost(food_type) > self.shop.gold  # too poor to buy
+            ):
+                continue
+            non_empty_pets = [pet.species != Species.NONE for pet in self.team.pets]
+            mask[i] = non_empty_pets
+        return mask
+
+    def freeze_food_action(self, food_type_idx: int):
+        food_type = Food(food_type_idx)
+        self.shop.freeze_food(food_type)
+
+    def freeze_food_action_mask(self) -> np.ndarray:
+        mask = np.zeros((len(Food)), dtype=bool)
+        for food_type in self.shop.num_foods:
+            if self.shop.num_frozen_foods[food_type] < self.shop.num_foods[food_type]:
+                mask[food_type.value] = True
+        return mask
+
+    def unfreeze_food_action(self, food_type_idx: Food):
+        food_type = Food(food_type_idx)
+        self.shop.unfreeze_food(food_type)
+
+    def unfreeze_food_action_mask(self) -> np.ndarray:
+        mask = np.zeros((len(Food)), dtype=bool)
+        for food_type in self.shop.num_frozen_foods:
+            if self.shop.num_frozen_foods[food_type] > 0:
+                mask[food_type.value] = True
+        return mask
+
     def sell_pet_action(self, idx: int):
         pet = self.team.pets[idx]
         pet_species = pet.species
         assert pet_species != Species.NONE
-        pet.on_sell(pet_level=pet.get_level(), shop=self.shop, team=self.team)
+        if IS_TRIGGERS_ENABLED:
+            pet.on_sell(pet_level=pet.get_level(), shop=self.shop, team=self.team)
         self.shop.gold += pet.get_level()
 
         self.team.pets[idx] = get_base_pet(Species.NONE)
