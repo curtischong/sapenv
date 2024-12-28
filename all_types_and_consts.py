@@ -4,7 +4,7 @@ from typing import Any, Literal
 from enum import Enum, auto
 import numpy as np
 
-IS_TRIGGERS_ENABLED = True
+IS_TRIGGERS_ENABLED = False
 
 MAX_TEAM_SIZE = 5
 

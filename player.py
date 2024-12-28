@@ -216,6 +216,9 @@ class Player:
         self.shop.buy_food(food_type)
 
     def buy_food_action_mask(self) -> np.ndarray:
+        return np.zeros(
+            (len(foods_that_apply_globally)), dtype=bool
+        )  # TODO: enable this
         mask = np.zeros((len(foods_that_apply_globally)), dtype=bool)
         for i, food_type in enumerate(foods_that_apply_globally):
             if (
@@ -232,6 +235,9 @@ class Player:
         # TODO: add food effects
 
     def buy_food_for_pet_action_mask(self) -> np.ndarray:
+        return np.zeros(
+            (len(foods_for_pet), MAX_TEAM_SIZE), dtype=bool
+        )  # TODO: enable this
         mask = np.zeros((len(foods_for_pet), MAX_TEAM_SIZE), dtype=bool)
         for i, food_type in enumerate(foods_for_pet):
             if (
@@ -248,6 +254,7 @@ class Player:
         self.shop.freeze_food(food_type)
 
     def freeze_food_action_mask(self) -> np.ndarray:
+        return np.zeros((len(Food)), dtype=bool)  # TODO: enable this
         mask = np.zeros((len(Food)), dtype=bool)
         for food_type in self.shop.num_foods:
             if self.shop.num_frozen_foods[food_type] < self.shop.num_foods[food_type]:
@@ -259,6 +266,7 @@ class Player:
         self.shop.unfreeze_food(food_type)
 
     def unfreeze_food_action_mask(self) -> np.ndarray:
+        return np.zeros((len(Food)), dtype=bool)  # TODO: enable this
         mask = np.zeros((len(Food)), dtype=bool)
         for food_type in self.shop.num_frozen_foods:
             if self.shop.num_frozen_foods[food_type] > 0:

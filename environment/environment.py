@@ -134,6 +134,7 @@ class SuperAutoPetsEnv(gym.Env):
                         "is_truncated": 1,
                     }
                 )
+            self.metrics_tracker.log_episode_metrics()
             return observation, reward, done, truncated, info
 
         # Determine if the game is done based on the result
