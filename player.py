@@ -211,7 +211,8 @@ class Player:
                         mask[linked_slot_idx, buy_pet_idx, target_team_idx] = False
         return mask
 
-    def buy_food_action(self, food_type: Food):
+    def buy_food_action(self, food_idx: int):
+        food_type = foods_that_apply_globally[food_idx]
         self.shop.buy_food(food_type)
 
     def buy_food_action_mask(self) -> np.ndarray:
@@ -221,7 +222,8 @@ class Player:
                 mask[i] = True
         return mask
 
-    def buy_food_for_pet_action(self, food_type: Food, pet_idx: int):
+    def buy_food_for_pet_action(self, food_idx: int, pet_idx: int):
+        food_type = foods_for_pet[food_idx]
         self.shop.buy_food_for_pet(food_type)
         assert self.team.pets[pet_idx].species != Species.NONE
         # TODO: add food effects
@@ -232,7 +234,7 @@ class Player:
             if self.shop.num_foods[food_type] == 0:
                 continue
             non_empty_pets = [pet.species != Species.NONE for pet in self.team.pets]
-            mask[food_type.value] = non_empty_pets
+            mask[i] = non_empty_pets
         return mask
 
     def freeze_food(self, food_type: Food):

@@ -86,7 +86,7 @@ actions_dict: dict[ActionName, Action] = {
         perform_action=lambda player, params: player.buy_food_action(*params),
     ),
     ActionName.BUY_FOOD_FOR_PET: Action(
-        space=buy_food_space,
+        space=buy_food_for_pet_space,
         get_mask=lambda player: player.buy_food_for_pet_action_mask(),
         perform_action=lambda player, params: player.buy_food_for_pet_action(*params),
     ),
