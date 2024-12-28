@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from enum import Enum, auto
+from enum import Enum
 from typing import Callable
 from gymnasium import spaces
 import numpy as np
@@ -10,7 +10,7 @@ from all_types_and_consts import (
     MAX_TEAM_SIZE,
     ActionResult,
     foods_that_apply_globally,
-    num_food_for_pet,
+    foods_for_pet,
 )
 from player import Player
 
@@ -26,7 +26,7 @@ buy_linked_pet_space = spaces.MultiBinary(
 )  # 50
 
 buy_food_space = spaces.MultiBinary([len(foods_that_apply_globally)])
-buy_food_for_pet_space = spaces.MultiBinary([num_food_for_pet, MAX_TEAM_SIZE])
+buy_food_for_pet_space = spaces.MultiBinary([len(foods_for_pet), MAX_TEAM_SIZE])
 
 sell_pet_space = spaces.MultiBinary(MAX_TEAM_SIZE)  # index of pet you're selling # 5
 

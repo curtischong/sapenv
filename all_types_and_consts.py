@@ -142,7 +142,6 @@ hidden_species = [
 
 
 class Food(Enum):
-    NONE = auto()
     # tier 1
     APPLE = auto()
     HONEY = auto()
@@ -197,7 +196,21 @@ for tier in range(1, 7):
     avail_food_in_tier[tier] = avail_food_in_tier[tier - 1] + food_tiers[tier]
 
 foods_that_apply_globally = [Food.SALAD_BOWL, Food.CANNED_FOOD, Food.SUSHI, Food.PIZZA]
-num_food_for_pet = len(Food) - len(foods_that_apply_globally)
+foods_for_pet = [
+    Food.APPLE,
+    Food.HONEY,
+    Food.PILL,
+    Food.MEAT_BONE,
+    Food.CUPCAKE,
+    Food.GARLIC,
+    Food.PEAR,
+    Food.CHILI,
+    Food.CHOCOLATE,
+    Food.STEAK,
+    Food.MELON,
+    Food.MUSHROOM,
+]
+assert len(foods_that_apply_globally) + len(foods_for_pet) == len(Food)
 
 
 class BattleResult(Enum):
