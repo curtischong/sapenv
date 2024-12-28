@@ -112,14 +112,6 @@ shop_num_frozen_foods_space = spaces.Box(
     low=0, high=MAX_SHOP_FOOD_SLOTS, shape=(len(Food),), dtype=np.int32
 )
 
-# since the shop foods are ALWAYS the same. we can represent it like this:
-# For each food type, specify the number of that kind we can buy
-shop_num_foods_space = spaces.Box(
-    low=0,
-    high=MAX_SHOP_FOOD_SLOTS,
-    shape=(len(Food),),
-    dtype=np.int32,
-)
 
 shop_gold_space = spaces.Box(low=0, high=MAX_GOLD, shape=(1,), dtype=np.int32)
 turn_number_space = spaces.Box(low=1, high=MAX_GAMES_LENGTH, shape=(1,), dtype=np.int32)

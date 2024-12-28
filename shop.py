@@ -5,7 +5,6 @@ from all_types_and_consts import (
     MAX_SHOP_LINKED_SLOTS,
     MAX_SHOP_SLOTS,
     PET_COST,
-    FOOD_COST,
     ROLL_COST,
     STARTING_GOLD,
     Food,
@@ -14,6 +13,7 @@ from all_types_and_consts import (
     hidden_species,
     avail_food_in_tier,
     foods_that_apply_globally,
+    foods_for_pet,
 )
 from pet import Pet
 import random
@@ -162,7 +162,7 @@ class Shop:
         # carry over all the frozen foods
         num_frozen_foods = 0
         for food_type, num_frozen in self.num_frozen_foods.items():
-            self.num_foods[food_type] += num_frozen
+            self.num_foods[food_type] = num_frozen
             num_frozen_foods += num_frozen
 
         available_foods = avail_food_in_tier[self.shop_tier]
@@ -244,6 +244,7 @@ class Shop:
         self._buy_food_helper(food_type)
 
     def buy_food_for_pet(self, food_type: Food):
+        assert food_type in foods_for_pet
         self._buy_food_helper(food_type)
 
     def food_cost(self, food_type: Food):
@@ -303,7 +304,7 @@ class Shop:
                 "healths2": linked_slot_observation2["healths"],
             },
             "shop_num_foods": num_foods_observation,
-            "shop_num_frozen_foods": num_foods_observation,
+            "shop_num_frozen_foods": num_frozen_foods_observation,
         }
 
     def __repr__(self):
