@@ -25,11 +25,11 @@ class MetricsTrackerEval:
                 assert action_result is not None
                 battle_result = action_result[ActionReturn.BATTLE_RESULT]
                 if battle_result == BattleResult.WON_BATTLE:
-                    self.stats["wins"] += 1
+                    self.stats["eval_wins"] += 1
                 elif battle_result == BattleResult.LOST_BATTLE:
-                    self.stats["losses"] += 1
+                    self.stats["eval_losses"] += 1
                 elif battle_result == BattleResult.TIE:
-                    self.stats["ties"] += 1
+                    self.stats["eval_ties"] += 1
 
     def log_episode_metrics(self, is_truncated: bool, player: Player = None):
         self.wandb_run.log(self.stats)
