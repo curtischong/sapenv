@@ -19,6 +19,7 @@ from all_types_and_consts import (
     foods_for_pet,
 )
 from battle import battle_only_consider_health_and_attack
+from food_triggers import trigger_food_globally
 from opponent_db import OpponentDB
 from pet_data import get_base_pet
 from shop import Shop
@@ -218,6 +219,7 @@ class Player:
     def buy_food_action(self, food_idx: int):
         food_type = foods_that_apply_globally[food_idx]
         self.shop.buy_food(food_type)
+        trigger_food_globally(food_type, self.team, self.shop)
 
     def buy_food_action_mask(self) -> np.ndarray:
         # return np.zeros((len(foods_that_apply_globally)), dtype=bool)
