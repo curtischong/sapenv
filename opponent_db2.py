@@ -50,6 +50,8 @@ class OpponentDBInMemory:
                 ]
                 target_lives_remaining -= 1
             target_games_played -= 1
+
+        # sometimes when the db is flushed, the opponent is not found. In this case, we just return the horse team
         if target_games_played == 0:
             return get_horse_team(round_number=1)
 
