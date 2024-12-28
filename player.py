@@ -237,7 +237,7 @@ class Player:
             mask[i] = non_empty_pets
         return mask
 
-    def freeze_food(self, food_type: Food):
+    def freeze_food_action(self, food_type: Food):
         self.shop.freeze_food(food_type)
 
     def freeze_food_action_mask(self) -> np.ndarray:
@@ -247,7 +247,7 @@ class Player:
                 mask[food_type.value] = True
         return mask
 
-    def unfreeze_food(self, food_type: Food):
+    def unfreeze_food_action(self, food_type: Food):
         self.shop.unfreeze_food(food_type)
 
     def unfreeze_food_action_mask(self) -> np.ndarray:
@@ -358,23 +358,6 @@ class Player:
             return np.zeros((1), dtype=bool)
         else:
             return np.ones((1), dtype=bool)
-
-    def freeze_food_action(self, food_type: Food):
-        self.shop.freeze_food(food_type)
-
-    def freeze_food_action_mask(self) -> np.ndarray:
-        mask = np.zeros((len(Food)), dtype=bool)
-        for food_type in self.shop.num_foods:
-            mask[food_type.value] = True
-        return mask
-
-    def unfreeze_food_action(self, food_type: Food):
-        self.shop.unfreeze_food(food_type)
-
-    def unfreeze_food_action_mask(self) -> np.ndarray:
-        mask = np.zeros((len(Food)), dtype=bool)
-        for food_type in self.shop.num_frozen_foods:
-            mask[food_type.value] = True
 
     def __repr__(self):
         stats = f"turn: {self.turn_number}, lives: {self.hearts}\u2764\ufe0f, num_actions_made: {self.num_actions_taken_in_turn}, wins: {self.num_wins}, team:\n"

@@ -210,7 +210,9 @@ foods_for_pet = [
     Food.MELON,
     Food.MUSHROOM,
 ]
-assert len(foods_that_apply_globally) + len(foods_for_pet) == len(Food)
+assert len(foods_that_apply_globally) + len(foods_for_pet) == len(Food) - len(
+    hidden_foods
+)
 
 
 class BattleResult(Enum):
