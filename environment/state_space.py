@@ -136,9 +136,9 @@ env_observation_space = spaces.Dict(
         "turn_number": turn_number_space,
         "num_wins": num_wins_space,
         "num_hearts": num_hearts_space,
-        "actions_taken_in_turn": actions_taken_in_turn_space,
-        # "shop_num_foods": shop_num_foods_space,
-        # "shop_num_frozen_foods": shop_num_frozen_foods_space,
+        # "actions_taken_in_turn": actions_taken_in_turn_space,
+        "shop_num_foods": shop_num_foods_space,
+        "shop_num_frozen_foods": shop_num_frozen_foods_space,
     }
 )
 
@@ -153,9 +153,7 @@ def get_observation(player: Player):
             "turn_number": np.array([player.turn_number], dtype=np.int32),
             "num_wins": np.array([player.num_wins], dtype=np.int32),
             "num_hearts": np.array([player.hearts], dtype=np.int32),
-            "actions_taken_in_turn": np.array(
-                [player.num_actions_taken_in_turn], dtype=np.int32
-            ),
+            # "actions_taken_in_turn": np.array( [player.num_actions_taken_in_turn], dtype=np.int32),
         }
     )
     return observation
