@@ -12,6 +12,11 @@ def trigger_food_globally(food_type: Food, team: Team, shop: Shop):
         case Food.CANNED_FOOD:
             for slot in shop.slots:
                 slot.pet.add_stats(attack=1, health=1)
+            for slot in shop.linked_slots:
+                slot.pet1.add_stats(attack=1, health=1)
+                slot.pet2.add_stats(attack=1, health=1)
+            shop.future_attack_addition += 1
+            shop.future_health_addition += 1
         case Food.SUSHI:
             team.add_milk()
         case Food.PIZZA:
