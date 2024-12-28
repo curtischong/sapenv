@@ -25,7 +25,6 @@ from opponent_db2 import OpponentDBInMemory
 from opponent_db_eval import OpponentDBEval
 from pet_callback import set_pet_callbacks
 from player import Player
-from wandb.sdk.wandb_run import Run
 
 
 class SuperAutoPetsEnv(gym.Env):
