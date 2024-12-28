@@ -4,7 +4,7 @@ Methods for performing training of RL models, also support finetuning
 
 from sb3_contrib import MaskablePPO
 from sb3_contrib.common.maskable.utils import get_action_masks
-from stable_baselines3.common.callbacks import CheckpointCallback
+from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback
 from stable_baselines3.common.logger import configure
 from tqdm import tqdm
 import numpy as np
@@ -18,6 +18,7 @@ from environment.flatten_observation import FlattenObservation
 import wandb
 from wandb.integration.sb3 import WandbCallback
 from torch import nn
+from opponent_db_eval import OpponentDBEval
 from ppo_policy import CustomAttentionPolicy
 from utils import require_consent
 
@@ -39,9 +40,6 @@ def train_with_masks(ret):
     # env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
     env = FlattenAction(FlattenObservation(SuperAutoPetsEnv(wandb_run=run)))
 
-    # eval_env = SuperAutoPetsEnv(opponent_generator, valid_actions_only=True)  # need separate eval env for
-    # EvalCallback (this is the wrong env - not working)
-
     # create folder to save log
     history_path = "./history/history_" + ret.model_name + "/"
     if not os.path.exists(history_path):
@@ -61,8 +59,19 @@ def train_with_masks(ret):
     )
 
     # save best model, using deterministic eval
-    # eval_callback = EvalCallback(eval_env, best_model_save_path='./models/', log_path='./logs/', eval_freq=1000,
-    #                              deterministic=True, render=False)
+    eval_env = FlattenAction(
+        FlattenObservation(
+            SuperAutoPetsEnv(wandb_run=run, opponent_db=OpponentDBEval())
+        )
+    )
+    eval_callback = EvalCallback(
+        eval_env,
+        best_model_save_path="./models/",
+        log_path="./logs/",
+        eval_freq=1000,
+        deterministic=True,
+        render=False,
+    )
 
     if ret.finetune is not None:
         # check if current python version differ from the one the model is trained with
@@ -113,6 +122,7 @@ def train_with_masks(ret):
             log_interval=4,
             callback=[
                 checkpoint_callback,
+                eval_callback,
                 WandbCallback(
                     # gradient_save_freq=100,
                     # model_save_path=f"models/{run.id}",

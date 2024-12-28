@@ -27,11 +27,11 @@ from player import Player
 class SuperAutoPetsEnv(gym.Env):
     metadata = {"render_modes": ["human"]}
 
-    def __init__(self, wandb_run=None):
+    def __init__(self, opponent_db=OpponentDB("opponents.sqlite"), wandb_run=None):
         self.observation_space = env_observation_space
         self.action_space = env_action_space
         set_pet_callbacks()
-        self.opponent_db = OpponentDB("opponents.sqlite")
+        self.opponent_db = opponent_db
         # self.opponent_db = OpponentDBInMemory()
         self.player = Player.init_starting_player(self.opponent_db)
         self.wandb_run = wandb_run
