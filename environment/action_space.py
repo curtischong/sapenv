@@ -41,10 +41,14 @@ class ActionName(Enum):
     COMBINE_PETS = "combine_pets"
     BUY_PET = "buy_pet"
     BUY_LINKED_PET = "buy_linked_pet"
+    BUY_FOOD = "buy_food"
+    BUY_FOOD_FOR_PET = "buy_food_for_pet"
     SELL_PET = "sell_pet"
     ROLL_SHOP = "roll_shop"
     TOGGLE_FREEZE_SLOT = "toggle_freeze_slot"
     FREEZE_PET_AT_LINKED_SLOT = "freeze_pet_at_linked_slot"
+    FREEZE_FOOD = "freeze_food"
+    UNFREEZE_FOOD = "unfreeze_food"
     END_TURN = "end_turn"
 
 
@@ -76,10 +80,17 @@ actions_dict: dict[ActionName, Action] = {
         get_mask=lambda player: player.buy_linked_pet_action_mask(),
         perform_action=lambda player, params: player.buy_linked_pet_action(*params),
     ),
-    ActionName.BUY_FOOD_ACTION: Action(
+    ActionName.BUY_FOOD: Action(
         space=buy_food_space,
-        get_mask=lambda player: player.buy_linked_pet_action_mask(),
-        perform_action=lambda player, params: player.buy_linked_pet_action(*params),
+        get_mask=lambda player: player.buy_food_action(),
+        perform_action=lambda player, params: player.buy_food_action_mask(*params),
+    ),
+    ActionName.BUY_FOOD_FOR_PET: Action(
+        space=buy_food_space,
+        get_mask=lambda player: player.buy_food_for_pet_action(),
+        perform_action=lambda player, params: player.buy_food_for_pet_action_mask(
+            *params
+        ),
     ),
     ActionName.SELL_PET: Action(
         space=sell_pet_space,
@@ -102,6 +113,16 @@ actions_dict: dict[ActionName, Action] = {
         perform_action=lambda player, params: player.freeze_pet_at_linked_slot_action(
             *params
         ),
+    ),
+    ActionName.FREEZE_FOOD: Action(
+        space=toggle_freeze_slot_space,
+        get_mask=lambda player: player.freeze_food(),
+        perform_action=lambda player, params: player.freeze_food_action_mask(*params),
+    ),
+    ActionName.UNFREEZE_FOOD: Action(
+        space=toggle_freeze_slot_space,
+        get_mask=lambda player: player.unfreeze_food(),
+        perform_action=lambda player, params: player.unfreeze_food_action_mask(*params),
     ),
     ActionName.END_TURN: Action(
         space=end_turn_space,

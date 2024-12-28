@@ -12,7 +12,7 @@ from all_types_and_consts import (
     ShopTier,
     Species,
     hidden_species,
-    food_in_tiers,
+    avail_food_in_tier,
     foods_that_apply_globally,
 )
 from pet import Pet
@@ -123,7 +123,7 @@ class Shop:
         assert self.gold >= ROLL_COST
         self.gold -= ROLL_COST
 
-        # 1) cary over all the frozen slots
+        # 1) carry over all the frozen slots
 
         # all linked slots disappear after the shop is rolled
         # In my implementation, if you freeze a linked shop slot, it's no longer a linked shop slot. you chose the species you care about.
@@ -154,11 +154,22 @@ class Shop:
 
         self.slots = new_slots
 
-    def roll_food(self):
+        # now handle food
+        self._roll_food()
+
+    def _roll_food(self):
         self.num_foods.clear()
-        available_foods = food_in_tiers[self.shop_tier]
+        # carry over all the frozen foods
+        num_frozen_foods = 0
+        for food_type, num_frozen in self.num_frozen_foods.items():
+            self.num_foods[food_type] += num_frozen
+            num_frozen_foods += num_frozen
+
+        available_foods = avail_food_in_tier[self.shop_tier]
         num_food_slots = SHOP_TIER_TO_MAX_FOOD_SLOTS[self.shop_tier]
-        for _ in range(num_food_slots):
+
+        num_foods_to_roll = max(0, num_food_slots - num_frozen_foods)
+        for _ in range(num_foods_to_roll):
             chosen_food = random.choice(available_foods)
             self.num_foods[chosen_food] += 1
 

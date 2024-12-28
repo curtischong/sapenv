@@ -192,9 +192,9 @@ food_tiers = {
     6: [Food.STEAK, Food.MELON, Food.MUSHROOM, Food.PIZZA],
 }
 
-food_in_tiers = defaultdict(list)
+avail_food_in_tier = defaultdict(list)
 for tier in range(1, 7):
-    food_in_tiers[tier] = food_in_tiers[tier - 1] + food_tiers[tier]
+    avail_food_in_tier[tier] = avail_food_in_tier[tier - 1] + food_tiers[tier]
 
 foods_that_apply_globally = [Food.SALAD_BOWL, Food.CANNED_FOOD, Food.SUSHI, Food.PIZZA]
 num_food_for_pet = len(Food) - len(foods_that_apply_globally)
