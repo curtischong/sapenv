@@ -38,7 +38,7 @@ class OpponentDBInMemory:
     ) -> Team:
         opponents_with_similar_strength = []
         target_games_played = num_games_played
-        while len(opponents_with_similar_strength) == 0:
+        while len(opponents_with_similar_strength) == 0 and target_games_played > 0:
             if len(self.teams) == 0:
                 print("No opponents found")
             target_lives_remaining = num_lives_remaining
@@ -50,6 +50,8 @@ class OpponentDBInMemory:
                 ]
                 target_lives_remaining -= 1
             target_games_played -= 1
+        if target_games_played == 0:
+            return get_horse_team(round_number=1)
 
         selected_opponent = random.choice(opponents_with_similar_strength)
         return decompress_team(selected_opponent)
