@@ -121,7 +121,6 @@ class SuperAutoPetsEnv(gym.Env):
         ):
             done = False
             truncated = True
-            self.reset()
             info = {}
             # if reward > 0:
             #     reward = reward / 2
@@ -134,7 +133,7 @@ class SuperAutoPetsEnv(gym.Env):
             return observation, reward, done, truncated, info
 
         # Determine if the game is done based on the result
-        info = {"game_result": game_result}
+        done = game_result == GameResult.WIN or game_result == GameResult.LOSE
         if done:
             print("done")
             self.metrics_tracker.log_episode_metrics(
@@ -142,6 +141,7 @@ class SuperAutoPetsEnv(gym.Env):
             )
 
         truncated = False
+        info = {}
         return observation, reward, done, truncated, info
 
     def get_reward_from_battle_result(self, battle_result: BattleResult):

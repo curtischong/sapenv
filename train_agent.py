@@ -45,7 +45,7 @@ def train_with_masks(ret):
         FlattenObservation(
             SuperAutoPetsEnv(
                 opponent_db=OpponentDB("opponents.sqlite"),
-                metrics_tracker=MetricsTracker(),
+                metrics_tracker=MetricsTracker(wandb_run=run),
             )
         )
     )
