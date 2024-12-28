@@ -127,6 +127,20 @@ actions_taken_in_turn_space = spaces.Box(
     dtype=np.int32,
 )
 
+shop_future_attack_addition_space = spaces.Box(
+    low=0,
+    high=MAX_ATTACK,
+    shape=(1,),
+    dtype=np.int32,
+)
+
+shop_future_health_addition_space = spaces.Box(
+    low=0,
+    high=MAX_HEALTH,
+    shape=(1,),
+    dtype=np.int32,
+)
+
 env_observation_space = spaces.Dict(
     {
         "team": team_space,
@@ -139,6 +153,8 @@ env_observation_space = spaces.Dict(
         # "actions_taken_in_turn": actions_taken_in_turn_space,
         "shop_num_foods": shop_num_foods_space,
         "shop_num_frozen_foods": shop_num_frozen_foods_space,
+        "shop_future_attack_addition": shop_future_attack_addition_space,
+        "shop_future_health_addition": shop_future_health_addition_space,
     }
 )
 

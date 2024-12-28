@@ -82,7 +82,8 @@ class Pet:
             return self.experience - 3
         return self.experience  # the pet is on level 1. no need to subtract anything
 
-    def combine_onto(self, pet2: "Pet"):
+    # shop is empty to prevent circular import
+    def combine_onto(self, pet2: "Pet", shop):
         pet1 = self
         if pet2._has_higher_stats(pet1):
             # important. use pet2 first. So if both have equal stats, we'll USE pet2 (due to the implementation of has_higher_stats)
@@ -102,6 +103,7 @@ class Pet:
         # call the on_level_up function if the pet leveled up
         if new_level > old_level:
             updated_pet.on_level_up()
+            shop.create_linked_pet()
 
         return updated_pet
 

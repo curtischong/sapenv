@@ -4,6 +4,7 @@ from all_types_and_consts import (
     FOOD_COST,
     MAX_SHOP_LINKED_SLOTS,
     MAX_SHOP_SLOTS,
+    MAX_SHOP_TIER,
     PET_COST,
     ROLL_COST,
     STARTING_GOLD,
@@ -106,6 +107,8 @@ class Shop:
         self.gold: int = STARTING_GOLD
         self.num_foods: defaultdict[Food, int] = defaultdict(int)
         self.num_frozen_foods: defaultdict[Food, int] = defaultdict(int)
+        self.future_attack_addition: int = 0
+        self.future_health_addition: int = 0
 
     def init_shop_for_round(self, round_number: int):
         # TODO: add additional gold from swans. we should call pet callbacks to do this? maybe there is no logic required here
@@ -150,6 +153,9 @@ class Shop:
             base_pet = shop_tier_to_pets_map[chosen_species_tier][
                 chosen_species_idx_in_tier
             ].clone()  # we need to clone the pet so we don't modify the original
+            base_pet.add_stats(
+                attack=self.future_attack_addition, health=self.future_health_addition
+            )
             new_slots.append(ShopSlot(base_pet))
 
         self.slots = new_slots
@@ -172,6 +178,24 @@ class Shop:
         for _ in range(num_foods_to_roll):
             chosen_food = random.choice(available_foods)
             self.num_foods[chosen_food] += 1
+
+    def roll_random_linked_slot_pet(self, tier: int):
+        chosen = random.choice(
+            shop_tier_to_pets_map[tier]
+        ).clone()  # clone to preserve the original
+        return chosen.add_stats(
+            attack=self.future_attack_addition, health=self.future_health_addition
+        )
+
+    def create_linked_pet(self):
+        self.linked_slots.append(
+            LinkedShopSlot(get_base_pet(Species.NONE), get_base_pet(Species.NONE))
+        )
+        tier = min(self.shop_tier + 1, MAX_SHOP_TIER)
+        pet1 = self.roll_random_linked_slot_pet(tier)
+        pet2 = self.roll_random_linked_slot_pet(tier)
+        linked_slot = LinkedShopSlot(pet1, pet2)
+        self.linked_slots.append(linked_slot)
 
     def freeze_food(self, food_type: Food):
         assert self.num_frozen_foods[food_type] < self.num_foods[food_type]
@@ -305,6 +329,8 @@ class Shop:
             },
             "shop_num_foods": num_foods_observation,
             "shop_num_frozen_foods": num_frozen_foods_observation,
+            "shop_future_attack_addition": self.future_attack_addition,
+            "shop_future_health_addition": self.future_health_addition,
         }
 
     def __repr__(self):
