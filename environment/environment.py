@@ -7,6 +7,7 @@ from all_types_and_consts import (
     SelectedAction,
 )
 from environment.metrics_tracker import MetricsTracker
+from environment.metrics_tracker_eval import MetricsTrackerEval
 from environment.state_space import (
     env_observation_space,
     get_observation,
@@ -20,6 +21,8 @@ from environment.action_space import (
 from opponent_db import OpponentDB
 
 # from opponent_db2 import OpponentDBInMemory
+from opponent_db2 import OpponentDBInMemory
+from opponent_db_eval import OpponentDBEval
 from pet_callback import set_pet_callbacks
 from player import Player
 
@@ -27,15 +30,17 @@ from player import Player
 class SuperAutoPetsEnv(gym.Env):
     metadata = {"render_modes": ["human"]}
 
-    def __init__(self, wandb_run=None):
+    def __init__(
+        self,
+        opponent_db: OpponentDB | OpponentDBInMemory | OpponentDBEval,
+        metrics_tracker: MetricsTracker | MetricsTrackerEval,
+    ):
         self.observation_space = env_observation_space
         self.action_space = env_action_space
         set_pet_callbacks()
-        self.opponent_db = OpponentDB("opponents.sqlite")
-        # self.opponent_db = OpponentDBInMemory()
+        self.opponent_db = opponent_db
         self.player = Player.init_starting_player(self.opponent_db)
-        self.wandb_run = wandb_run
-        self.metrics_tracker = MetricsTracker(wandb_run)
+        self.metrics_tracker = metrics_tracker
         self.step_num = 0
 
     def reset(self, *, seed=None, options=None):
@@ -80,22 +85,14 @@ class SuperAutoPetsEnv(gym.Env):
         action_result = action.perform_action(self.player, selected_action.params)
         observation = get_observation(self.player)
 
-        slowness_penalty = self.player.num_actions_taken_in_turn / MAX_ACTIONS_IN_TURN
-
         if action_name == ActionName.END_TURN:
             game_result = action_result[ActionReturn.GAME_RESULT]
             battle_result = action_result[ActionReturn.BATTLE_RESULT]
 
-            if battle_result == BattleResult.TEAM1_WIN:
-                reward = self.gentle_exponential(self.player.num_wins)
-            elif battle_result == BattleResult.TEAM2_WIN:
-                reward = 1 - slowness_penalty
-            elif battle_result == BattleResult.TIE:
-                reward = 0.5 * self.gentle_exponential(self.player.num_wins)
-            else:
-                raise ValueError(f"Unknown battle result: {battle_result}")
-            self.player.num_actions_taken_in_turn = 0
+            reward = self.get_reward_from_battle_result(battle_result)
 
+            # perform cleanup tasks how that the turn ended
+            self.player.num_actions_taken_in_turn = 0
             self.opponent_db.insert_to_db(
                 self.player.team,
                 self.player.num_wins,
@@ -109,7 +106,7 @@ class SuperAutoPetsEnv(gym.Env):
         # print(
         #     f"turn: {self.player.turn_number}, action: {action_name}, result: {game_result}"
         # )
-        self.metrics_tracker.add_step_metrics(selected_action, action_result)
+        self.metrics_tracker.add_step_metrics(selected_action, action_result, reward)
 
         self.step_num += 1
         if self.step_num % 10000 == 0:
@@ -120,36 +117,39 @@ class SuperAutoPetsEnv(gym.Env):
             game_result == GameResult.TRUNCATED
             or self.player.num_actions_taken_in_turn > MAX_ACTIONS_IN_TURN
         ):
-            done = True
+            done = False
             truncated = True
-            self.reset()
             info = {}
             # if reward > 0:
             #     reward = reward / 2
+            slowness_penalty = (
+                self.player.num_actions_taken_in_turn / MAX_ACTIONS_IN_TURN
+            )
             reward = -10 - slowness_penalty
-            if self.wandb_run:
-                self.wandb_run.log(
-                    {
-                        "reward": reward,
-                        "is_truncated": 1,
-                    }
-                )
-            self.metrics_tracker.log_episode_metrics()
+            self.metrics_tracker.log_episode_metrics(is_truncated=True)
             return observation, reward, done, truncated, info
 
         # Determine if the game is done based on the result
-        info = {"game_result": game_result}
         done = game_result == GameResult.WIN or game_result == GameResult.LOSE
-        if self.wandb_run:
-            self.wandb_run.log({"reward": reward, "is_truncated": 0})
         if done:
-            self.metrics_tracker.log_episode_metrics()
-            self.wandb_run.log(
-                {"num_wins": self.player.num_wins, "num_hearts": self.player.hearts}
+            self.metrics_tracker.log_episode_metrics(
+                is_truncated=False, player=self.player
             )
 
         truncated = False
+        info = {}
         return observation, reward, done, truncated, info
+
+    def get_reward_from_battle_result(self, battle_result: BattleResult):
+        slowness_penalty = self.player.num_actions_taken_in_turn / MAX_ACTIONS_IN_TURN
+        if battle_result == BattleResult.WON_BATTLE:
+            return self.gentle_exponential(self.player.num_wins)
+        elif battle_result == BattleResult.LOST_BATTLE:
+            return 1 - slowness_penalty
+        elif battle_result == BattleResult.TIE:
+            return 0.5 * self.gentle_exponential(self.player.num_wins)
+        else:
+            raise ValueError(f"Unknown battle result: {battle_result}")
 
     def render(self):
         # Render environment for human viewing

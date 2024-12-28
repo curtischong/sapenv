@@ -1,23 +1,29 @@
 from collections import defaultdict
 from typing import Any
-from all_types_and_consts import ActionReturn, BattleResult, GameResult, SelectedAction
+from all_types_and_consts import ActionReturn, SelectedAction
 from environment.action_space import ActionName
-from wandb import wandb_run as Run
+from wandb.sdk.wandb_run import Run
+
+from player import Player
 
 
 class MetricsTracker:
-    def __init__(self, wandb_run: Run = None):
+    def __init__(self, wandb_run: Run):
         self.stats = defaultdict(int)
-        self.wandb_run = wandb_run
+        self.wandb_run: Run = wandb_run
 
     def add_step_metrics(
         self,
         selected_action: SelectedAction,
         action_result: None | dict[ActionReturn, Any],
+        reward: float,
     ):
         if self.wandb_run is None:
             # this is empty during inference
             return
+
+        self.wandb_run.log({"reward": reward})
+        self.stats["total_reward"] += reward
 
         action_name = ActionName(selected_action.path_key[1:])
 
@@ -47,6 +53,21 @@ class MetricsTracker:
             case ActionName.BUY_LINKED_PET:
                 self.stats["buy_linked_pet"] += 1
 
-    def log_episode_metrics(self):
-        self.wandb_run.log(self.stats)
+    def log_episode_metrics(self, is_truncated: bool, player: Player = None):
+        if is_truncated:
+            self.wandb_run.log(
+                self.stats
+                | {
+                    "is_truncated": 1,
+                }
+            )
+        else:
+            self.wandb_run.log(
+                self.stats
+                | {
+                    "is_truncated": 0,
+                    "num_wins": player.num_wins,
+                    "num_hearts": player.hearts,
+                }
+            )
         self.stats.clear()

@@ -4,7 +4,7 @@ Methods for performing training of RL models, also support finetuning
 
 from sb3_contrib import MaskablePPO
 from sb3_contrib.common.maskable.utils import get_action_masks
-from stable_baselines3.common.callbacks import CheckpointCallback
+from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback
 from stable_baselines3.common.logger import configure
 from tqdm import tqdm
 import numpy as np
@@ -18,8 +18,14 @@ from environment.flatten_observation import FlattenObservation
 import wandb
 from wandb.integration.sb3 import WandbCallback
 from torch import nn
+from environment.metrics_tracker import MetricsTracker
+from environment.metrics_tracker_dummy import MetricsTrackerDummy
+from environment.metrics_tracker_eval import MetricsTrackerEval
+from opponent_db import OpponentDB
+from opponent_db_eval import OpponentDBEval
 from ppo_policy import CustomAttentionPolicy
 from utils import require_consent
+from wandb.sdk.wandb_run import Run
 
 
 custom_network = dict(
@@ -37,10 +43,14 @@ def train_with_masks(ret):
 
     # initialize environment
     # env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
-    env = FlattenAction(FlattenObservation(SuperAutoPetsEnv(wandb_run=run)))
-
-    # eval_env = SuperAutoPetsEnv(opponent_generator, valid_actions_only=True)  # need separate eval env for
-    # EvalCallback (this is the wrong env - not working)
+    env = FlattenAction(
+        FlattenObservation(
+            SuperAutoPetsEnv(
+                opponent_db=OpponentDB("opponents.sqlite"),
+                metrics_tracker=MetricsTracker(wandb_run=run),
+            )
+        )
+    )
 
     # create folder to save log
     history_path = "./history/history_" + ret.model_name + "/"
@@ -60,9 +70,15 @@ def train_with_masks(ret):
         save_freq=ret.save_freq, save_path="./models/", name_prefix=ret.model_name
     )
 
-    # save best model, using deterministic eval
-    # eval_callback = EvalCallback(eval_env, best_model_save_path='./models/', log_path='./logs/', eval_freq=1000,
-    #                              deterministic=True, render=False)
+    # eval_callback = EvalCallback(
+    #     eval_env,
+    #     best_model_save_path="./models/",
+    #     log_path="./logs/",
+    #     eval_freq=1000,
+    #     deterministic=False,
+    #     render=False,
+    #     use_masking=True,
+    # )
 
     if ret.finetune is not None:
         # check if current python version differ from the one the model is trained with
@@ -122,14 +138,43 @@ def train_with_masks(ret):
             ],
         )
         env.env.render()
+        eval_model(model, run)
         # evaluate_policy(model, env, n_eval_episodes=100, reward_threshold=0, warn=False)
 
     # Close wandb run when done
     run.finish()
 
 
-def eval_model(ret):
-    env = FlattenAction(FlattenObservation(SuperAutoPetsEnv()))
+def eval_model(model: MaskablePPO, run: Run):
+    # save best model, using deterministic eval
+    env = FlattenAction(
+        FlattenObservation(
+            SuperAutoPetsEnv(
+                opponent_db=OpponentDBEval(),
+                metrics_tracker=MetricsTrackerEval(wandb_run=run),
+            )
+        )
+    )
+
+    # run the episode
+    obs, info = env.reset()
+    while True:
+        # Predict outcome with model
+        action_masks = get_action_masks(env)
+        env.env.render()
+
+        # using deterministic=False helps it get stuck out of local minima: https://stackoverflow.com/questions/76510709/ppo-model-learns-well-then-predicts-only-negative-actions
+        action, _states = model.predict(
+            obs, action_masks=action_masks, deterministic=False
+        )
+
+        obs, reward, done, truncated, info = env.step(action)
+        if truncated or done:
+            break
+
+
+def model_predict(ret):
+    env = FlattenAction(FlattenObservation(SuperAutoPetsEnv(OpponentDBEval(), MetricsTrackerDummy())))
     # load model
     trained_model = MaskablePPO.load(f"./models/{ret.model_name}_2048_steps.zip")
 
