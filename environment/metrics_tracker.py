@@ -11,7 +11,6 @@ class MetricsTracker:
     def __init__(self, wandb_run: Run = None, player: Player = None):
         self.stats = defaultdict(int)
         self.wandb_run: Run = wandb_run
-        self.player: Player = player
 
     def add_step_metrics(
         self,
@@ -54,7 +53,7 @@ class MetricsTracker:
             case ActionName.BUY_LINKED_PET:
                 self.stats["buy_linked_pet"] += 1
 
-    def log_episode_metrics(self, is_truncated: bool):
+    def log_episode_metrics(self, is_truncated: bool, player: Player = None):
         if is_truncated:
             self.wandb_run.log(
                 self.stats
@@ -67,8 +66,8 @@ class MetricsTracker:
                 self.stats
                 | {
                     "is_truncated": 0,
-                    "num_wins": self.player.num_wins,
-                    "num_hearts": self.player.hearts,
+                    "num_wins": player.num_wins,
+                    "num_hearts": player.hearts,
                 }
             )
         self.stats.clear()

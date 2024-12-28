@@ -42,10 +42,8 @@ class SuperAutoPetsEnv(gym.Env):
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
+        print("reset called")
         self.player = Player.init_starting_player(self.opponent_db)
-        self.metrics_tracker = MetricsTracker(
-            self.metrics_tracker.wandb_run, self.player
-        )
         obs = get_observation(self.player)
         return obs, {}
 
@@ -85,22 +83,14 @@ class SuperAutoPetsEnv(gym.Env):
         action_result = action.perform_action(self.player, selected_action.params)
         observation = get_observation(self.player)
 
-        slowness_penalty = self.player.num_actions_taken_in_turn / MAX_ACTIONS_IN_TURN
-
         if action_name == ActionName.END_TURN:
             game_result = action_result[ActionReturn.GAME_RESULT]
             battle_result = action_result[ActionReturn.BATTLE_RESULT]
 
-            if battle_result == BattleResult.TEAM1_WIN:
-                reward = self.gentle_exponential(self.player.num_wins)
-            elif battle_result == BattleResult.TEAM2_WIN:
-                reward = 1 - slowness_penalty
-            elif battle_result == BattleResult.TIE:
-                reward = 0.5 * self.gentle_exponential(self.player.num_wins)
-            else:
-                raise ValueError(f"Unknown battle result: {battle_result}")
-            self.player.num_actions_taken_in_turn = 0
+            reward = self.get_reward_from_battle_result(battle_result)
 
+            # perform cleanup tasks how that the turn ended
+            self.player.num_actions_taken_in_turn = 0
             self.opponent_db.insert_to_db(
                 self.player.team,
                 self.player.num_wins,
@@ -114,7 +104,7 @@ class SuperAutoPetsEnv(gym.Env):
         # print(
         #     f"turn: {self.player.turn_number}, action: {action_name}, result: {game_result}"
         # )
-        self.metrics_tracker.add_step_metrics(selected_action, action_result)
+        self.metrics_tracker.add_step_metrics(selected_action, action_result, reward)
 
         self.step_num += 1
         if self.step_num % 10000 == 0:
@@ -131,6 +121,9 @@ class SuperAutoPetsEnv(gym.Env):
             info = {}
             # if reward > 0:
             #     reward = reward / 2
+            slowness_penalty = (
+                self.player.num_actions_taken_in_turn / MAX_ACTIONS_IN_TURN
+            )
             reward = -10 - slowness_penalty
             self.metrics_tracker.log_episode_metrics(is_truncated=True)
             return observation, reward, done, truncated, info
@@ -138,34 +131,12 @@ class SuperAutoPetsEnv(gym.Env):
         # Determine if the game is done based on the result
         info = {"game_result": game_result}
         if done:
-            self.metrics_tracker.log_episode_metrics(is_truncated=False)
+            self.metrics_tracker.log_episode_metrics(
+                is_truncated=False, player=self.player
+            )
 
         truncated = False
         return observation, reward, done, truncated, info
-
-    def calculate_reward_done_truncated(
-        self, action_name: ActionName, action_result: ActionResult
-    ):
-        if action_name == ActionName.END_TURN:
-            game_result = action_result[ActionReturn.GAME_RESULT]
-            battle_result = action_result[ActionReturn.BATTLE_RESULT]
-            reward = self.get_reward_from_battle_result(battle_result)
-
-            self.player.num_actions_taken_in_turn = 0
-
-            self.opponent_db.insert_to_db(
-                self.player.team,
-                self.player.num_wins,
-                self.player.num_actions_taken_in_turn,
-                self.player.hearts,
-            )
-        else:
-            game_result = GameResult.CONTINUE
-            reward = -1 / MAX_ACTIONS_IN_TURN
-            self.player.num_actions_taken_in_turn += 1
-
-        done = game_result == GameResult.WIN or game_result == GameResult.LOSE
-        return reward, done, truncated
 
     def get_reward_from_battle_result(self, battle_result: BattleResult):
         slowness_penalty = self.player.num_actions_taken_in_turn / MAX_ACTIONS_IN_TURN
