@@ -124,9 +124,9 @@ def main(virtual_screen=False):
 
         train_with_masks(ret)
     elif ret.task == "eval":
-        from train_agent import eval_model
+        from train_agent import model_predict
 
-        eval_model(ret)
+        model_predict(ret)
     # elif ret.task == "deploy":
     #     if ret.infer_model is None:
     #         raise ValueError("Please, provide the path to the model to use for deployment, by setting 'infer_model'.")
