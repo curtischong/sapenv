@@ -82,15 +82,13 @@ actions_dict: dict[ActionName, Action] = {
     ),
     ActionName.BUY_FOOD: Action(
         space=buy_food_space,
-        get_mask=lambda player: player.buy_food_action(),
-        perform_action=lambda player, params: player.buy_food_action_mask(*params),
+        get_mask=lambda player: player.buy_food_action_mask(),
+        perform_action=lambda player, params: player.buy_food_action(*params),
     ),
     ActionName.BUY_FOOD_FOR_PET: Action(
         space=buy_food_space,
-        get_mask=lambda player: player.buy_food_for_pet_action(),
-        perform_action=lambda player, params: player.buy_food_for_pet_action_mask(
-            *params
-        ),
+        get_mask=lambda player: player.buy_food_for_pet_action_mask(),
+        perform_action=lambda player, params: player.buy_food_for_pet_action(*params),
     ),
     ActionName.SELL_PET: Action(
         space=sell_pet_space,
@@ -116,13 +114,13 @@ actions_dict: dict[ActionName, Action] = {
     ),
     ActionName.FREEZE_FOOD: Action(
         space=toggle_freeze_slot_space,
-        get_mask=lambda player: player.freeze_food(),
-        perform_action=lambda player, params: player.freeze_food_action_mask(*params),
+        get_mask=lambda player: player.freeze_food_action_mask(),
+        perform_action=lambda player, params: player.freeze_food_action(*params),
     ),
     ActionName.UNFREEZE_FOOD: Action(
         space=toggle_freeze_slot_space,
-        get_mask=lambda player: player.unfreeze_food(),
-        perform_action=lambda player, params: player.unfreeze_food_action_mask(*params),
+        get_mask=lambda player: player.unfreeze_food_action_mask(),
+        perform_action=lambda player, params: player.unfreeze_food_action(*params),
     ),
     ActionName.END_TURN: Action(
         space=end_turn_space,
