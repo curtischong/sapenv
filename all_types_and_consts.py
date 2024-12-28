@@ -26,6 +26,7 @@ MAX_PET_LEVEL = 3
 
 
 ShopTier = Literal[1, 2, 3, 4, 5, 6]
+MAX_SHOP_TIER = 6
 
 
 MAX_SHOP_SLOTS = 7  # you can have at most 7 NORMAL shop indexes (5 from normal - 2 more if you freeze linked indexes)
