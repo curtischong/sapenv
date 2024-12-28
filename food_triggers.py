@@ -18,8 +18,12 @@ def trigger_food_globally(food_type: Food, team: Team, shop: Shop):
             shop.future_attack_addition += 1
             shop.future_health_addition += 1
         case Food.SUSHI:
-            team.add_milk()
+            pets = team.get_random_pets(3)
+            for pet in pets:
+                pet.add_stats(attack=1, health=1)
         case Food.PIZZA:
-            team.add_milk()
+            pets = team.get_random_pets(2)
+            for pet in pets:
+                pet.add_stats(attack=2, health=2)
         case _:
             raise ValueError(f"Unknown food type: {food_type}")
