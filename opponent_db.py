@@ -72,7 +72,7 @@ class OpponentDB:
 
             # sometims when the db is flushed, the opponent is not found. In this case, we just return the horse team
             if target_games_played == 0:
-                opponents_with_similar_strength = [get_horse_team(round_number=1)]
+                return get_horse_team(round_number=1)
         selected_opponent = random.choice(opponents_with_similar_strength)
         return decompress_team(selected_opponent[0])
 
