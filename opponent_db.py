@@ -28,7 +28,9 @@ class OpponentDB:
             cursor = conn.execute(
                 "SELECT 1 FROM opponents WHERE team = ?", (compressed_team,)
             )
-            if cursor.fetchone() is None:  # No rows returned means the team doesn't exist
+            if (
+                cursor.fetchone() is None
+            ):  # No rows returned means the team doesn't exist
                 self.insert_to_db(team, 0, 0, 5)
 
     def insert_to_db(
@@ -50,22 +52,32 @@ class OpponentDB:
     ) -> Team:
         opponents_with_similar_strength = []
         target_games_played = num_games_played
+        # print("start connect")
         with sqlite3.connect(self.db_file) as conn:
-            while len(opponents_with_similar_strength) == 0:
+            while len(opponents_with_similar_strength) == 0 and target_games_played > 0:
                 target_lives_remaining = num_lives_remaining
+                # print("target_games_played", target_games_played)
                 while (
-                    len(opponents_with_similar_strength) == 0 and target_lives_remaining > 0
+                    len(opponents_with_similar_strength) == 0
+                    and target_lives_remaining > 0
                 ):
+                    # print("loop2")
                     opponents_with_similar_strength = conn.execute(
                         "SELECT * FROM opponents WHERE num_games_played == ? AND num_lives_remaining == ?",
                         (target_games_played, target_lives_remaining),
                     ).fetchall()
                     target_lives_remaining -= 1
+                    # print("target_lives_remaining", target_lives_remaining)
                 target_games_played -= 1
+
+            # sometims when the db is flushed, the opponent is not found. In this case, we just return the horse team
+            if target_games_played == 0:
+                opponents_with_similar_strength = [get_horse_team(round_number=1)]
         selected_opponent = random.choice(opponents_with_similar_strength)
         return decompress_team(selected_opponent[0])
 
     def flush(self):
+        print("flushing opponent db")
         with sqlite3.connect(self.db_file) as conn:
             conn.execute("DROP TABLE opponents")
         self._init_tables()
