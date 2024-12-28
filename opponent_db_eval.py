@@ -12,6 +12,11 @@ class OpponentDBEval:
     ):
         pass
 
+    def insert_to_db(
+        self, team: Team, wins: int, games_played: int, lives_remaining: int
+    ):
+        pass
+
     def get_opponent_similar_in_stregth(
         self,
         *,
