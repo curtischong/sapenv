@@ -18,6 +18,7 @@ from environment.flatten_observation import FlattenObservation
 import wandb
 from wandb.integration.sb3 import WandbCallback
 from torch import nn
+from ppo_policy import CustomAttentionPolicy
 from utils import require_consent
 
 
@@ -84,8 +85,7 @@ def train_with_masks(ret):
     else:
         log.info("Training from scratch...")
         model = MaskablePPO(
-            # CustomAttentionPolicy,
-            "MlpPolicy",
+            CustomAttentionPolicy,
             env,
             verbose=0,
             policy_kwargs=custom_network,
