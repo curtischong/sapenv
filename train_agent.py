@@ -3,9 +3,8 @@ Methods for performing training of RL models, also support finetuning
 """
 
 from sb3_contrib import MaskablePPO
-from sb3_contrib.common.maskable.evaluation import evaluate_policy
 from sb3_contrib.common.maskable.utils import get_action_masks
-from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback
+from stable_baselines3.common.callbacks import CheckpointCallback
 from stable_baselines3.common.logger import configure
 from tqdm import tqdm
 import numpy as np
@@ -19,7 +18,6 @@ from environment.flatten_observation import FlattenObservation
 import wandb
 from wandb.integration.sb3 import WandbCallback
 from torch import nn
-from stable_baselines3.common.callbacks import BaseCallback
 from ppo_policy import CustomAttentionPolicy
 from utils import require_consent
 
@@ -88,7 +86,6 @@ def train_with_masks(ret):
         log.info("Training from scratch...")
         model = MaskablePPO(
             CustomAttentionPolicy,
-            # "MlpPolicy",
             env,
             verbose=0,
             policy_kwargs=custom_network,

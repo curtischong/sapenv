@@ -17,7 +17,9 @@ from environment.action_space import (
     get_action_masks,
     actions_dict,
 )
-from opponent_db2 import OpponentDBInMemory
+from opponent_db import OpponentDB
+
+# from opponent_db2 import OpponentDBInMemory
 from pet_callback import set_pet_callbacks
 from player import Player
 
@@ -29,8 +31,8 @@ class SuperAutoPetsEnv(gym.Env):
         self.observation_space = env_observation_space
         self.action_space = env_action_space
         set_pet_callbacks()
-        # self.opponent_db = OpponentDB("opponents.sqlite")
-        self.opponent_db = OpponentDBInMemory()
+        self.opponent_db = OpponentDB("opponents.sqlite")
+        # self.opponent_db = OpponentDBInMemory()
         self.player = Player.init_starting_player(self.opponent_db)
         self.wandb_run = wandb_run
         self.metrics_tracker = MetricsTracker(wandb_run)
@@ -110,7 +112,7 @@ class SuperAutoPetsEnv(gym.Env):
         self.metrics_tracker.add_step_metrics(selected_action, action_result)
 
         self.step_num += 1
-        if self.step_num % 1000 == 0:
+        if self.step_num % 10000 == 0:
             self.step_num = 0
             self.opponent_db.flush()
 

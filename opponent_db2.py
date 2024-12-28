@@ -4,7 +4,6 @@ import random
 from gen_opponent import get_horse_team
 from team import Team
 from utils import compress_team, decompress_team
-from random import randrange
 
 
 class OpponentDBInMemory:
@@ -16,7 +15,6 @@ class OpponentDBInMemory:
         self,
     ):
         self._init_tables()
-
 
     def _init_tables(self):
         # maps (num_games_played, lives_remaining) -> list[compressed_team]
@@ -40,14 +38,20 @@ class OpponentDBInMemory:
     ) -> Team:
         opponents_with_similar_strength = []
         target_games_played = num_games_played
-        while len(opponents_with_similar_strength) == 0:
+        while len(opponents_with_similar_strength) == 0 and target_games_played > 0:
             target_lives_remaining = num_lives_remaining
             while (
                 len(opponents_with_similar_strength) == 0 and target_lives_remaining > 0
             ):
-                opponents_with_similar_strength = self.teams[(target_games_played, target_lives_remaining)]
+                opponents_with_similar_strength = self.teams[
+                    (target_games_played, target_lives_remaining)
+                ]
                 target_lives_remaining -= 1
             target_games_played -= 1
+
+        # sometimes when the db is flushed, the opponent is not found. In this case, we just return the horse team
+        if target_games_played == 0:
+            return get_horse_team(round_number=1)
 
         selected_opponent = random.choice(opponents_with_similar_strength)
         return decompress_team(selected_opponent)
