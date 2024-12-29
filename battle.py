@@ -39,7 +39,7 @@ def trigger_on_battle_start(pets1: list[Pet], pets2: list[Pet]):
     for pet in pets1:
         on_battle_start_pets.append((pet.attack, pet, True))
     for pet in pets2:
-        on_battle_start_pets.append((pet.attack, pet, True))
+        on_battle_start_pets.append((pet.attack, pet, False))
 
     # turn order is determined by the animal's attack. So sort by attack in descending order
     # https://youtu.be/pm1VpWt7LMA?si=veNCYgci5VAsTmYD&t=451
