@@ -5,9 +5,9 @@ from team import Team
 
 def battle_only_consider_health_and_attack(my_team: Team, team2: Team) -> BattleResult:
     pets1 = (
-        my_team.clone().get_pets_without_none_species()
+        my_team.clone().get_pets_for_battle()
     )  # we need to clone the pets so the original team doesn't get modified
-    pets2 = team2.clone().get_pets_without_none_species()
+    pets2 = team2.clone().get_pets_for_battle()
 
     while len(pets1) > 0 and len(pets2) > 0:
         pet1 = pets1[-1]
@@ -31,9 +31,9 @@ def battle_only_consider_health_and_attack(my_team: Team, team2: Team) -> Battle
 
 def battle_with_effects(team1: Team, team2: Team) -> BattleResult:
     pets1 = (
-        team1.clone().get_pets_without_none_species()
+        team1.clone().get_pets_for_battle()
     )  # we need to clone the pets so the original team doesn't get modified
-    pets2 = team2.clone().get_pets_without_none_species()
+    pets2 = team2.clone().get_pets_for_battle()
 
 
 def attack_pets(pet: Pet, opponent_pets: list[Pet]):

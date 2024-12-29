@@ -248,3 +248,9 @@ class ActionReturn(Enum):
 
 
 ActionResult = dict[ActionReturn, Any]
+
+
+class Effect(Enum):
+    NONE = auto()
+    BEE = auto()
+    MEAT_BONE = auto()

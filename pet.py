@@ -32,6 +32,8 @@ class Pet:
         self.on_level_up = on_level_up
         self.on_buy = on_buy
         self.on_sell = on_sell
+        self.attack_boost = 0
+        self.health_boost = 0
 
     @staticmethod
     def define_base_stats(*, species: Species, attack: int, health: int):
@@ -121,6 +123,10 @@ class Pet:
         self.attack = attack
         self.health = health
         return self
+
+    def add_boost(self, *, attack: int, health: int):
+        self.attack_boost += attack
+        self.health_boost += health
 
     # TODO: add effect
     def set_stats_all(self, *, attack: int, health: int, experience: int):

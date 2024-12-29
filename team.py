@@ -29,8 +29,13 @@ class Team:
     def clone(self):
         return Team([pet.clone() for pet in self.pets])
 
-    def get_pets_without_none_species(self) -> list[Pet]:
-        return [pet for pet in self.pets if pet.species != Species.NONE]
+    def get_pets_for_battle(self) -> list[Pet]:
+        res = []
+        for pet in self.pets:
+            if pet.species == Species.NONE:
+                continue
+            res.append(pet.add_stats(attack=pet.attack_boost, health=pet.health_boost))
+        return res
 
     def get_random_pets(self, select_num_pets: int) -> list[Pet]:
         list_copy = self.pets.copy()
