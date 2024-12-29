@@ -38,7 +38,7 @@ def on_faint_ant(pet_level: PetLevel, shop: Shop, team: Team):
         pet_list[0].add_stats(attack=pet_level, health=pet_level)
 
 
-def on_battle_start(
+def on_battle_start_mosquito(
     pet: Pet, pet_level: PetLevel, my_pets: list[Pet], enemy_pets: list[Pet]
 ):
     pets_with_idxs = Team.get_random_pets_with_idxs(
@@ -62,4 +62,4 @@ def set_pet_callbacks():
     species_to_pet_map[Species.OTTER].set_on_buy(on_buy_otter)
     species_to_pet_map[Species.PIG].set_on_sell(on_sell_pig)
     species_to_pet_map[Species.ANT].set_on_faint(on_faint_ant)
-    species_to_pet_map[Species.MOSQUITO].set_on_battle_start(on_battle_start)
+    species_to_pet_map[Species.MOSQUITO].set_on_battle_start(on_battle_start_mosquito)
