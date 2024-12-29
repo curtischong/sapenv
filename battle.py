@@ -50,8 +50,18 @@ def damage_pet(attacker_pet: Pet, receiving_team: Team):
 
     if attacker_pet.effect == Effect.CHILLI and len(receiving_team.pets) > 1:
         second_pet = receiving_team.pets[-2]
-        receive_damage(second_pet, damage)
-    receive_damage(first_pet, damage)
+        receive_damage(
+            pet=second_pet,
+            damage=5,
+            idx_in_team=len(receiving_team) - 2,
+            receiving_team=receiving_team,
+        )
+    receive_damage(
+        pet=first_pet,
+        damage=damage,
+        idx_in_team=len(receiving_team) - 1,
+        receiving_team=receiving_team,
+    )
 
 
 def receive_damage(pet: Pet, damage: int, idx_in_team: int, team: Team):
