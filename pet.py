@@ -3,11 +3,12 @@ from all_types_and_consts import (
     MAX_ATTACK,
     MAX_HEALTH,
     MAX_PET_EXPERIENCE,
+    Effect,
     PetExperience,
     Species,
     dummy_trigger_fn,
 )
-from pet_callback_consts import OnBuy, OnSell
+from pet_callback_consts import OnBuy, OnFaint, OnSell
 
 
 class Pet:
@@ -19,10 +20,14 @@ class Pet:
         health: int,
         experience: PetExperience,
         # effect: Effect | None,  # TODO: add effect
-        effect=None,
+        effect: Effect = Effect.NONE,
         on_level_up=dummy_trigger_fn,
         on_buy: OnBuy = dummy_trigger_fn,
         on_sell: OnSell = dummy_trigger_fn,
+        on_faint: OnFaint = dummy_trigger_fn,
+        on_hurt: OnFaint = dummy_trigger_fn,
+        attack_boost: int = 0,
+        health_boost: int = 0,
     ):
         self.species = species
         self.attack = attack
@@ -32,6 +37,10 @@ class Pet:
         self.on_level_up = on_level_up
         self.on_buy = on_buy
         self.on_sell = on_sell
+        self.on_faint = on_faint
+        self.on_hurt = on_hurt
+        self.attack_boost = attack_boost
+        self.health_boost = health_boost
 
     @staticmethod
     def define_base_stats(*, species: Species, attack: int, health: int):
@@ -56,6 +65,13 @@ class Pet:
             health=self.health,
             experience=self.experience,
             effect=self.effect,
+            on_level_up=self.on_level_up,
+            on_buy=self.on_buy,
+            on_sell=self.on_sell,
+            on_faint=self.on_faint,
+            on_hurt=self.on_hurt,
+            attack_boost=self.attack_boost,
+            health_boost=self.health_boost,
         )
 
     def __eq__(self, other: "Pet"):
@@ -65,6 +81,8 @@ class Pet:
             and self.health == other.health
             and self.experience == other.experience
             and self.effect == other.effect
+            and self.attack_boost == other.attack_boost
+            and self.health_boost == other.health_boost
         )
 
     def get_level(self):
@@ -121,6 +139,10 @@ class Pet:
         self.attack = attack
         self.health = health
         return self
+
+    def add_boost(self, *, attack: int, health: int):
+        self.attack_boost += attack
+        self.health_boost += health
 
     # TODO: add effect
     def set_stats_all(self, *, attack: int, health: int, experience: int):

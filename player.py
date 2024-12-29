@@ -18,7 +18,8 @@ from all_types_and_consts import (
     foods_that_apply_globally,
     foods_for_pet,
 )
-from battle import battle_only_consider_health_and_attack
+from battle import battle
+from food_triggers import trigger_food_for_pet, trigger_food_globally
 from opponent_db import OpponentDB
 from pet_data import get_base_pet
 from shop import Shop
@@ -218,6 +219,7 @@ class Player:
     def buy_food_action(self, food_idx: int):
         food_type = foods_that_apply_globally[food_idx]
         self.shop.buy_food(food_type)
+        trigger_food_globally(food_type, self.team, self.shop)
 
     def buy_food_action_mask(self) -> np.ndarray:
         # return np.zeros((len(foods_that_apply_globally)), dtype=bool)
@@ -234,7 +236,7 @@ class Player:
         food_type = foods_for_pet[food_idx]
         self.shop.buy_food_for_pet(food_type)
         assert self.team.pets[pet_idx].species != Species.NONE
-        # TODO: add food effects
+        trigger_food_for_pet(food_type, self.team, pet_idx)
 
     def buy_food_for_pet_action_mask(self) -> np.ndarray:
         # return np.zeros( (len(foods_for_pet), MAX_TEAM_SIZE), dtype=bool)
@@ -325,7 +327,7 @@ class Player:
 
     def end_turn_action(self) -> GameResult:
         # todo: smarter opponent team
-        battle_result = battle_only_consider_health_and_attack(
+        battle_result = battle(
             self.team,
             self.opponent_db.get_opponent_similar_in_stregth(
                 team=self.team,
@@ -334,6 +336,11 @@ class Player:
                 num_lives_remaining=self.hearts,
             ),
         )
+
+        # reset temporary buffs
+        for pet in self.team.pets:
+            pet.attack_boost = 0
+            pet.health_boost = 0
 
         # update based on result of battle
         self.turn_number += 1

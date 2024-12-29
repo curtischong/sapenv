@@ -2,7 +2,6 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Literal
 from enum import Enum, auto
-import numpy as np
 
 IS_TRIGGERS_ENABLED = False
 
@@ -128,14 +127,18 @@ class Species(Enum):
     FLY = auto()
 
     # hidden species
+    BEE = auto()
     CRICKET_SPAWN = auto()  # spawned when a cricket is killed
+    RAT_SPAWN = auto()  # spawned when a rat is killed
     RAM = auto()  # spawned when a sheep is killed
     BUS = auto()
     FLY_SPAWN = auto()  # spawned when a pet is killed
 
 
 hidden_species = [
+    Species.BEE,
     Species.CRICKET_SPAWN,
+    Species.RAT_SPAWN,
     Species.RAM,
     Species.BUS,
     Species.FLY_SPAWN,
@@ -248,3 +251,14 @@ class ActionReturn(Enum):
 
 
 ActionResult = dict[ActionReturn, Any]
+
+
+class Effect(Enum):
+    NONE = auto()
+    BEE = auto()
+    MEAT_BONE = auto()
+    GARLIC = auto()
+    CHILLI = auto()
+    STEAK = auto()
+    MELON = auto()
+    MUSHROOM = auto()
