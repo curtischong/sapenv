@@ -1,5 +1,6 @@
-from all_types_and_consts import BattleResult, Effect
+from all_types_and_consts import MAX_ATTACK, BattleResult, Effect, Species
 from pet import Pet
+from pet_data import get_base_pet
 from team import Team
 
 
@@ -43,6 +44,9 @@ def damage_pet(attacker_pet: Pet, receiving_team: Team):
     damage = attacker_pet.attack
     if attacker_pet.effect == Effect.MEAT_BONE:
         damage += 3
+    elif attacker_pet.effect == Effect.STEAK:
+        damage = max(damage + 20, MAX_ATTACK)
+        attacker_pet.effect = Effect.NONE  # steak is only used once
 
     if attacker_pet.effect == Effect.CHILLI and len(receiving_team.pets) > 1:
         second_pet = receiving_team.pets[-2]
@@ -59,5 +63,21 @@ def receive_damage(pet: Pet, damage: int, idx_in_team: int, team: Team):
     pet.health -= damage
     pet.on_hurt()
     if pet.health <= 0:
-        pet.on_death()
+        # TODO: not sure what should trigger first. the mushroom or the on faint affect?
+        # https://www.reddit.com/r/superautopets/comments/12xtp8d/mushroom_faint_ability_ordering_different_for/?rdt=51575
+        # I'll make the mushroom trigger last after all on faint effects are done (since it's what the sapai repo does)
+        pet.on_faint()
+        if pet.effect == Effect.MUSHROOM:
+            team.pets[idx_in_team] = get_base_pet(pet.species).set_stats(
+                attack=1,
+                health=1,
+            )
+        elif pet.effect == Effect.BEE:
+            team.pets[idx_in_team] = get_base_pet(Species.BEE)
         team.pets.pop(idx_in_team)
+
+
+def try_spawn_at_pos(pet: Pet, idx: int, team: Team):
+    if len(team.pets) >= 5:
+        return
+    team.pets.insert(idx, pet)
