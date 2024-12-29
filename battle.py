@@ -14,8 +14,8 @@ def battle(my_team: Team, team2: Team) -> BattleResult:
         pet1 = pets1[-1]
         pet2 = pets2[-1]
 
-        attack_pets(pet1, pets2)
-        attack_pets(pet2, pets1)
+        damage_pet(pet1, pets2)
+        damage_pet(pet2, pets1)
 
         if pet1.health <= 0:
             pets1.pop()
@@ -28,15 +28,6 @@ def battle(my_team: Team, team2: Team) -> BattleResult:
         return BattleResult.WON_BATTLE
     else:
         return BattleResult.LOST_BATTLE
-
-
-def attack_pets(pet: Pet, opponent_pets: list[Pet]):
-    top_pet = opponent_pets[-1]
-    top_pet.health -= pet.attack
-
-    # on attack modifier:
-    # chillie: hit the opponent behind it
-    # meat bone: do more attack (but this is just a buff)
 
 
 def damage_pet(attacker_pet: Pet, receiving_team: list[Pet]):
@@ -107,7 +98,7 @@ def trigger_on_faint(pet: Pet, idx_in_team: int, team_pets: list[Pet]):
         try_spawn_at_pos(new_pet, idx_in_team, team_pets)
 
 
-def try_spawn_at_pos(pet: Pet, idx: int, team: Team):
-    if len(team.pets) >= 5:
+def try_spawn_at_pos(pet: Pet, idx: int, pets: list[Pet]):
+    if len(pets) >= 5:
         return
-    team.pets.insert(idx, pet)
+    pets.insert(idx, pet)
