@@ -337,6 +337,11 @@ class Player:
             ),
         )
 
+        # reset temporary buffs
+        for pet in self.team.pets:
+            pet.attack_boost = 0
+            pet.health_boost = 0
+
         # update based on result of battle
         self.turn_number += 1
         if battle_result == BattleResult.WON_BATTLE:

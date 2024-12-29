@@ -1,5 +1,5 @@
 from typing import Callable
-from all_types_and_consts import Species
+from all_types_and_consts import MAX_ATTACK, MAX_HEALTH, Species
 from pet import Pet
 from pet_data import get_base_pet
 import struct
@@ -35,6 +35,8 @@ def require_consent(prompt: str):
 
 
 def compress_team(team: Team) -> bytes:
+    # IMPROTANT: we do NOT save the temperary buffs. we just add it to the health and attack.
+    # DO NOT load these pets directly and put them into a shop. because the temporary buffs will appear to be permaneny buffs.
     """
     Convert a list of Pet objects into a compressed binary blob.
 
@@ -52,8 +54,8 @@ def compress_team(team: Team) -> bytes:
     # Pack each Pet’s attributes using a fixed 2-byte representation (big-endian)
     for pet in team.pets:
         buffer += struct.pack(">H", pet.species.value)
-        buffer += struct.pack(">H", pet.attack)
-        buffer += struct.pack(">H", pet.health)
+        buffer += struct.pack(">H", min(pet.attack + pet.attack_boost, MAX_ATTACK))
+        buffer += struct.pack(">H", min(pet.health + pet.health_boost, MAX_HEALTH))
         buffer += struct.pack(">H", pet.experience)
 
     # Now compress the blob (zlib level=9 is the highest compression)
