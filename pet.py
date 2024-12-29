@@ -23,6 +23,7 @@ class Pet:
         on_level_up=dummy_trigger_fn,
         on_buy: OnBuy = dummy_trigger_fn,
         on_sell: OnSell = dummy_trigger_fn,
+        on_death: OnSell = dummy_trigger_fn,
     ):
         self.species = species
         self.attack = attack

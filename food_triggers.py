@@ -37,7 +37,7 @@ def trigger_food_for_pet(food_type: Food, team: Team, pet_idx: int, shop: Shop):
         case Food.HONEY:
             pass
         case Food.PILL:
-            pass
+            pet.on_
         case Food.MEAT_BONE:
             pass
         case Food.CUPCAKE:
