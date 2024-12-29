@@ -1,4 +1,4 @@
-from all_types_and_consts import Species
+from all_types_and_consts import Food, Species
 from pet_callback_consts import PetLevel
 from shop import Shop
 from team import Team
@@ -17,7 +17,7 @@ def on_sell_beaver(pet_level: PetLevel, shop: Shop, team: Team):
 
 
 def on_sell_pigeon(pet_level: PetLevel, shop: Shop, team: Team):
-    pass  # needs to implement food
+    shop.num_foods[Food.BREAD_CRUMB] += 1
 
 
 def on_buy_otter(pet_level: PetLevel, shop: Shop, team: Team):
@@ -29,4 +29,5 @@ def on_buy_otter(pet_level: PetLevel, shop: Shop, team: Team):
 def set_pet_callbacks():
     species_to_pet_map[Species.DUCK].set_on_sell(on_sell_duck)
     species_to_pet_map[Species.BEAVER].set_on_sell(on_sell_beaver)
+    species_to_pet_map[Species.PIGEON].set_on_sell(on_sell_pigeon)
     species_to_pet_map[Species.OTTER].set_on_buy(on_buy_otter)
