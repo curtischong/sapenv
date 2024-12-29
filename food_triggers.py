@@ -1,4 +1,5 @@
 from all_types_and_consts import Effect, Food, Species
+from battle import trigger_on_faint
 from pet_data import get_base_pet
 from shop import Shop
 from team import Team
@@ -39,7 +40,7 @@ def trigger_food_for_pet(food_type: Food, team: Team, pet_idx: int, shop: Shop):
             pet.effect = Effect.BEE
         case Food.PILL:
             team.pets[pet_idx] = get_base_pet(Species.NONE)
-            pet.on_faint()  # TODO: ensure this triggers PERMANENT boosts
+            trigger_on_faint(pet, pet_idx, team.pets)
         case Food.MEAT_BONE:
             pet.effect = Effect.MEAT_BONE
         case Food.CUPCAKE:
