@@ -36,3 +36,8 @@ def attack_pets(pet: Pet, opponent_pets: list[Pet]):
     # on attack modifier:
     # chillie: hit the opponent behind it
     # meat bone: do more attack (but this is just a buff)
+
+
+def damage_pet(pet: Pet, damage: int):
+    if pet.effect
+    pet.health -= damage

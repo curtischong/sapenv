@@ -2,7 +2,6 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Literal
 from enum import Enum, auto
-import numpy as np
 
 IS_TRIGGERS_ENABLED = False
 

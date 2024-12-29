@@ -1,5 +1,5 @@
 from typing import Callable
-from all_types_and_consts import MAX_ATTACK, MAX_HEALTH, Species
+from all_types_and_consts import MAX_ATTACK, MAX_HEALTH, Effect, Species
 from pet import Pet
 from pet_data import get_base_pet
 import struct
@@ -35,8 +35,6 @@ def require_consent(prompt: str):
 
 
 def compress_team(team: Team) -> bytes:
-    # IMPROTANT: we do NOT save the temperary buffs. we just add it to the health and attack.
-    # DO NOT load these pets directly and put them into a shop. because the temporary buffs will appear to be permaneny buffs.
     """
     Convert a list of Pet objects into a compressed binary blob.
 
@@ -44,7 +42,10 @@ def compress_team(team: Team) -> bytes:
         - pet.species.value (int)   -> stored in 2 bytes
         - pet.attack (int)          -> stored in 2 bytes
         - pet.health (int)          -> stored in 2 bytes
+        - pet.effect (int)          -> stored in 2 bytes
         - pet.experience (int)      -> stored in 2 bytes
+        - pet.attack_boost (int)    -> stored in 2 bytes
+        - pet.health_boost (int)    -> stored in 2 bytes
 
     You can adjust the struct format and compression to suit your ranges & needs.
     """
@@ -54,9 +55,12 @@ def compress_team(team: Team) -> bytes:
     # Pack each Pet’s attributes using a fixed 2-byte representation (big-endian)
     for pet in team.pets:
         buffer += struct.pack(">H", pet.species.value)
-        buffer += struct.pack(">H", min(pet.attack + pet.attack_boost, MAX_ATTACK))
-        buffer += struct.pack(">H", min(pet.health + pet.health_boost, MAX_HEALTH))
+        buffer += struct.pack(">H", pet.attack)
+        buffer += struct.pack(">H", pet.health)
+        buffer += struct.pack(">H", pet.effect.value)
         buffer += struct.pack(">H", pet.experience)
+        buffer += struct.pack(">H", pet.attack_boost)
+        buffer += struct.pack(">H", pet.health_boost)
 
     # Now compress the blob (zlib level=9 is the highest compression)
     compressed_blob = zlib.compress(buffer, level=9)
@@ -66,18 +70,21 @@ def compress_team(team: Team) -> bytes:
 def decompress_team(blob: bytes) -> list[Pet]:
     decompressed = zlib.decompress(blob)
     pets: list[Pet] = []
-    # Read 8 bytes for each pet (4 x 2-byte fields)
-    chunk_size = 2 * 4
+    # Read 14 bytes for each pet (7 x 2-byte fields)
+    chunk_size = 2 * 7
     for i in range(0, len(decompressed), chunk_size):
-        species_val, attack, health, exp = struct.unpack(
-            ">HHHH", decompressed[i : i + chunk_size]
+        species_val, attack, health, effect_val, exp, attack_boost, health_boost = (
+            struct.unpack(">HHHHHHH", decompressed[i : i + chunk_size])
         )
         # Turn these back into a Pet
         # NOTE: You may need to map species_val -> PetSpeciesEnum
         pet = get_base_pet(Species(species_val)).set_stats_all(
             attack=attack,
             health=health,
+            effect=Effect(effect_val),
             experience=exp,
+            attack_boost=attack_boost,
+            health_boost=health_boost,
         )
         pets.append(pet)
     return Team(pets)
