@@ -40,9 +40,7 @@ def trigger_food_for_pet(food_type: Food, team: Team, pet_idx: int, shop: Shop):
             pet.effect = Effect.BEE
         case Food.PILL:
             team.pets[pet_idx] = get_base_pet(Species.NONE)
-            trigger_on_faint(
-                pet, pet_idx, team.pets
-            )  # TODO: ensure this triggers PERMANENT boosts
+            trigger_on_faint(pet, pet_idx, team.pets)
         case Food.MEAT_BONE:
             pet.effect = Effect.MEAT_BONE
         case Food.CUPCAKE:

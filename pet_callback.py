@@ -1,4 +1,6 @@
-from all_types_and_consts import Food, Species
+from all_types_and_consts import Effect, Food, Species
+from battle import receive_damage
+from pet import Pet
 from pet_callback_consts import PetLevel
 from shop import Shop
 from team import Team
@@ -36,6 +38,22 @@ def on_faint_ant(pet_level: PetLevel, shop: Shop, team: Team):
         pet_list[0].add_stats(attack=pet_level, health=pet_level)
 
 
+def on_battle_start(
+    pet: Pet, pet_level: PetLevel, shop: Shop, team: Team, enemy_pets: list[Pet]
+):
+    pets_with_idxs = Team.get_random_pets_with_idxs(
+        pets_list=enemy_pets, select_num_pets=pet_level
+    )
+    for enemy_pet, idx in pets_with_idxs:
+        receive_damage(
+            pet=enemy_pet,
+            damage=1,
+            idx_in_team=idx,
+            team_pets=enemy_pets,
+            attacker_has_peanut_effect=pet.effect == Effect.PEANUT,
+        )
+
+
 def set_pet_callbacks():
     # tier 1
     species_to_pet_map[Species.DUCK].set_on_sell(on_sell_duck)
@@ -44,3 +62,4 @@ def set_pet_callbacks():
     species_to_pet_map[Species.OTTER].set_on_buy(on_buy_otter)
     species_to_pet_map[Species.PIG].set_on_sell(on_sell_pig)
     species_to_pet_map[Species.ANT].set_on_faint(on_faint_ant)
+    species_to_pet_map[Species.MOSQUITO].set_on_battle_start(on_battle_start)

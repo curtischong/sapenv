@@ -17,3 +17,7 @@ class OnBuy(Protocol):
 
 class OnFaint(Protocol):
     def __call__(self, pet_level: PetLevel, team: Team) -> None: ...
+
+
+class OnBattleStart(Protocol):
+    def __call__(self, pet_level: PetLevel, team: Team, enemy_team: Team) -> None: ...
