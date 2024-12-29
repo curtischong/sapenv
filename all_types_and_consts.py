@@ -48,7 +48,7 @@ MAX_ACTIONS_IN_TURN = 20
 
 
 def dummy_trigger_fn(**kwargs):
-    assert False, "This function should never be called"
+    pass
 
 
 class Species(Enum):
