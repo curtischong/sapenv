@@ -1,6 +1,8 @@
 # pet callbacks
 from typing import Any, Literal, Callable, Protocol
 
+from pet import Pet
+
 PetLevel = Literal[1, 2, 3]
 Shop = Any  # prevent circular import
 Team = Any
@@ -20,4 +22,6 @@ class OnFaint(Protocol):
 
 
 class OnBattleStart(Protocol):
-    def __call__(self, pet_level: PetLevel, team: Team, enemy_team: Team) -> None: ...
+    def __call__(
+        self, pet_level: PetLevel, my_pets: list[Pet], enemy_pets: list[Pet]
+    ) -> None: ...

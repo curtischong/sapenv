@@ -9,6 +9,7 @@ def battle(my_team: Team, team2: Team) -> BattleResult:
         my_team.clone().get_pets_for_battle()
     )  # we need to clone the pets so the original team doesn't get modified
     pets2 = team2.clone().get_pets_for_battle()
+    trigger_on_battle_start(pets1, pets2)
 
     while len(pets1) > 0 and len(pets2) > 0:
         pet1 = pets1[-1]
@@ -28,6 +29,35 @@ def battle(my_team: Team, team2: Team) -> BattleResult:
         return BattleResult.WON_BATTLE
     else:
         return BattleResult.LOST_BATTLE
+
+
+def trigger_on_battle_start(pets1: list[Pet], pets2: list[Pet]):
+    on_battle_start_pets: list[
+        tuple[int, Pet, bool]
+    ] = []  # list of (pet_attack, pet, is_team1)
+
+    for pet in pets1:
+        on_battle_start_pets.append((pet.attack, pet, True))
+    for pet in pets2:
+        on_battle_start_pets.append((pet.attack, pet, True))
+
+    # turn order is determined by the animal's attack. So sort by attack in descending order
+    # https://youtu.be/pm1VpWt7LMA?si=veNCYgci5VAsTmYD&t=451
+    # seems like on ties, it's random: https://www.reddit.com/r/superautopets/comments/uq8tdz/how_is_the_order_of_start_of_battle_abilities/?rdt=64622
+    order = sorted(on_battle_start_pets, key=lambda x: x[0], reverse=True)
+
+    # TODO: if the pet is killed by another pet, does its trigger still trigger?
+    # the video above said: "the deer can be sniped before a whale eats it"
+    # now trigger the on_battle_start callbacks
+    for _, pet, is_team1 in order:
+        if is_team1:
+            pet.on_battle_start(
+                pet=pet, pet_level=pet.get_level(), my_pets=pets1, enemy_pets=pets2
+            )
+        else:
+            pet.on_battle_start(
+                pet=pet, pet_level=pet.get_level(), my_pets=pets2, enemy_pets=pets1
+            )
 
 
 def damage_pet(attacker_pet: Pet, receiving_team: list[Pet]):

@@ -39,7 +39,7 @@ def on_faint_ant(pet_level: PetLevel, shop: Shop, team: Team):
 
 
 def on_battle_start(
-    pet: Pet, pet_level: PetLevel, shop: Shop, team: Team, enemy_pets: list[Pet]
+    pet: Pet, pet_level: PetLevel, my_pets: list[Pet], enemy_pets: list[Pet]
 ):
     pets_with_idxs = Team.get_random_pets_with_idxs(
         pets_list=enemy_pets, select_num_pets=pet_level
