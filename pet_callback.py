@@ -26,8 +26,21 @@ def on_buy_otter(pet_level: PetLevel, shop: Shop, team: Team):
         pet.add_stats(health=1)
 
 
+def on_sell_pig(pet_level: PetLevel, shop: Shop, team: Team):
+    shop.gold += pet_level
+
+
+def on_faint_ant(pet_level: PetLevel, shop: Shop, team: Team):
+    pet_list = team.get_random_pets(1)
+    if len(pet_list) > 0:
+        pet_list[0].add_stats(attack=pet_level, health=pet_level)
+
+
 def set_pet_callbacks():
+    # tier 1
     species_to_pet_map[Species.DUCK].set_on_sell(on_sell_duck)
     species_to_pet_map[Species.BEAVER].set_on_sell(on_sell_beaver)
     species_to_pet_map[Species.PIGEON].set_on_sell(on_sell_pigeon)
     species_to_pet_map[Species.OTTER].set_on_buy(on_buy_otter)
+    species_to_pet_map[Species.PIG].set_on_sell(on_sell_pig)
+    species_to_pet_map[Species.ANT].set_on_faint(on_faint_ant)

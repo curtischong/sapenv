@@ -58,6 +58,9 @@ class Pet:
     def set_on_buy(self, on_sell: OnBuy):
         self.on_sell = on_sell
 
+    def set_on_faint(self, on_faint: OnFaint):
+        self.on_faint = on_faint
+
     def clone(self):
         return Pet(
             species=self.species,

@@ -39,8 +39,8 @@ def attack_pets(pet: Pet, opponent_pets: list[Pet]):
     # meat bone: do more attack (but this is just a buff)
 
 
-def damage_pet(attacker_pet: Pet, receiving_team: Team):
-    first_pet = receiving_team.pets[-1]
+def damage_pet(attacker_pet: Pet, receiving_team: list[Pet]):
+    first_pet = receiving_team[-1]
     damage = attacker_pet.attack
     if attacker_pet.effect == Effect.MEAT_BONE:
         damage += 3
@@ -50,8 +50,8 @@ def damage_pet(attacker_pet: Pet, receiving_team: Team):
 
     attacker_has_peanut_effect = attacker_pet.effect == Effect.PEANUT
 
-    if attacker_pet.effect == Effect.CHILLI and len(receiving_team.pets) > 1:
-        second_pet = receiving_team.pets[-2]
+    if attacker_pet.effect == Effect.CHILLI and len(receiving_team) > 1:
+        second_pet = receiving_team[-2]
         receive_damage(
             pet=second_pet,
             damage=5,
@@ -72,7 +72,7 @@ def receive_damage(
     pet: Pet,
     damage: int,
     idx_in_team: int,
-    team: Team,
+    team_pets: list[Pet],
     attacker_has_peanut_effect: bool,
 ):
     if pet.effect == Effect.MELON:
@@ -90,17 +90,21 @@ def receive_damage(
         # TODO: not sure what should trigger first. the mushroom or the on faint affect?
         # https://www.reddit.com/r/superautopets/comments/12xtp8d/mushroom_faint_ability_ordering_different_for/?rdt=51575
         # I'll make the mushroom trigger last after all on faint effects are done (since it's what the sapai repo does)
-        pet.on_faint()
-        if pet.effect == Effect.MUSHROOM:
-            new_pet = get_base_pet(pet.species).set_stats(
-                attack=1,
-                health=1,
-            )
-            try_spawn_at_pos(new_pet, idx_in_team, team)
-        elif pet.effect == Effect.BEE:
-            new_pet = get_base_pet(Species.BEE)
-            try_spawn_at_pos(new_pet, idx_in_team, team)
-        team.pets.pop(idx_in_team)
+        trigger_on_faint(pet, idx_in_team, team_pets)
+
+
+def trigger_on_faint(pet: Pet, idx_in_team: int, team_pets: list[Pet]):
+    team_pets.pop(idx_in_team)  # remove the pet first to make room for other pets
+    pet.on_faint()
+    if pet.effect == Effect.MUSHROOM:
+        new_pet = get_base_pet(pet.species).set_stats(
+            attack=1,
+            health=1,
+        )
+        try_spawn_at_pos(new_pet, idx_in_team, team_pets)
+    elif pet.effect == Effect.BEE:
+        new_pet = get_base_pet(Species.BEE)
+        try_spawn_at_pos(new_pet, idx_in_team, team_pets)
 
 
 def try_spawn_at_pos(pet: Pet, idx: int, team: Team):
