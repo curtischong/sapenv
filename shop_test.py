@@ -5,6 +5,7 @@ from pet_data import tier_1_pets, tier_2_pets, tier_3_pets
 
 def test_shop_only_generates_pets_of_the_correct_tier():
     shop = Shop()
+    shop.gold = 99999
     shop.shop_tier = 3
 
     def get_species_in_tier(pets_in_tier: list[Pet]):

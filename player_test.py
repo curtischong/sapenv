@@ -94,9 +94,8 @@ def test_combine_pets_moves_pet1_to_pet2():
     )
     player.combine_pets_action(pet1_idx=0, pet2_idx=1)
 
-    new_beaver = get_base_pet(Species.BEAVER).set_stats_all(
-        attack=3, health=2, experience=2
-    )
+    new_beaver = get_base_pet(Species.BEAVER).add_stats(attack=3, health=2)
+    new_beaver.experience = 2
 
     desired_team = Team(
         pets=[

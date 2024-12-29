@@ -144,7 +144,6 @@ class Pet:
         self.attack_boost += attack
         self.health_boost += health
 
-    # TODO: add effect
     def set_stats_all(self, *, attack: int, health: int, experience: int):
         self.attack = attack
         self.health = health
