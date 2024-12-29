@@ -64,5 +64,10 @@ def trigger_food_for_pet(food_type: Food, team: Team, pet_idx: int, shop: Shop):
         case Food.MUSHROOM:
             pet.effect = Effect.MUSHROOM
 
+        # hidden foods
+        case Food.BREAD_CRUMB:
+            pet.add_stats(attack=1)
+        case Food.MILK:
+            pet.add_stats(attack=1, health=2)
         case _:
             raise ValueError(f"Unknown food type: {food_type}")

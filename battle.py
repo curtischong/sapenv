@@ -48,6 +48,8 @@ def damage_pet(attacker_pet: Pet, receiving_team: Team):
         damage = max(damage + 20, MAX_ATTACK)
         attacker_pet.effect = Effect.NONE  # steak is only used once
 
+    attacker_has_peanut_effect = attacker_pet.effect == Effect.PEANUT
+
     if attacker_pet.effect == Effect.CHILLI and len(receiving_team.pets) > 1:
         second_pet = receiving_team.pets[-2]
         receive_damage(
@@ -55,24 +57,36 @@ def damage_pet(attacker_pet: Pet, receiving_team: Team):
             damage=5,
             idx_in_team=len(receiving_team) - 2,
             receiving_team=receiving_team,
+            attacker_has_peanut_effect=attacker_has_peanut_effect,
         )
     receive_damage(
         pet=first_pet,
         damage=damage,
         idx_in_team=len(receiving_team) - 1,
         receiving_team=receiving_team,
+        attacker_has_peanut_effect=attacker_has_peanut_effect,
     )
 
 
-def receive_damage(pet: Pet, damage: int, idx_in_team: int, team: Team):
+def receive_damage(
+    pet: Pet,
+    damage: int,
+    idx_in_team: int,
+    team: Team,
+    attacker_has_peanut_effect: bool,
+):
     if pet.effect == Effect.MELON:
         damage = max(damage - 20, 0)
         pet.effect = Effect.NONE  # melon is only used once
     elif pet.effect == Effect.GARLIC:
-        damage = max(damage - 2, 0)
+        damage = max(damage - 2, 1)  # yes. Garlic does a minimum of 1 damage
     pet.health -= damage
+
+    if damage == 0:
+        return  # early return to avoid computing on hurt effects
+
     pet.on_hurt()
-    if pet.health <= 0:
+    if pet.health <= 0 or attacker_has_peanut_effect:
         # TODO: not sure what should trigger first. the mushroom or the on faint affect?
         # https://www.reddit.com/r/superautopets/comments/12xtp8d/mushroom_faint_ability_ordering_different_for/?rdt=51575
         # I'll make the mushroom trigger last after all on faint effects are done (since it's what the sapai repo does)

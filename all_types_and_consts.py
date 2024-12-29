@@ -176,13 +176,11 @@ class Food(Enum):
 
     # hidden foods
     MILK = auto()
-    # PEANUT = auto()
     BREAD_CRUMB = auto()  # from pigeon (can overflow the food slots)
 
 
 hidden_foods = [
     Food.MILK,
-    # Foods.PEANUT,
     Food.BREAD_CRUMB,
 ]
 
@@ -262,3 +260,4 @@ class Effect(Enum):
     STEAK = auto()
     MELON = auto()
     MUSHROOM = auto()
+    PEANUT = auto()
