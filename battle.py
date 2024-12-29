@@ -78,12 +78,14 @@ def receive_damage(pet: Pet, damage: int, idx_in_team: int, team: Team):
         # I'll make the mushroom trigger last after all on faint effects are done (since it's what the sapai repo does)
         pet.on_faint()
         if pet.effect == Effect.MUSHROOM:
-            team.pets[idx_in_team] = get_base_pet(pet.species).set_stats(
+            new_pet = get_base_pet(pet.species).set_stats(
                 attack=1,
                 health=1,
             )
+            try_spawn_at_pos(new_pet, idx_in_team, team)
         elif pet.effect == Effect.BEE:
-            team.pets[idx_in_team] = get_base_pet(Species.BEE)
+            new_pet = get_base_pet(Species.BEE)
+            try_spawn_at_pos(new_pet, idx_in_team, team)
         team.pets.pop(idx_in_team)
 
 
