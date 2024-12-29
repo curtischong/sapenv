@@ -1,4 +1,4 @@
-from all_types_and_consts import BattleResult
+from all_types_and_consts import BattleResult, Effect
 from pet import Pet
 from team import Team
 
@@ -38,6 +38,26 @@ def attack_pets(pet: Pet, opponent_pets: list[Pet]):
     # meat bone: do more attack (but this is just a buff)
 
 
-def damage_pet(pet: Pet, damage: int):
-    if pet.effect
+def damage_pet(attacker_pet: Pet, receiving_team: Team):
+    first_pet = receiving_team.pets[-1]
+    damage = attacker_pet.attack
+    if attacker_pet.effect == Effect.MEAT_BONE:
+        damage += 3
+
+    if attacker_pet.effect == Effect.CHILLI and len(receiving_team.pets) > 1:
+        second_pet = receiving_team.pets[-2]
+        receive_damage(second_pet, damage)
+    receive_damage(first_pet, damage)
+
+
+def receive_damage(pet: Pet, damage: int, idx_in_team: int, team: Team):
+    if pet.effect == Effect.MELON:
+        damage = max(damage - 20, 0)
+        pet.effect = Effect.NONE  # melon is only used once
+    elif pet.effect == Effect.GARLIC:
+        damage = max(damage - 2, 0)
     pet.health -= damage
+    pet.on_hurt()
+    if pet.health <= 0:
+        pet.on_death()
+        team.pets.pop(idx_in_team)

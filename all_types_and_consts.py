@@ -253,3 +253,8 @@ class Effect(Enum):
     NONE = auto()
     BEE = auto()
     MEAT_BONE = auto()
+    GARLIC = auto()
+    CHILLI = auto()
+    STEAK = auto()
+    MELON = auto()
+    MUSHROOM = auto()

@@ -25,6 +25,7 @@ class Pet:
         on_buy: OnBuy = dummy_trigger_fn,
         on_sell: OnSell = dummy_trigger_fn,
         on_death: OnDeath = dummy_trigger_fn,
+        on_hurt: OnDeath = dummy_trigger_fn,
         attack_boost: int = 0,
         health_boost: int = 0,
     ):
@@ -37,6 +38,7 @@ class Pet:
         self.on_buy = on_buy
         self.on_sell = on_sell
         self.on_death = on_death
+        self.on_hurt = on_hurt
         self.attack_boost = attack_boost
         self.health_boost = health_boost
 
@@ -67,6 +69,7 @@ class Pet:
             on_buy=self.on_buy,
             on_sell=self.on_sell,
             on_death=self.on_death,
+            on_hurt=self.on_hurt,
             attack_boost=self.attack_boost,
             health_boost=self.health_boost,
         )
