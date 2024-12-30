@@ -33,14 +33,14 @@ class OnFaint(Protocol):
         self,
         pet: Pet,
         faint_pet_idx: int,
-        team_pets: list[Pet],
+        my_pets: list[Pet],
         enemy_pets: list[Pet] | None,
         is_in_battle: bool,
     ): ...
 
 
 class OnHurt(Protocol):
-    def __call__(self, pet: Pet, team_pets: list[Pet]): ...
+    def __call__(self, pet: Pet, my_pets: list[Pet]): ...
 
 
 class OnBattleStart(Protocol):
@@ -94,11 +94,9 @@ def on_sell_pig(pet: Pet, shop: Shop, team: Team):
     shop.gold += pet.get_level()
 
 
-def on_faint_ant(
-    pet: Pet, faint_pet_idx: int, team_pets: list[Pet], is_in_battle: bool
-):
+def on_faint_ant(pet: Pet, faint_pet_idx: int, my_pets: list[Pet], is_in_battle: bool):
     pet_list = Team.get_random_pets_from_list(
-        pets_list=team_pets, select_num_pets=1, exclude_pet=pet
+        pets_list=my_pets, select_num_pets=1, exclude_pet=pet
     )
     if len(pet_list) > 0:
         stat_buff = pet.get_level()
@@ -113,7 +111,8 @@ def on_battle_start_mosquito(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]
         receive_damage(
             pet=enemy_pet,
             damage=1,
-            team_pets=enemy_pets,
+            receiving_team=enemy_pets,
+            opposing_team=my_pets,
             attacker_has_peanut_effect=pet.effect == Effect.PEANUT,
         )
 
@@ -128,12 +127,14 @@ def on_level_up_fish(pet: Pet, team: Team):
 
 
 def on_faint_cricket(
-    pet: Pet, faint_pet_idx: int, team_pets: list[Pet], is_in_battle: bool
+    pet: Pet, faint_pet_idx: int, my_pets: list[Pet], is_in_battle: bool
 ):
     cricket_spawn = get_base_pet(Species.CRICKET_SPAWN).set_stats(
         attack=pet.get_level(), health=pet.get_level()
     )
-    try_spawn_at_pos(cricket_spawn, faint_pet_idx, team_pets, is_in_battle=is_in_battle)
+    try_spawn_at_pos(
+        cricket_spawn, faint_pet_idx, pets=my_pets, is_in_battle=is_in_battle
+    )
 
 
 def on_friend_summoned_horse(pet: Pet, summoned_friend: Pet, is_in_battle: bool):
@@ -155,15 +156,15 @@ def on_end_turn_snail(pet: Pet, team: Team, last_battle_result: BattleResult):
         return
 
     buff_amount = pet.get_level()
-    for team_pet in team.pets:
-        if team_pet is not pet:
-            team_pet.add_stats(attack=buff_amount, health=buff_amount)
+    for my_pet in team.pets:
+        if my_pet is not pet:
+            my_pet.add_stats(attack=buff_amount, health=buff_amount)
 
 
 def on_battle_start_crab(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     max_health_on_team = 0
-    for team_pet in my_pets:
-        max_health_on_team = max(max_health_on_team, team_pet.health)
+    for my_pet in my_pets:
+        max_health_on_team = max(max_health_on_team, my_pet.health)
 
     percentage_boost = 0.5 * pet.get_level()
     new_health = math.ceil(
@@ -179,7 +180,7 @@ def on_turn_start_swan(pet: Pet, shop: Shop):
 def on_faint_rat(
     pet: Pet,
     faint_pet_idx: int,
-    team_pets: list[Pet],
+    my_pets: list[Pet],
     enemy_pets: list[Pet] | None,
     is_in_battle: bool,
 ):
@@ -200,18 +201,18 @@ def on_faint_rat(
 def on_faint_hedgehog(
     pet: Pet,
     faint_pet_idx: int,
-    team_pets: list[Pet],
+    my_pets: list[Pet],
     enemy_pets: list[Pet] | None,
     is_in_battle: bool,
 ):
     damage = 2 * pet.get_level()
-    for team_pet in team_pets:
-        if team_pet is not pet:
+    for my_pet in my_pets:
+        if my_pet is not pet:
             receive_damage(
-                pet=team_pet,
+                pet=my_pet,
                 damage=damage,
-                team_pets=team_pets,
-                enemy_pets=enemy_pets,
+                receiving_team=my_pets,
+                opposing_team=enemy_pets,
                 attacker_has_peanut_effect=False,  # for now assume that the scorpion is the only pet with the peanut effect
             )
 
@@ -222,15 +223,15 @@ def on_faint_hedgehog(
         receive_damage(
             pet=enemy_pet,
             damage=damage,
-            team_pets=enemy_pets,
-            enemy_pets=team_pets,
+            receiving_team=enemy_pets,
+            opposing_team=my_pets,
             attacker_has_peanut_effect=False,
         )
 
 
 def on_hurt_peacock(
     pet: Pet,
-    team_pets: list[Pet],
+    my_pets: list[Pet],
 ):
     attack_boost = 3 * pet.get_level()
     pet.attack = min(pet.attack + attack_boost, MAX_ATTACK)
@@ -239,13 +240,13 @@ def on_hurt_peacock(
 def on_faint_flamingo(
     pet: Pet,
     faint_pet_idx: int,
-    team_pets: list[Pet],
+    my_pets: list[Pet],
     enemy_pets: list[Pet] | None,
     is_in_battle: bool,
 ):
     closest_friends_behind: list[Pet] = []
     for friend_idx in range(faint_pet_idx - 1, -1, -1):
-        friend_pet = team_pets[friend_idx]
+        friend_pet = my_pets[friend_idx]
         if friend_pet.species != Species.NONE:
             closest_friends_behind.append(friend_pet)
         if len(closest_friends_behind) >= 2:
@@ -277,7 +278,7 @@ def on_friend_ahead_attacks_kangaroo(pet: Pet):
 
 
 def on_faint_spider(
-    pet: Pet, faint_pet_idx: int, team_pets: list[Pet], is_in_battle: bool
+    pet: Pet, faint_pet_idx: int, my_pets: list[Pet], is_in_battle: bool
 ):
     pet_to_spawn = random.choice(tier_3_pets).clone()
     stat = 2 * pet.get_level()
@@ -294,7 +295,95 @@ def on_faint_spider(
     pet_to_spawn.set_stats_all(
         attack=stat, health=stat, experience=new_spawn_experience
     )
-    try_spawn_at_pos(pet_to_spawn, faint_pet_idx, team_pets, is_in_battle)
+    try_spawn_at_pos(pet_to_spawn, faint_pet_idx, my_pets, is_in_battle)
+
+
+def on_battle_start_dodo(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
+    # the dodo's attack is NOT cleared from it's own. it buffs the friend's attack https://youtu.be/7zymvXc9OrU?si=KVVqzWX1u6-z_LCc&t=76
+    percentage_amount_to_give = 0.5 * pet.get_level()
+
+    # use ceil. so if the dodo has 1 attack, we give 1 attack to the friend
+    attack_to_give_to_friend = math.ceil(percentage_amount_to_give * pet.attack)
+
+    pet_idx = my_pets.index(pet)
+    if pet_idx == len(my_pets) - 1:
+        # there are no friends ahead to give the attack to. We don't have to worry about none species here since it's the start of the battle
+        return
+    pet_ahead = my_pets[pet_idx + 1]
+    pet_ahead.add_stats(attack=attack_to_give_to_friend)
+
+
+def on_faint_badger(
+    pet: Pet,
+    faint_pet_idx: int,
+    my_pets: list[Pet],
+    enemy_pets: list[Pet] | None,
+    is_in_battle: bool,
+):
+    percentage_damage_to_deal = 0.5 * pet.get_level()
+    damage_to_deal = math.ceil(percentage_damage_to_deal * pet.attack)
+
+    ahead_idx = faint_pet_idx + 1
+    if ahead_idx < len(my_pets):
+        pet_ahead = my_pets[ahead_idx]
+        if pet_ahead.species != Species.NONE:
+            receive_damage(
+                pet=pet_ahead,
+                damage=damage_to_deal,
+                receiving_team=my_pets,
+                opposing_team=enemy_pets,
+                attacker_has_peanut_effect=False,
+            )
+    else:  # else: the badger is at the front of the team
+        if is_in_battle and len(enemy_pets) > 0:
+            pet_ahead = enemy_pets[-1]
+            receive_damage(
+                pet=pet_ahead,
+                damage=damage_to_deal,
+                receiving_team=enemy_pets,
+                opposing_team=my_pets,
+                attacker_has_peanut_effect=False,
+            )
+        # else: there is no pet ahead to deal damage to
+
+    # now deal damage to the pet behind (you can only damage your own team)
+    if faint_pet_idx > 0:
+        pet_behind = my_pets[faint_pet_idx - 1]
+        receive_damage(
+            pet=pet_behind,
+            damage=damage_to_deal,
+            receiving_team=my_pets,
+            opposing_team=enemy_pets,
+            attacker_has_peanut_effect=False,
+        )
+
+
+def on_battle_start_dolphin(
+    pet: Pet,
+    my_pets: list[Pet],
+    enemy_pets: list[Pet],
+):
+    num_times_this_triggers = pet.get_level()
+
+    for _ in range(num_times_this_triggers):
+        lowest_health_enemy_pet = None
+        lowest_health = MAX_HEALTH + 1
+        for enemy_pet in enemy_pets:
+            if enemy_pet.health < lowest_health:
+                lowest_health_enemy_pet = enemy_pet
+                lowest_health = enemy_pet.health
+
+        if lowest_health_enemy_pet is None:
+            return
+
+        # now deal damage to the lowest health enemy pet
+        receive_damage(
+            pet=lowest_health_enemy_pet,
+            damage=4,
+            receiving_team=enemy_pets,
+            opposing_team=my_pets,
+            attacker_has_peanut_effect=False,
+        )
 
 
 def set_pet_triggers():
@@ -322,6 +411,11 @@ def set_pet_triggers():
     species_to_pet_map[Species.WORM].set_trigger(Trigger.ON_TURN_START, on_turn_start_worm)
     species_to_pet_map[Species.KANGAROO].set_trigger(Trigger.ON_FRIEND_AHEAD_ATTACKS, on_friend_ahead_attacks_kangaroo)
     species_to_pet_map[Species.SPIDER].set_trigger(Trigger.ON_FAINT, on_faint_spider)
+
+    # tier 3
+    species_to_pet_map[Species.DODO].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_dodo)
+    species_to_pet_map[Species.BADGER].set_trigger(Trigger.ON_FAINT, on_faint_badger)
+    species_to_pet_map[Species.DOLPHIN].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_dolphin)
 
     # fmt: on
 
