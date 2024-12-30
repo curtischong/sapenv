@@ -128,3 +128,8 @@ def try_spawn_at_pos(pet_to_spawn: Pet, idx: int, pets: list[Pet], is_in_battle:
                 summoned_friend=pet_to_spawn,
                 is_in_battle=is_in_battle,
             )
+
+
+# tests to run:
+# fainting offers permanent stats buffs
+# horse stats disapepar after battle. but will help them win the battle
