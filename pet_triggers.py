@@ -135,9 +135,9 @@ def on_friend_summoned_horse(pet: Pet, summoned_friend: Pet, is_in_battle: bool)
     attack_boost = pet.get_level()
     if is_in_battle:
         # if in battle, add stats instead of boost
-        summoned_friend.add_stats(attack=attack_boost, health=0)
+        summoned_friend.add_stats(attack=attack_boost)
     else:
-        summoned_friend.add_boost(attack=attack_boost, health=0)
+        summoned_friend.add_boost(attack=attack_boost)
 
 
 def on_end_turn_snail(pet: Pet, team: Team, last_battle_result: BattleResult):

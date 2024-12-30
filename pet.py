@@ -129,7 +129,7 @@ class Pet:
         other_stats = other.attack + other.health
         return self_stats >= other_stats
 
-    def add_stats(self, *, attack: int, health: int):
+    def add_stats(self, *, attack: int = 0, health: int = 0):
         self.attack = min(MAX_ATTACK, self.attack + attack)
         self.health = min(MAX_HEALTH, self.health + health)
         return self
@@ -139,7 +139,7 @@ class Pet:
         self.health = health
         return self
 
-    def add_boost(self, *, attack: int, health: int):
+    def add_boost(self, *, attack: int = 0, health: int = 0):
         self.attack_boost += attack
         self.health_boost += health
 
