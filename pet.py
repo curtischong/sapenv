@@ -8,7 +8,8 @@ from all_types_and_consts import (
     Species,
     dummy_trigger_fn,
 )
-from pet_callback_consts import OnBattleStart, OnBuy, OnFaint, OnSell
+from pet_callback_consts import OnBattleStart, OnBuy, OnFaint, OnLevelUp, OnSell
+import uuid
 
 
 class Pet:
@@ -23,12 +24,12 @@ class Pet:
         effect: Effect = Effect.NONE,
         attack_boost: int = 0,
         health_boost: int = 0,
-        on_level_up=dummy_trigger_fn,
         on_buy: OnBuy = dummy_trigger_fn,
         on_sell: OnSell = dummy_trigger_fn,
         on_faint: OnFaint = dummy_trigger_fn,
         on_hurt: OnFaint = dummy_trigger_fn,
         on_battle_start: OnBattleStart = dummy_trigger_fn,
+        on_level_up: OnLevelUp = dummy_trigger_fn,
     ):
         self.species = species
         self.attack = attack
@@ -37,12 +38,13 @@ class Pet:
         self.effect = effect
         self.attack_boost = attack_boost
         self.health_boost = health_boost
-        self.on_level_up = on_level_up
         self.on_buy = on_buy
         self.on_sell = on_sell
         self.on_faint = on_faint
         self.on_hurt = on_hurt
         self.on_battle_start = on_battle_start
+        self.on_level_up = on_level_up
+        self.id = uuid.uuid4()
 
     @staticmethod
     def define_base_stats(*, species: Species, attack: int, health: int):
@@ -54,17 +56,22 @@ class Pet:
             effect=None,
         )
 
-    def set_on_sell(self, on_sell: OnSell):
+    def set_on_buy(self, on_sell: OnBuy):
         self.on_sell = on_sell
 
-    def set_on_buy(self, on_sell: OnBuy):
+    def set_on_sell(self, on_sell: OnSell):
         self.on_sell = on_sell
 
     def set_on_faint(self, on_faint: OnFaint):
         self.on_faint = on_faint
 
+    # TODO: add on_hurt
+
     def set_on_battle_start(self, on_battle_start: OnBattleStart):
         self.on_battle_start = on_battle_start
+
+    def set_on_level_up(self, on_level_up: OnLevelUp):
+        self.on_level_up = on_level_up
 
     def clone(self):
         return Pet(
@@ -93,6 +100,9 @@ class Pet:
             and self.attack_boost == other.attack_boost
             and self.health_boost == other.health_boost
         )
+
+    def is_same_as(self, other: "Pet"):
+        return self.id == other.id
 
     def get_level(self):
         if self.experience < 3:
