@@ -105,7 +105,12 @@ def receive_damage(
 def trigger_on_faint(pet: Pet, team_pets: list[Pet], is_in_battle: bool):
     idx_in_team = team_pets.index(pet)
     team_pets.pop(idx_in_team)  # remove the pet first to make room for other pets
-    pet.trigger(Trigger.ON_FAINT, team_pets=team_pets, is_in_battle=is_in_battle)
+    pet.trigger(
+        Trigger.ON_FAINT,
+        faint_pet_idx=idx_in_team,
+        team_pets=team_pets,
+        is_in_battle=is_in_battle,
+    )
     if pet.effect == Effect.MUSHROOM:
         new_pet = get_base_pet(pet.species).set_stats(
             attack=1,
@@ -120,7 +125,13 @@ def trigger_on_faint(pet: Pet, team_pets: list[Pet], is_in_battle: bool):
 def try_spawn_at_pos(pet_to_spawn: Pet, idx: int, pets: list[Pet], is_in_battle: bool):
     if len(pets) >= 5:
         return
-    pets.insert(idx, pet_to_spawn)
+    if is_in_battle:
+        # if it's in battle, the list is not a fixed size
+        pets.insert(idx, pet_to_spawn)
+    else:
+        # if it's not in battle, the list is a fixed size. so just set the pet at the index
+        assert pets[idx].species == Species.NONE
+        pets[idx] = pet_to_spawn
     for pet in pets:
         if pet is not pet_to_spawn:
             pet.trigger(

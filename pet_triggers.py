@@ -27,7 +27,9 @@ class OnBuy(Protocol):
 
 
 class OnFaint(Protocol):
-    def __call__(self, pet: Pet, team_pets: list[Pet], is_in_battle: bool): ...
+    def __call__(
+        self, pet: Pet, faint_pet_idx: int, team_pets: list[Pet], is_in_battle: bool
+    ): ...
 
 
 class OnHurt(Protocol):
@@ -93,7 +95,9 @@ def on_sell_pig(pet: Pet, shop: Shop, team: Team):
     shop.gold += pet.get_level()
 
 
-def on_faint_ant(pet: Pet, team_pets: list[Pet], is_in_battle: bool):
+def on_faint_ant(
+    pet: Pet, faint_pet_idx: int, team_pets: list[Pet], is_in_battle: bool
+):
     pet_list = Team.get_random_pets_from_list(
         team_pets=team_pets, select_num_pets=1, exclude_pet=pet
     )
@@ -103,8 +107,10 @@ def on_faint_ant(pet: Pet, team_pets: list[Pet], is_in_battle: bool):
 
 
 def on_battle_start_mosquito(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
-    random_pets = Team.get_random_pets(select_num_pets=pet.get_level())
-    for enemy_pet, idx in random_pets:
+    random_enemy_pets = Team.get_random_pets_from_list(
+        pets_list=enemy_pets, select_num_pets=pet.get_level()
+    )
+    for enemy_pet, idx in random_enemy_pets:
         receive_damage(
             pet=enemy_pet,
             damage=1,
@@ -122,12 +128,13 @@ def on_level_up_fish(pet: Pet, team: Team):
         pet.add_stats(attack=stat_buff, health=stat_buff)
 
 
-def on_faint_cricket(pet: Pet, team_pets: list[Pet], is_in_battle: bool):
-    pet_idx = team_pets.index(pet)
+def on_faint_cricket(
+    pet: Pet, faint_pet_idx: int, team_pets: list[Pet], is_in_battle: bool
+):
     cricket_spawn = get_base_pet(Species.CRICKET_SPAWN).set_stats(
         attack=pet.get_level(), health=pet.get_level()
     )
-    try_spawn_at_pos(cricket_spawn, pet_idx, team_pets, is_in_battle=is_in_battle)
+    try_spawn_at_pos(cricket_spawn, faint_pet_idx, team_pets, is_in_battle=is_in_battle)
 
 
 def on_friend_summoned_horse(pet: Pet, summoned_friend: Pet, is_in_battle: bool):
