@@ -178,11 +178,11 @@ class Food(Enum):
     MILK = auto()
     BREAD_CRUMB = auto()  # from pigeon (can overflow the food slots)
 
+    # https://superautopets.fandom.com/wiki/Apple
+    APPLE_2_COST = auto()  # from lvl1 worm
+    APPLE_2_COST_BETTER = auto()  # from lvl2 worm
+    APPLE_2_COST_BEST = auto()  # from lvl3 worm
 
-hidden_foods = [
-    Food.MILK,
-    Food.BREAD_CRUMB,
-]
 
 food_tiers = {
     1: [Food.APPLE, Food.HONEY],
@@ -214,6 +214,9 @@ foods_for_pet = [
     # hidden ones:
     Food.MILK,
     Food.BREAD_CRUMB,
+    Food.APPLE_2_COST,
+    Food.APPLE_2_COST_BETTER,
+    Food.APPLE_2_COST_BEST,
 ]
 assert len(foods_that_apply_globally) + len(foods_for_pet) == len(Food)
 

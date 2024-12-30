@@ -279,6 +279,12 @@ class Shop:
                 return 0
             case Food.MILK:
                 return 0
+            case Food.APPLE_2_COST:
+                return 2
+            case Food.APPLE_2_COST_BETTER:
+                return 2
+            case Food.APPLE_2_COST_BEST:
+                return 2
             case _:
                 return FOOD_COST
 
