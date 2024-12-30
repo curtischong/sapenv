@@ -1,5 +1,6 @@
 import gymnasium as gym
 from all_types_and_consts import (
+    IS_TRIGGERS_ENABLED,
     MAX_ACTIONS_IN_TURN,
     ActionReturn,
     BattleResult,
@@ -37,7 +38,8 @@ class SuperAutoPetsEnv(gym.Env):
     ):
         self.observation_space = env_observation_space
         self.action_space = env_action_space
-        set_pet_callbacks()
+        if IS_TRIGGERS_ENABLED:
+            set_pet_callbacks()
         self.opponent_db = opponent_db
         self.player = Player.init_starting_player(self.opponent_db)
         self.metrics_tracker = metrics_tracker

@@ -1,6 +1,7 @@
 from all_types_and_consts import Effect, Food, Species
 from battle import receive_damage
 from pet import Pet
+from pet_callback_consts import Trigger
 from shop import Shop
 from team import Team
 from pet_data import species_to_pet_map
@@ -62,11 +63,13 @@ def on_level_up_fish(pet: Pet, team: Team):
 
 def set_pet_callbacks():
     # tier 1
-    species_to_pet_map[Species.DUCK].set_on_sell(on_sell_duck)
-    species_to_pet_map[Species.BEAVER].set_on_sell(on_sell_beaver)
-    species_to_pet_map[Species.PIGEON].set_on_sell(on_sell_pigeon)
-    species_to_pet_map[Species.OTTER].set_on_buy(on_buy_otter)
-    species_to_pet_map[Species.PIG].set_on_sell(on_sell_pig)
-    species_to_pet_map[Species.ANT].set_on_faint(on_faint_ant)
-    species_to_pet_map[Species.MOSQUITO].set_on_battle_start(on_battle_start_mosquito)
-    species_to_pet_map[Species.FISH].set_on_level_up(on_level_up_fish)
+    species_to_pet_map[Species.DUCK].set_trigger(Trigger.ON_SELL, on_sell_duck)
+    species_to_pet_map[Species.BEAVER].set_trigger(Trigger.ON_SELL, on_sell_beaver)
+    species_to_pet_map[Species.PIGEON].set_trigger(Trigger.ON_SELL, on_sell_pigeon)
+    species_to_pet_map[Species.OTTER].set_trigger(Trigger.ON_BUY, on_buy_otter)
+    species_to_pet_map[Species.PIG].set_trigger(Trigger.ON_SELL, on_sell_pig)
+    species_to_pet_map[Species.ANT].set_trigger(Trigger.ON_FAINT, on_faint_ant)
+    species_to_pet_map[Species.MOSQUITO].set_trigger(
+        Trigger.ON_BATTLE_START, on_battle_start_mosquito
+    )
+    species_to_pet_map[Species.FISH].set_trigger(Trigger.ON_LEVEL_UP, on_level_up_fish)

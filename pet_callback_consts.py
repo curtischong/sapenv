@@ -1,4 +1,5 @@
 # pet callbacks
+from enum import Enum, auto
 from typing import Any, Literal, Callable, Protocol
 
 from pet import Pet
@@ -6,7 +7,18 @@ from pet import Pet
 PetLevel = Literal[1, 2, 3]
 Shop = Any  # prevent circular import
 Team = Any
-triggen_fn = Callable[[PetLevel, Shop, Team], None]
+
+
+class Trigger(Enum):
+    ON_SELL = auto()
+    ON_BUY = auto()
+    ON_FAINT = auto()
+    ON_DAMAGE = auto()
+    ON_BATTLE_START = auto()
+    ON_LEVEL_UP = auto()
+
+
+TriggerFn = Callable[[Pet, Any], None]
 
 
 class OnSell(Protocol):

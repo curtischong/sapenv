@@ -1,6 +1,5 @@
 import itertools
 from all_types_and_consts import (
-    IS_TRIGGERS_ENABLED,
     MAX_GAMES_LENGTH,
     MAX_SHOP_LINKED_SLOTS,
     MAX_TEAM_SIZE,
@@ -130,11 +129,6 @@ class Player:
         assert pet_at_team_idx.species == Species.NONE or is_player_combining_pets
 
         bought_pet = self.shop.buy_pet_at_slot(slot_idx)
-        if IS_TRIGGERS_ENABLED:
-            # I tested this. the otter triggers this BEFORE it is added to the team
-            bought_pet.on_buy(
-                pet_level=bought_pet.get_level(), shop=self.shop, team=self.team
-            )
         if is_player_combining_pets:
             self.team.pets[target_team_idx] = bought_pet.combine_onto(
                 pet_at_team_idx, self.shop
@@ -283,8 +277,7 @@ class Player:
         pet = self.team.pets[idx]
         pet_species = pet.species
         assert pet_species != Species.NONE
-        if IS_TRIGGERS_ENABLED:
-            pet.on_sell(pet_level=pet.get_level(), shop=self.shop, team=self.team)
+        pet.on_sell(pet_level=pet.get_level(), shop=self.shop, team=self.team)
         self.shop.gold += pet.get_level()
 
         self.team.pets[idx] = get_base_pet(Species.NONE)
