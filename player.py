@@ -37,6 +37,7 @@ class Player:
         self.num_actions_taken_in_turn = 0
         self.hearts = STARTING_HEARTS
         self.opponent_db: OpponentDB = None
+        self.last_battle_result = BattleResult.TIE  # on turn 1, the "last battle" will be considered a draw. https://superautopets.fandom.com/wiki/Snail
 
     @staticmethod
     def init_starting_player(opponent_db: OpponentDB):
@@ -343,7 +344,12 @@ class Player:
         return mask
 
     def end_turn_action(self) -> GameResult:
-        # todo: smarter opponent team
+        for pet in self.team.pets:
+            pet.trigger(
+                Trigger.ON_END_TURN,
+                team=self.team,
+                last_battle_result=self.last_battle_result,
+            )
         battle_result = battle(
             self.team,
             self.opponent_db.get_opponent_similar_in_stregth(
@@ -353,6 +359,7 @@ class Player:
                 num_lives_remaining=self.hearts,
             ),
         )
+        self.last_battle_result = battle_result
 
         # reset temporary buffs
         for pet in self.team.pets:
