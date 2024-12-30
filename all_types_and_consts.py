@@ -52,7 +52,7 @@ def dummy_trigger_fn(**kwargs):
 
 
 class Species(Enum):
-    NONE = auto()
+    NONE = 0
 
     # tier 1
     DUCK = auto()
@@ -147,7 +147,7 @@ hidden_species = [
 
 class Food(Enum):
     # tier 1
-    APPLE = auto()
+    APPLE = 0
     HONEY = auto()
 
     # tier 2
@@ -219,7 +219,7 @@ assert len(foods_that_apply_globally) + len(foods_for_pet) == len(Food)
 
 
 class BattleResult(Enum):
-    WON_BATTLE = auto()
+    WON_BATTLE = 0
     LOST_BATTLE = auto()
     TIE = auto()
 
@@ -229,7 +229,7 @@ MAX_GAMES_LENGTH = 30  # if they play more than these number of turns, they lose
 
 
 class GameResult(Enum):
-    CONTINUE = auto()
+    CONTINUE = 0
     WIN = auto()
     LOSE = auto()
     TRUNCATED = auto()
@@ -242,7 +242,7 @@ class SelectedAction:
 
 
 class ActionReturn(Enum):
-    GAME_RESULT = auto()  # Did the player win/lose/continue the game?
+    GAME_RESULT = 0  # Did the player win/lose/continue the game?
     BATTLE_RESULT = auto()  # did the player lose or win the battle it just fought?
     BOUGHT_PET_SPECIES = auto()
     SOLD_PET_SPECIES = auto()
@@ -252,7 +252,7 @@ ActionResult = dict[ActionReturn, Any]
 
 
 class Effect(Enum):
-    NONE = auto()
+    NONE = 0
     BEE = auto()
     MEAT_BONE = auto()
     GARLIC = auto()
@@ -261,3 +261,12 @@ class Effect(Enum):
     MELON = auto()
     MUSHROOM = auto()
     PEANUT = auto()
+
+
+class Trigger(Enum):
+    ON_SELL = 0
+    ON_BUY = auto()
+    ON_FAINT = auto()
+    ON_HURT = auto()
+    ON_BATTLE_START = auto()
+    ON_LEVEL_UP = auto()

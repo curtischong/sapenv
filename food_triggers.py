@@ -1,4 +1,4 @@
-from all_types_and_consts import Effect, Food, Species
+from all_types_and_consts import Effect, Food, Species, Trigger
 from battle import trigger_on_faint
 from pet_data import get_base_pet
 from shop import Shop
@@ -56,7 +56,7 @@ def trigger_food_for_pet(food_type: Food, team: Team, pet_idx: int, shop: Shop):
             pet.experience += 1
             new_level = pet.get_level()
             if new_level > old_level:
-                pet.on_level_up()
+                pet.trigger(Trigger.ON_LEVEL_UP)
                 shop.create_linked_pet()
         case Food.STEAK:
             pet.effect = Effect.STEAK
