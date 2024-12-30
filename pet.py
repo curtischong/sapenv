@@ -185,6 +185,7 @@ class Pet:
 
     def apply_temp_buffs(self):
         self.add_stats(attack=self.attack_boost, health=self.health_boost)
+        return self
 
     def set_stats_all(self, *, attack: int, health: int, experience: int):
         self.attack = attack
