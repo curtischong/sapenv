@@ -276,3 +276,4 @@ class Trigger(Enum):
     ON_FRIEND_SUMMONED = auto()
     ON_END_TURN = auto()
     ON_TURN_START = auto()
+    ON_FRIEND_AHEAD_ATTACKS = auto()
