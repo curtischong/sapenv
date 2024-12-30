@@ -99,39 +99,32 @@ def receive_damage(
         # TODO: not sure what should trigger first. the mushroom or the on faint affect?
         # https://www.reddit.com/r/superautopets/comments/12xtp8d/mushroom_faint_ability_ordering_different_for/?rdt=51575
         # I'll make the mushroom trigger last after all on faint effects are done (since it's what the sapai repo does)
-        trigger_on_faint(pet, team_pets)
+        trigger_on_faint(pet, team_pets, is_in_battle=True)
 
 
-def trigger_on_faint(pet: Pet, team_pets: list[Pet]):
+def trigger_on_faint(pet: Pet, team_pets: list[Pet], is_in_battle: bool):
     idx_in_team = team_pets.index(pet)
     team_pets.pop(idx_in_team)  # remove the pet first to make room for other pets
-    pet.trigger(Trigger.ON_FAINT, team_pets=team_pets)
+    pet.trigger(Trigger.ON_FAINT, team_pets=team_pets, is_in_battle=is_in_battle)
     if pet.effect == Effect.MUSHROOM:
         new_pet = get_base_pet(pet.species).set_stats(
             attack=1,
             health=1,
         )
-        try_spawn_at_pos(new_pet, idx_in_team, team_pets)
+        try_spawn_at_pos(new_pet, idx_in_team, team_pets, is_in_battle)
     elif pet.effect == Effect.BEE:
         new_pet = get_base_pet(Species.BEE)
-        try_spawn_at_pos(new_pet, idx_in_team, team_pets)
+        try_spawn_at_pos(new_pet, idx_in_team, team_pets, is_in_battle)
 
 
-def try_spawn_at_pos(
-    pet_to_spawn: Pet, idx: int, pets: list[Pet], is_temp_buffs_applied: bool
-):
+def try_spawn_at_pos(pet_to_spawn: Pet, idx: int, pets: list[Pet], is_in_battle: bool):
     if len(pets) >= 5:
         return
     pets.insert(idx, pet_to_spawn)
     for pet in pets:
         if pet is not pet_to_spawn:
-            pet.trigger(Trigger.ON_FRIEND_SUMMONED, summoned_friend=pet_to_spawn)
-
-    # TODO: not sure if I trigger this variable here??? or elsewhere???
-    if is_temp_buffs_applied:
-        pet_to_spawn.apply_temp_buffs()
-
-    # TODO:
-    # the trigger may add health or attack boost. sicne we're in a battle,
-    # if pet.health_boost > 0:
-    #     pet.health =
+            pet.trigger(
+                Trigger.ON_FRIEND_SUMMONED,
+                summoned_friend=pet_to_spawn,
+                is_in_battle=is_in_battle,
+            )

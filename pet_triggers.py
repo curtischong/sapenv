@@ -62,17 +62,22 @@ def on_level_up_fish(pet: Pet, team: Team):
         pet.add_stats(attack=stat_buff, health=stat_buff)
 
 
-def on_faint_cricket(pet: Pet, team_pets: list[Pet]):
+def on_faint_cricket(pet: Pet, team_pets: list[Pet], is_in_battle: bool):
     pet_idx = team_pets.index(pet)
     cricket_spawn = get_base_pet(Species.CRICKET_SPAWN).set_stats(
         attack=pet.get_level(), health=pet.get_level()
     )
-    try_spawn_at_pos(cricket_spawn, pet_idx, team_pets)
+    try_spawn_at_pos(cricket_spawn, pet_idx, team_pets, is_in_battle=is_in_battle)
 
 
-def on_friend_summoned_horse(pet: Pet, summoned_friend: Pet):
+def on_friend_summoned_horse(pet: Pet, summoned_friend: Pet, is_in_battle: bool):
     assert pet is not summoned_friend
-    summoned_friend.add_boost(attack=pet.get_level(), health=0)
+    attack_boost = pet.get_level()
+    if is_in_battle:
+        # if in battle, add stats instead of boost
+        summoned_friend.add_stats(attack=attack_boost, health=0)
+    else:
+        summoned_friend.add_boost(attack=attack_boost, health=0)
 
 
 def set_pet_triggers():
