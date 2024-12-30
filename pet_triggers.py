@@ -1,4 +1,12 @@
-from all_types_and_consts import BattleResult, Effect, Food, Species, Trigger
+import math
+from all_types_and_consts import (
+    MAX_HEALTH,
+    BattleResult,
+    Effect,
+    Food,
+    Species,
+    Trigger,
+)
 from battle import receive_damage, try_spawn_at_pos
 from pet import Pet
 from shop import Shop
@@ -94,6 +102,18 @@ def on_end_turn_snail(pet: Pet, team: Team, last_battle_result: BattleResult):
             team_pet.add_stats(attack=buff_amount, health=buff_amount)
 
 
+def on_battle_start_crab(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
+    max_health_on_team = 0
+    for team_pet in my_pets:
+        max_health_on_team = max(max_health_on_team, team_pet.health)
+
+    percentage_boost = 0.5 * pet.get_level()
+    new_health = math.ceil(
+        max_health_on_team * percentage_boost
+    )  # ceil. so if all pets have 1 health, the crab will still have 1 health
+    pet.health = min(new_health, MAX_HEALTH)
+
+
 def set_pet_triggers():
     # tier 1
     species_to_pet_map[Species.DUCK].set_trigger(Trigger.ON_SELL, on_sell_duck)
@@ -112,4 +132,7 @@ def set_pet_triggers():
     )
     species_to_pet_map[Species.SNAIL].set_trigger(
         Trigger.ON_END_TURN, on_end_turn_snail
+    )
+    species_to_pet_map[Species.CRAB].set_trigger(
+        Trigger.ON_BATTLE_START, on_battle_start_crab
     )
