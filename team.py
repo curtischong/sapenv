@@ -51,7 +51,7 @@ class Team:
     ) -> list[Pet]:
         pets_without_none: list[Pet] = []
         for pet in pets_list:
-            is_not_excluded_pet = exclude_pet is None or not pet.is_same_as(exclude_pet)
+            is_not_excluded_pet = exclude_pet is None or pet is not exclude_pet
             if pet.species != Species.NONE and is_not_excluded_pet:
                 pets_without_none.append(pet)
 

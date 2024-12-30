@@ -9,7 +9,6 @@ from all_types_and_consts import (
     dummy_trigger_fn,
 )
 from pet_callback_consts import OnBattleStart, OnBuy, OnFaint, OnLevelUp, OnSell
-import uuid
 
 
 class Pet:
@@ -44,7 +43,7 @@ class Pet:
         self.on_hurt = on_hurt
         self.on_battle_start = on_battle_start
         self.on_level_up = on_level_up
-        self.id = uuid.uuid4()
+        # self.id = uuid.uuid4() # I don't think this is needed since each python object has a unique id. And we use .index() to get the right index of a pet in a list (or "is" to check for equality)
 
     @staticmethod
     def define_base_stats(*, species: Species, attack: int, health: int):
@@ -100,9 +99,6 @@ class Pet:
             and self.attack_boost == other.attack_boost
             and self.health_boost == other.health_boost
         )
-
-    def is_same_as(self, other: "Pet"):
-        return self.id == other.id
 
     def get_level(self):
         if self.experience < 3:
