@@ -270,3 +270,4 @@ class Trigger(Enum):
     ON_HURT = auto()
     ON_BATTLE_START = auto()
     ON_LEVEL_UP = auto()
+    ON_FRIEND_SUMMONED = auto()

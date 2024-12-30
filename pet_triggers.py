@@ -70,6 +70,11 @@ def on_faint_cricket(pet: Pet, team_pets: list[Pet]):
     try_spawn_at_pos(cricket_spawn, pet_idx, team_pets)
 
 
+def on_friend_summoned_horse(pet: Pet, summoned_friend: Pet):
+    assert pet is not summoned_friend
+    summoned_friend.add_boost(attack=pet.get_level(), health=0)
+
+
 def set_pet_triggers():
     # tier 1
     species_to_pet_map[Species.DUCK].set_trigger(Trigger.ON_SELL, on_sell_duck)
@@ -83,3 +88,6 @@ def set_pet_triggers():
     )
     species_to_pet_map[Species.FISH].set_trigger(Trigger.ON_LEVEL_UP, on_level_up_fish)
     species_to_pet_map[Species.CRICKET].set_trigger(Trigger.ON_FAINT, on_faint_cricket)
+    species_to_pet_map[Species.HORSE].set_trigger(
+        Trigger.ON_FRIEND_SUMMONED, on_friend_summoned_horse
+    )

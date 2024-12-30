@@ -15,8 +15,8 @@ def battle(my_team: Team, team2: Team) -> BattleResult:
         pet1 = pets1[-1]
         pet2 = pets2[-1]
 
-        damage_pet(pet1, pets2)
-        damage_pet(pet2, pets1)
+        damage_pet(attacker_pet=pet1, receiving_team=pets2)
+        damage_pet(attacker_pet=pet2, receiving_team=pets1)
 
     if len(pets1) == 0 and len(pets2) == 0:
         return BattleResult.TIE
@@ -117,7 +117,21 @@ def trigger_on_faint(pet: Pet, team_pets: list[Pet]):
         try_spawn_at_pos(new_pet, idx_in_team, team_pets)
 
 
-def try_spawn_at_pos(pet: Pet, idx: int, pets: list[Pet]):
+def try_spawn_at_pos(
+    pet_to_spawn: Pet, idx: int, pets: list[Pet], is_temp_buffs_applied: bool
+):
     if len(pets) >= 5:
         return
-    pets.insert(idx, pet)
+    pets.insert(idx, pet_to_spawn)
+    for pet in pets:
+        if pet is not pet_to_spawn:
+            pet.trigger(Trigger.ON_FRIEND_SUMMONED, summoned_friend=pet_to_spawn)
+
+    # TODO: not sure if I trigger this variable here??? or elsewhere???
+    if is_temp_buffs_applied:
+        pet_to_spawn.apply_temp_buffs()
+
+    # TODO:
+    # the trigger may add health or attack boost. sicne we're in a battle,
+    # if pet.health_boost > 0:
+    #     pet.health =

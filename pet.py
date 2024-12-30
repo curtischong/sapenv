@@ -41,6 +41,10 @@ class OnLevelUp(Protocol):
     def __call__(self) -> None: ...
 
 
+class OnSummonedFriend(Protocol):
+    def __call__(self, pet: "Pet", summoned_friend: "Pet") -> None: ...
+
+
 TriggerFn = Callable[
     [OnSell | OnBuy | OnFaint | OnHurt | OnBattleStart | OnLevelUp], None
 ]
@@ -85,6 +89,8 @@ class Pet:
     # call triggers that the pet has
     def trigger(self, trigger: Trigger, *args, **kwargs) -> None:
         if trigger in self._triggers:
+            if trigger == Trigger.ON_FRIEND_SUMMONED:
+                assert self is not kwargs["summoned_friend"]
             # the first arg is always the pet that's triggering the event
             self._triggers[trigger](self, *args, **kwargs)
 
@@ -172,6 +178,9 @@ class Pet:
     def add_boost(self, *, attack: int, health: int):
         self.attack_boost += attack
         self.health_boost += health
+
+    def apply_temp_buffs(self):
+        self.add_stats(attack=self.attack_boost, health=self.health_boost)
 
     def set_stats_all(self, *, attack: int, health: int, experience: int):
         self.attack = attack
