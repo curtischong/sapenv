@@ -113,7 +113,8 @@ def on_battle_start_mosquito(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]
         receive_damage(
             pet=enemy_pet,
             damage=1,
-            team_pets=enemy_pets,
+            receiving_team=enemy_pets,
+            attacking_team=my_pets,
             attacker_has_peanut_effect=pet.effect == Effect.PEANUT,
         )
 
@@ -210,8 +211,8 @@ def on_faint_hedgehog(
             receive_damage(
                 pet=team_pet,
                 damage=damage,
-                team_pets=team_pets,
-                enemy_pets=enemy_pets,
+                receiving_team=team_pets,
+                attacking_team=enemy_pets,
                 attacker_has_peanut_effect=False,  # for now assume that the scorpion is the only pet with the peanut effect
             )
 
@@ -222,8 +223,8 @@ def on_faint_hedgehog(
         receive_damage(
             pet=enemy_pet,
             damage=damage,
-            team_pets=enemy_pets,
-            enemy_pets=team_pets,
+            receiving_team=enemy_pets,
+            attacking_team=team_pets,
             attacker_has_peanut_effect=False,
         )
 
@@ -326,21 +327,24 @@ def on_faint_badger(
     if ahead_idx < len(team_pets):
         # I am assuming that if you faint a badger in the shop, and the slot ahead is empty, nothing is done
         pet_ahead = team_pets[ahead_idx]
-    else:
-        if is_in_battle and len(enemy_pets) > 0:
-            pet_ahead = enemy_pets[-1]
-        else:
-            # there is no pet ahead to deal damage to
-            pet_ahead = get_base_pet(Species.NONE)
-
-    if pet_ahead.species != Species.NONE:
         receive_damage(
             pet=pet_ahead,
             damage=damage_to_deal,
-            team_pets=team_pets,
-            enemy_pets=enemy_pets,
+            receiving_team=team_pets,
+            attacking_team=enemy_pets,
             attacker_has_peanut_effect=False,
         )
+    else:  # else: the badger is at the front of the team
+        if is_in_battle and len(enemy_pets) > 0:
+            pet_ahead = enemy_pets[-1]
+            receive_damage(
+                pet=pet_ahead,
+                damage=damage_to_deal,
+                receiving_team=enemy_pets,
+                attacking_team=team_pets,
+                attacker_has_peanut_effect=False,
+            )
+        # else: there is no pet ahead to deal damage to
 
     # now deal damage to the pet behind (you can only damage your own team)
     if faint_pet_idx > 0:
@@ -348,8 +352,8 @@ def on_faint_badger(
         receive_damage(
             pet=pet_behind,
             damage=damage_to_deal,
-            team_pets=team_pets,
-            enemy_pets=enemy_pets,
+            receiving_team=team_pets,
+            attacking_team=enemy_pets,
             attacker_has_peanut_effect=False,
         )
 
@@ -376,8 +380,8 @@ def on_battle_start_dolphin(
         receive_damage(
             pet=lowest_health_enemy_pet,
             damage=4,
-            team_pets=my_pets,
-            enemy_pets=enemy_pets,
+            receiving_team=my_pets,
+            attacking_team=enemy_pets,
             attacker_has_peanut_effect=False,
         )
 
