@@ -297,6 +297,62 @@ def on_faint_spider(
     try_spawn_at_pos(pet_to_spawn, faint_pet_idx, team_pets, is_in_battle)
 
 
+def on_battle_start_dodo(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
+    # the dodo's attack is NOT cleared from it's own. it buffs the friend's attack https://youtu.be/7zymvXc9OrU?si=KVVqzWX1u6-z_LCc&t=76
+    percentage_amount_to_give = 0.5 * pet.get_level()
+
+    # use ceil. so if the dodo has 1 attack, we give 1 attack to the friend
+    attack_to_give_to_friend = math.ceil(percentage_amount_to_give * pet.attack)
+
+    pet_idx = my_pets.index(pet)
+    if pet_idx == len(my_pets) - 1:
+        # there are no friends ahead to give the attack to. We don't have to worry about none species here since it's the start of the battle
+        return
+    pet_ahead = my_pets[pet_idx + 1]
+    pet_ahead.add_stats(attack=attack_to_give_to_friend)
+
+
+def on_faint_badger(
+    pet: Pet,
+    faint_pet_idx: int,
+    team_pets: list[Pet],
+    enemy_pets: list[Pet] | None,
+    is_in_battle: bool,
+):
+    percentage_damage_to_deal = 0.5 * pet.get_level()
+    damage_to_deal = math.ceil(percentage_damage_to_deal * pet.attack)
+
+    ahead_idx = faint_pet_idx + 1
+    if ahead_idx < len(team_pets):
+        # I am assuming that if you faint a badger in the shop, and the slot ahead is empty, nothing is done
+        pet_ahead = team_pets[ahead_idx]
+    else:
+        if is_in_battle and len(enemy_pets) > 0:
+            pet_ahead = enemy_pets[-1]
+        else:
+            # there is no pet ahead to deal damage to
+            pet_ahead = get_base_pet(Species.NONE)
+
+    receive_damage(
+        pet=pet_ahead,
+        damage=damage_to_deal,
+        team_pets=team_pets,
+        enemy_pets=enemy_pets,
+        attacker_has_peanut_effect=False,
+    )
+
+    # now deal damage to the pet behind (you can only damage your own team)
+    if faint_pet_idx > 0:
+        pet_behind = team_pets[faint_pet_idx - 1]
+        receive_damage(
+            pet=pet_behind,
+            damage=damage_to_deal,
+            team_pets=team_pets,
+            enemy_pets=enemy_pets,
+            attacker_has_peanut_effect=False,
+        )
+
+
 def set_pet_triggers():
     # fmt: off
     # tier 1
@@ -322,6 +378,10 @@ def set_pet_triggers():
     species_to_pet_map[Species.WORM].set_trigger(Trigger.ON_TURN_START, on_turn_start_worm)
     species_to_pet_map[Species.KANGAROO].set_trigger(Trigger.ON_FRIEND_AHEAD_ATTACKS, on_friend_ahead_attacks_kangaroo)
     species_to_pet_map[Species.SPIDER].set_trigger(Trigger.ON_FAINT, on_faint_spider)
+
+    # tier 3
+    species_to_pet_map[Species.DODO].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_dodo)
+    species_to_pet_map[Species.BADGER].set_trigger(Trigger.ON_FAINT, on_faint_badger)
 
     # fmt: on
 
