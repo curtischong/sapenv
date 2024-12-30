@@ -12,11 +12,8 @@ def battle(my_team: Team, team2: Team) -> BattleResult:
     trigger_on_battle_start(pets1, pets2)
 
     while len(pets1) > 0 and len(pets2) > 0:
-        pet1 = pets1[-1]
-        pet2 = pets2[-1]
-
-        damage_pet(attacker_pet=pet1, receiving_team=pets2)
-        damage_pet(attacker_pet=pet2, receiving_team=pets1)
+        attack_team(receiving_team=pets2, attacking_team=pets1)
+        attack_team(receiving_team=pets1, attacking_team=pets2)
 
     if len(pets1) == 0 and len(pets2) == 0:
         return BattleResult.TIE
@@ -51,7 +48,8 @@ def trigger_on_battle_start(pets1: list[Pet], pets2: list[Pet]):
             pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets2, enemy_pets=pets1)
 
 
-def damage_pet(attacker_pet: Pet, receiving_team: list[Pet]):
+def attack_team(receiving_team: list[Pet], attacking_team: list[Pet]):
+    attacker_pet = attacking_team[-1]
     first_pet = receiving_team[-1]
     damage = attacker_pet.attack
     if attacker_pet.effect == Effect.MEAT_BONE:
@@ -68,12 +66,14 @@ def damage_pet(attacker_pet: Pet, receiving_team: list[Pet]):
             pet=second_pet,
             damage=5,
             team_pets=receiving_team,
+            enemy_pets=attacking_team,
             attacker_has_peanut_effect=attacker_has_peanut_effect,
         )
     receive_damage(
         pet=first_pet,
         damage=damage,
         team_pets=receiving_team,
+        enemy_pets=attacking_team,
         attacker_has_peanut_effect=attacker_has_peanut_effect,
     )
 
@@ -82,6 +82,7 @@ def receive_damage(
     pet: Pet,
     damage: int,
     team_pets: list[Pet],
+    enemy_pets: list[Pet],
     attacker_has_peanut_effect: bool,
 ):
     if pet.effect == Effect.MELON:
@@ -99,10 +100,14 @@ def receive_damage(
         # TODO: not sure what should trigger first. the mushroom or the on faint affect?
         # https://www.reddit.com/r/superautopets/comments/12xtp8d/mushroom_faint_ability_ordering_different_for/?rdt=51575
         # I'll make the mushroom trigger last after all on faint effects are done (since it's what the sapai repo does)
-        make_pet_faint(pet, team_pets, is_in_battle=True)
+        make_pet_faint(
+            pet, team_pets=team_pets, enemy_pets=enemy_pets, is_in_battle=True
+        )
 
 
-def make_pet_faint(pet: Pet, team_pets: list[Pet], is_in_battle: bool):
+def make_pet_faint(
+    pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet] | None, is_in_battle: bool
+):
     idx_in_team = team_pets.index(pet)
     if is_in_battle:
         team_pets.pop(idx_in_team)  # remove the pet first to make room for other pets
@@ -113,6 +118,7 @@ def make_pet_faint(pet: Pet, team_pets: list[Pet], is_in_battle: bool):
         Trigger.ON_FAINT,
         faint_pet_idx=idx_in_team,
         team_pets=team_pets,
+        enemy_pets=enemy_pets,
         is_in_battle=is_in_battle,
     )
     if pet.effect == Effect.MUSHROOM:
