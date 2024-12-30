@@ -52,20 +52,8 @@ class OnEndTurn(Protocol):
     def __call__(self, pet: Pet, team: "Team", last_battle_result: BattleResult): ...
 
 
-# TODO: ensure triggers follow these interfaces
-TriggerFn = Callable[
-    [
-        OnSell
-        | OnBuy
-        | OnFaint
-        | OnHurt
-        | OnBattleStart
-        | OnLevelUp
-        | OnFriendSummoned
-        | OnEndTurn
-    ],
-    None,
-]
+class OnTurnStart(Protocol):
+    def __call__(self, pet: Pet, shop: Shop): ...
 
 
 def on_sell_duck(pet: Pet, shop: Shop, team: Team):
@@ -173,6 +161,10 @@ def on_battle_start_crab(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     pet.health = min(new_health, MAX_HEALTH)
 
 
+def on_turn_start_swan(pet: Pet, shop: Shop):
+    shop.gold += pet.get_level()
+
+
 def set_pet_triggers():
     # tier 1
     species_to_pet_map[Species.DUCK].set_trigger(Trigger.ON_SELL, on_sell_duck)
@@ -189,11 +181,16 @@ def set_pet_triggers():
     species_to_pet_map[Species.HORSE].set_trigger(
         Trigger.ON_FRIEND_SUMMONED, on_friend_summoned_horse
     )
+
+    # tier 2
     species_to_pet_map[Species.SNAIL].set_trigger(
         Trigger.ON_END_TURN, on_end_turn_snail
     )
     species_to_pet_map[Species.CRAB].set_trigger(
         Trigger.ON_BATTLE_START, on_battle_start_crab
+    )
+    species_to_pet_map[Species.SWAN].set_trigger(
+        Trigger.ON_TURN_START, on_turn_start_swan
     )
 
 
@@ -246,6 +243,7 @@ trigger_to_protocol_type = {
     Trigger.ON_LEVEL_UP: OnLevelUp,
     Trigger.ON_FRIEND_SUMMONED: OnFriendSummoned,
     Trigger.ON_END_TURN: OnEndTurn,
+    Trigger.ON_TURN_START: OnTurnStart,
 }
 
 
