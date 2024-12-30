@@ -272,3 +272,4 @@ class Trigger(Enum):
     ON_LEVEL_UP = auto()
     ON_FRIEND_SUMMONED = auto()
     ON_END_TURN = auto()
+    ON_TURN_START = auto()

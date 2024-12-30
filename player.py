@@ -387,6 +387,9 @@ class Player:
         # since we moved onto the next round, we need to init it for the current round
         self.shop.init_shop_for_round(self.turn_number)
 
+        for pet in self.team.pets:
+            pet.trigger(Trigger.ON_TURN_START, shop=self.shop)
+
         if self.turn_number >= MAX_GAMES_LENGTH:
             game_result = GameResult.TRUNCATED
         # if the player has no more lives, they lose
