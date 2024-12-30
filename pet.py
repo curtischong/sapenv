@@ -12,6 +12,7 @@ from typing import Any
 
 
 TriggerFn = Any  # prevent circular import
+Shop = Any  # prevent circular import
 
 
 class Pet:
@@ -99,8 +100,7 @@ class Pet:
             return self.experience - 3
         return self.experience  # the pet is on level 1. no need to subtract anything
 
-    # shop is empty to prevent circular import
-    def combine_onto(self, pet2: "Pet", shop):
+    def combine_onto(self, pet2: "Pet", shop: Shop):
         pet1 = self
         if pet2._has_higher_stats(pet1):
             # important. use pet2 first. So if both have equal stats, we'll USE pet2 (due to the implementation of has_higher_stats)
