@@ -76,14 +76,12 @@ def damage_pet(attacker_pet: Pet, receiving_team: list[Pet]):
         receive_damage(
             pet=second_pet,
             damage=5,
-            idx_in_team=len(receiving_team) - 2,
             receiving_team=receiving_team,
             attacker_has_peanut_effect=attacker_has_peanut_effect,
         )
     receive_damage(
         pet=first_pet,
         damage=damage,
-        idx_in_team=len(receiving_team) - 1,
         receiving_team=receiving_team,
         attacker_has_peanut_effect=attacker_has_peanut_effect,
     )
@@ -92,7 +90,6 @@ def damage_pet(attacker_pet: Pet, receiving_team: list[Pet]):
 def receive_damage(
     pet: Pet,
     damage: int,
-    idx_in_team: int,
     team_pets: list[Pet],
     attacker_has_peanut_effect: bool,
 ):
@@ -111,10 +108,11 @@ def receive_damage(
         # TODO: not sure what should trigger first. the mushroom or the on faint affect?
         # https://www.reddit.com/r/superautopets/comments/12xtp8d/mushroom_faint_ability_ordering_different_for/?rdt=51575
         # I'll make the mushroom trigger last after all on faint effects are done (since it's what the sapai repo does)
-        trigger_on_faint(pet, idx_in_team, team_pets)
+        trigger_on_faint(pet, team_pets)
 
 
-def trigger_on_faint(pet: Pet, idx_in_team: int, team_pets: list[Pet]):
+def trigger_on_faint(pet: Pet, team_pets: list[Pet]):
+    idx_in_team = team_pets.index(pet)
     team_pets.pop(idx_in_team)  # remove the pet first to make room for other pets
     pet.on_faint()
     if pet.effect == Effect.MUSHROOM:

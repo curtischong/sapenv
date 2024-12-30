@@ -39,23 +39,21 @@ class Team:
         return res
 
     # Note: this function ensures that the returned pets are not NONE
-    def get_random_pets(self, select_num_pets: int) -> list[Pet]:
-        pets_with_indexes = Team.get_random_pets_with_idxs(self.pets, select_num_pets)
-        return [pet for pet, idx in pets_with_indexes]
+    def get_random_pets(
+        self, select_num_pets: int, exclude_pet: Pet | None = None
+    ) -> list[Pet]:
+        return Team.get_random_pets_from_list(self.pets, select_num_pets, exclude_pet)
 
     @staticmethod
-    # returns a list of (pet, idx_in_team)
     # Note: this function ensures that the returned pets are not NONE
-    def get_random_pets_with_idxs(
-        pets_list: list[Pet], select_num_pets: int
-    ) -> list[tuple[Pet, int]]:
-        pets_without_none: list[tuple[Pet, int]] = []  # list of (pet, idx_in_team)
-        for idx, pet in enumerate(pets_list):
-            if pet.species != Species.NONE:
-                pets_without_none.append((pet, idx))
-        selected_indexes = random.sample(range(len(pets_without_none)), select_num_pets)
+    def get_random_pets_from_list(
+        pets_list: list[Pet], select_num_pets: int, exclude_pet: Pet | None = None
+    ) -> list[Pet]:
+        pets_without_none: list[Pet] = []
+        for pet in pets_list:
+            is_not_excluded_pet = exclude_pet is None or pet is not exclude_pet
+            if pet.species != Species.NONE and is_not_excluded_pet:
+                pets_without_none.append(pet)
 
-        res = []
-        for idx in selected_indexes:
-            res.append(pets_without_none[idx])
-        return res
+        n = len(pets_without_none)
+        return random.sample(pets_without_none, min(n, select_num_pets))
