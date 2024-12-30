@@ -21,6 +21,7 @@ def on_sell_pigeon(pet: Pet, shop: Shop, team: Team):
     shop.num_foods[Food.BREAD_CRUMB] += pet.get_level()
 
 
+# TODO: ensure that on_buy is triggered AFTER the otter is combined (so the level is not level 1)
 def on_buy_otter(pet: Pet, shop: Shop, team: Team):
     random_friends = team.get_random_pets(
         select_num_pets=pet.get_level(), exclude_pet=pet
@@ -36,13 +37,12 @@ def on_sell_pig(pet: Pet, shop: Shop, team: Team):
 def on_faint_ant(pet: Pet, shop: Shop, team: Team):
     pet_list = team.get_random_pets(1, exclude_pet=pet)
     if len(pet_list) > 0:
-        pet_list[0].add_stats(attack=pet.get_level(), health=pet.get_level())
+        stat_buff = pet.get_level()
+        pet_list[0].add_stats(attack=stat_buff, health=stat_buff)
 
 
 def on_battle_start_mosquito(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
-    random_pets = Team.get_random_pets(
-        pets_list=enemy_pets, select_num_pets=pet.get_level()
-    )
+    random_pets = Team.get_random_pets(select_num_pets=pet.get_level())
     for enemy_pet, idx in random_pets:
         receive_damage(
             pet=enemy_pet,
