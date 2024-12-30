@@ -232,7 +232,11 @@ class Player:
         bought_pet.trigger(Trigger.ON_BUY, team=self.team)
         for pet in self.team.pets:
             if pet is not bought_pet:
-                pet.trigger(Trigger.ON_FRIEND_SUMMONED, summoned_friend=bought_pet)
+                pet.trigger(
+                    Trigger.ON_FRIEND_SUMMONED,
+                    summoned_friend=bought_pet,
+                    is_in_battle=False,
+                )
         return {ActionReturn.BOUGHT_PET_SPECIES: bought_pet.species}
 
     def buy_food_action(self, food_idx: int):
