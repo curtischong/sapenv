@@ -1,4 +1,4 @@
-from all_types_and_consts import Effect, Food, Species, Trigger
+from all_types_and_consts import BattleResult, Effect, Food, Species, Trigger
 from battle import receive_damage, try_spawn_at_pos
 from pet import Pet
 from shop import Shop
@@ -80,6 +80,20 @@ def on_friend_summoned_horse(pet: Pet, summoned_friend: Pet, is_in_battle: bool)
         summoned_friend.add_boost(attack=attack_boost, health=0)
 
 
+def on_end_turn_snail(pet: Pet, team: Team, last_battle_result: BattleResult):
+    # https://superautopets.fandom.com/wiki/Snail
+    # it only triggers if it's a loss, not a draw
+    # If Snail is bought on turn 1, the "last battle" will be considered a draw.
+    # the snail does not buff itself: https://youtu.be/jk9z6yPkG3U?si=1Cwf11gtm4wgpaMr&t=451
+    if last_battle_result != BattleResult.LOST_BATTLE:
+        return
+
+    buff_amount = pet.get_level()
+    for team_pet in team.pets:
+        if team_pet is not pet:
+            team_pet.add_stats(attack=buff_amount, health=buff_amount)
+
+
 def set_pet_triggers():
     # tier 1
     species_to_pet_map[Species.DUCK].set_trigger(Trigger.ON_SELL, on_sell_duck)
@@ -95,4 +109,7 @@ def set_pet_triggers():
     species_to_pet_map[Species.CRICKET].set_trigger(Trigger.ON_FAINT, on_faint_cricket)
     species_to_pet_map[Species.HORSE].set_trigger(
         Trigger.ON_FRIEND_SUMMONED, on_friend_summoned_horse
+    )
+    species_to_pet_map[Species.SNAIL].set_trigger(
+        Trigger.ON_END_TURN, on_end_turn_snail
     )
