@@ -191,6 +191,37 @@ def on_faint_rat(
         try_spawn_at_pos(rat_spawn, idx=front_idx, pets=enemy_pets, is_in_battle=True)
 
 
+def on_faint_hedgehog(
+    pet: Pet,
+    faint_pet_idx: int,
+    team_pets: list[Pet],
+    enemy_pets: list[Pet] | None,
+    is_in_battle: bool,
+):
+    damage = 2 * pet.get_level()
+    for team_pet in team_pets:
+        if team_pet is not pet:
+            receive_damage(
+                pet=team_pet,
+                damage=damage,
+                team_pets=team_pets,
+                enemy_pets=enemy_pets,
+                attacker_has_peanut_effect=False,  # for now assume that the scorpion is the only pet with the peanut effect
+            )
+
+    if enemy_pets is None:
+        return
+
+    for enemy_pet in enemy_pets:
+        receive_damage(
+            pet=enemy_pet,
+            damage=damage,
+            team_pets=enemy_pets,
+            enemy_pets=team_pets,
+            attacker_has_peanut_effect=False,
+        )
+
+
 def set_pet_triggers():
     # fmt: off
     # tier 1
@@ -210,6 +241,7 @@ def set_pet_triggers():
     species_to_pet_map[Species.CRAB].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_crab)
     species_to_pet_map[Species.SWAN].set_trigger(Trigger.ON_TURN_START, on_turn_start_swan)
     species_to_pet_map[Species.RAT].set_trigger(Trigger.ON_FAINT, on_faint_rat)
+    species_to_pet_map[Species.HEDGEHOG].set_trigger(Trigger.ON_FAINT, on_faint_hedgehog)
     # fmt: on
 
 
