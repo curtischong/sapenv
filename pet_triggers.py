@@ -333,13 +333,14 @@ def on_faint_badger(
             # there is no pet ahead to deal damage to
             pet_ahead = get_base_pet(Species.NONE)
 
-    receive_damage(
-        pet=pet_ahead,
-        damage=damage_to_deal,
-        team_pets=team_pets,
-        enemy_pets=enemy_pets,
-        attacker_has_peanut_effect=False,
-    )
+    if pet_ahead.species != Species.NONE:
+        receive_damage(
+            pet=pet_ahead,
+            damage=damage_to_deal,
+            team_pets=team_pets,
+            enemy_pets=enemy_pets,
+            attacker_has_peanut_effect=False,
+        )
 
     # now deal damage to the pet behind (you can only damage your own team)
     if faint_pet_idx > 0:
