@@ -62,6 +62,10 @@ class OnTurnStart(Protocol):
     def __call__(self, pet: Pet, shop: Shop): ...
 
 
+class OnFriendAheadAttacks(Protocol):
+    def __call__(self, pet: Pet): ...
+
+
 def on_sell_duck(pet: Pet, shop: Shop, team: Team):
     for slot in shop.slots:
         slot.pet.add_stats(health=pet.get_level())
@@ -266,6 +270,11 @@ def on_turn_start_worm(
             shop.num_foods[Food.APPLE_2_COST_BEST] += 1
 
 
+def on_friend_ahead_attacks_kangaroo(pet: Pet):
+    stat_buff = pet.get_level()
+    pet.add_stats(attack=stat_buff, health=stat_buff)
+
+
 def set_pet_triggers():
     # fmt: off
     # tier 1
@@ -289,6 +298,7 @@ def set_pet_triggers():
     species_to_pet_map[Species.PEACOCK].set_trigger(Trigger.ON_HURT, on_hurt_peacock)
     species_to_pet_map[Species.FLAMINGO].set_trigger(Trigger.ON_FAINT, on_faint_flamingo)
     species_to_pet_map[Species.WORM].set_trigger(Trigger.ON_TURN_START, on_turn_start_worm)
+    species_to_pet_map[Species.KANGAROO].set_trigger(Trigger.ON_FRIEND_AHEAD_ATTACKS, on_friend_ahead_attacks_kangaroo)
 
     # fmt: on
 
@@ -343,6 +353,7 @@ trigger_to_protocol_type = {
     Trigger.ON_FRIEND_SUMMONED: OnFriendSummoned,
     Trigger.ON_END_TURN: OnEndTurn,
     Trigger.ON_TURN_START: OnTurnStart,
+    Trigger.ON_FRIEND_AHEAD_ATTACKS: OnFriendAheadAttacks,
 }
 
 

@@ -58,8 +58,13 @@ def attack_team(receiving_team: list[Pet], attacking_team: list[Pet]):
         damage = max(damage + 20, MAX_ATTACK)
         attacker_pet.effect = Effect.NONE  # steak is only used once
 
-    attacker_has_peanut_effect = attacker_pet.effect == Effect.PEANUT
+    # trigger ON_FRIEND_AHEAD_ATTACKS
+    if len(attacking_team) > 1:
+        friend_behind_attacker = attacking_team[-2]
+        friend_behind_attacker.trigger(Trigger.ON_FRIEND_AHEAD_ATTACKS)
 
+    # now apply the damage
+    attacker_has_peanut_effect = attacker_pet.effect == Effect.PEANUT
     if attacker_pet.effect == Effect.CHILLI and len(receiving_team) > 1:
         second_pet = receiving_team[-2]
         receive_damage(
