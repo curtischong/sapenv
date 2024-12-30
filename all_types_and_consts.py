@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 from enum import Enum, auto
 
-IS_TRIGGERS_ENABLED = False
+IS_TRIGGERS_ENABLED = True
 
 MAX_TEAM_SIZE = 5
 

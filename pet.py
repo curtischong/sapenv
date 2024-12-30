@@ -1,75 +1,18 @@
-from typing import Callable
 import numpy as np
 from all_types_and_consts import (
     MAX_ATTACK,
     MAX_HEALTH,
     MAX_PET_EXPERIENCE,
-    BattleResult,
     Effect,
     PetExperience,
     Species,
     Trigger,
 )
-from typing import Any, Protocol
+from typing import Any
 
+
+TriggerFn = Any  # prevent circular import
 Shop = Any  # prevent circular import
-Team = Any
-
-
-class OnSell(Protocol):
-    def __call__(self, pet: "Pet", shop: Shop, team: Team) -> None: ...
-
-
-class OnBuy(Protocol):
-    def __call__(self, pet: "Pet", team: Team) -> None: ...
-
-
-class OnFaint(Protocol):
-    def __call__(
-        self, pet: "Pet", team_pets: list["Pet"], is_in_battle: bool
-    ) -> None: ...
-
-
-class OnHurt(Protocol):
-    def __call__(self, pet: "Pet", team_pets: list["Pet"]) -> None: ...
-
-
-class OnBattleStart(Protocol):
-    def __call__(
-        self, pet: "Pet", my_pets: list["Pet"], enemy_pets: list["Pet"]
-    ) -> None: ...
-
-
-class OnLevelUp(Protocol):
-    def __call__(self) -> None: ...
-
-
-class OnSummonedFriend(Protocol):
-    def __call__(
-        self, pet: "Pet", summoned_friend: "Pet", is_in_battle: bool
-    ) -> None: ...
-
-
-class OnEndTurn(Protocol):
-    def __call__(
-        self, pet: "Pet", team: "Team", last_battle_result: BattleResult
-    ) -> None: ...
-
-
-# TODO: ensure triggers follow these interfaces
-TriggerFn = Callable[
-    [
-        OnSell
-        | OnBuy
-        | OnFaint
-        | OnHurt
-        | OnBattleStart
-        | OnLevelUp
-        | OnSummonedFriend
-        | OnEndTurn
-    ],
-    None,
-]
 
 
 class Pet:
@@ -157,8 +100,7 @@ class Pet:
             return self.experience - 3
         return self.experience  # the pet is on level 1. no need to subtract anything
 
-    # shop is empty to prevent circular import
-    def combine_onto(self, pet2: "Pet", shop):
+    def combine_onto(self, pet2: "Pet", shop: Shop):
         pet1 = self
         if pet2._has_higher_stats(pet1):
             # important. use pet2 first. So if both have equal stats, we'll USE pet2 (due to the implementation of has_higher_stats)
