@@ -257,7 +257,13 @@ def on_turn_start_worm(
 ):
     # the apple the worm stocks is an ADDITIONAL food (doesn't take up a food slot)
     # https://youtu.be/T6moXKCurxw?si=HA5rgHUkSFPiPjh1&t=147
-    pass
+    match pet.get_level():
+        case 1:
+            shop.num_foods[Food.APPLE_2_COST] += 1
+        case 2:
+            shop.num_foods[Food.APPLE_2_COST_BETTER] += 1
+        case 3:
+            shop.num_foods[Food.APPLE_2_COST_BEST] += 1
 
 
 def set_pet_triggers():
