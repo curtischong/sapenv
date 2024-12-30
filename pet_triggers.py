@@ -110,7 +110,7 @@ def on_battle_start_mosquito(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]
     random_enemy_pets = Team.get_random_pets_from_list(
         pets_list=enemy_pets, select_num_pets=pet.get_level()
     )
-    for enemy_pet, idx in random_enemy_pets:
+    for enemy_pet in random_enemy_pets:
         receive_damage(
             pet=enemy_pet,
             damage=1,
