@@ -1,6 +1,7 @@
 import inspect
 import math
-from typing import Any, Callable, Protocol, Type, get_type_hints
+import random
+from typing import Any, Protocol, Type, get_type_hints
 from all_types_and_consts import (
     MAX_ATTACK,
     MAX_HEALTH,
@@ -16,7 +17,7 @@ from pet import (
 )
 from shop import Shop
 from team import Team
-from pet_data import get_base_pet, species_to_pet_map
+from pet_data import get_base_pet, species_to_pet_map, tier_3_pets
 
 
 class OnSell(Protocol):
@@ -275,6 +276,27 @@ def on_friend_ahead_attacks_kangaroo(pet: Pet):
     pet.add_stats(attack=stat_buff, health=stat_buff)
 
 
+def on_faint_spider(
+    pet: Pet, faint_pet_idx: int, team_pets: list[Pet], is_in_battle: bool
+):
+    pet_to_spawn = random.choice(tier_3_pets).clone()
+    stat = 2 * pet.get_level()
+
+    # we need to ensure that the new pet has the proper experience since if it's spawned in the shop, it should have the proper experience
+    match pet.get_level():
+        case 1:
+            new_spawn_experience = 1
+        case 2:
+            new_spawn_experience = 3
+        case 3:
+            new_spawn_experience = 6
+
+    pet_to_spawn.set_stats_all(
+        attack=stat, health=stat, experience=new_spawn_experience
+    )
+    try_spawn_at_pos(pet_to_spawn, faint_pet_idx, team_pets, is_in_battle)
+
+
 def set_pet_triggers():
     # fmt: off
     # tier 1
@@ -299,6 +321,7 @@ def set_pet_triggers():
     species_to_pet_map[Species.FLAMINGO].set_trigger(Trigger.ON_FAINT, on_faint_flamingo)
     species_to_pet_map[Species.WORM].set_trigger(Trigger.ON_TURN_START, on_turn_start_worm)
     species_to_pet_map[Species.KANGAROO].set_trigger(Trigger.ON_FRIEND_AHEAD_ATTACKS, on_friend_ahead_attacks_kangaroo)
+    species_to_pet_map[Species.SPIDER].set_trigger(Trigger.ON_FAINT, on_faint_spider)
 
     # fmt: on
 
