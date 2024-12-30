@@ -2,6 +2,7 @@ import inspect
 import math
 from typing import Any, Callable, Protocol, Type, get_type_hints
 from all_types_and_consts import (
+    MAX_ATTACK,
     MAX_HEALTH,
     BattleResult,
     Effect,
@@ -222,6 +223,43 @@ def on_faint_hedgehog(
         )
 
 
+def on_hurt_peacock(
+    pet: Pet,
+    team_pets: list[Pet],
+):
+    attack_boost = 3 * pet.get_level()
+    pet.attack = min(pet.attack + attack_boost, MAX_ATTACK)
+
+
+def on_faint_flamingo(
+    pet: Pet,
+    faint_pet_idx: int,
+    team_pets: list[Pet],
+    enemy_pets: list[Pet] | None,
+    is_in_battle: bool,
+):
+    closest_friends_behind: list[Pet] = []
+    for friend_idx in range(faint_pet_idx - 1, -1, -1):
+        friend_pet = team_pets[friend_idx]
+        if friend_pet.species != Species.NONE:
+            closest_friends_behind.append(friend_pet)
+        if len(closest_friends_behind) >= 2:
+            break
+
+    stat_boost = pet.get_level()
+    for friend in closest_friends_behind:
+        friend.add_stats(attack=stat_boost, health=stat_boost)
+
+
+def on_turn_start_worm(
+    pet: Pet,
+    shop: Shop,
+):
+    # the apple the worm stocks is an ADDITIONAL food (doesn't take up a food slot)
+    # https://youtu.be/T6moXKCurxw?si=HA5rgHUkSFPiPjh1&t=147
+    pass
+
+
 def set_pet_triggers():
     # fmt: off
     # tier 1
@@ -242,6 +280,10 @@ def set_pet_triggers():
     species_to_pet_map[Species.SWAN].set_trigger(Trigger.ON_TURN_START, on_turn_start_swan)
     species_to_pet_map[Species.RAT].set_trigger(Trigger.ON_FAINT, on_faint_rat)
     species_to_pet_map[Species.HEDGEHOG].set_trigger(Trigger.ON_FAINT, on_faint_hedgehog)
+    species_to_pet_map[Species.PEACOCK].set_trigger(Trigger.ON_HURT, on_hurt_peacock)
+    species_to_pet_map[Species.FLAMINGO].set_trigger(Trigger.ON_FAINT, on_faint_flamingo)
+    species_to_pet_map[Species.WORM].set_trigger(Trigger.ON_TURN_START, on_turn_start_worm)
+
     # fmt: on
 
 
