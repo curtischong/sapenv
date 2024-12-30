@@ -99,7 +99,7 @@ def on_faint_ant(
     pet: Pet, faint_pet_idx: int, team_pets: list[Pet], is_in_battle: bool
 ):
     pet_list = Team.get_random_pets_from_list(
-        team_pets=team_pets, select_num_pets=1, exclude_pet=pet
+        pets_list=team_pets, select_num_pets=1, exclude_pet=pet
     )
     if len(pet_list) > 0:
         stat_buff = pet.get_level()
