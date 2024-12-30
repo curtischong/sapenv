@@ -235,7 +235,7 @@ class Player:
         food_type = foods_for_pet[food_idx]
         self.shop.buy_food_for_pet(food_type)
         assert self.team.pets[pet_idx].species != Species.NONE
-        trigger_food_for_pet(food_type, self.team, pet_idx)
+        trigger_food_for_pet(food_type, self.team, pet_idx, self.shop)
 
     def buy_food_for_pet_action_mask(self) -> np.ndarray:
         # return np.zeros( (len(foods_for_pet), MAX_TEAM_SIZE), dtype=bool)

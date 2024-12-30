@@ -18,11 +18,6 @@ def battle(my_team: Team, team2: Team) -> BattleResult:
         damage_pet(pet1, pets2)
         damage_pet(pet2, pets1)
 
-        if pet1.health <= 0:
-            pets1.pop()
-        if pet2.health <= 0:
-            pets2.pop()
-
     if len(pets1) == 0 and len(pets2) == 0:
         return BattleResult.TIE
     elif len(pets1) > 0:
@@ -72,13 +67,13 @@ def damage_pet(attacker_pet: Pet, receiving_team: list[Pet]):
         receive_damage(
             pet=second_pet,
             damage=5,
-            receiving_team=receiving_team,
+            team_pets=receiving_team,
             attacker_has_peanut_effect=attacker_has_peanut_effect,
         )
     receive_damage(
         pet=first_pet,
         damage=damage,
-        receiving_team=receiving_team,
+        team_pets=receiving_team,
         attacker_has_peanut_effect=attacker_has_peanut_effect,
     )
 
@@ -99,7 +94,7 @@ def receive_damage(
     if damage == 0:
         return  # early return to avoid computing on hurt effects
 
-    pet.on_hurt()
+    pet.trigger(Trigger.ON_HURT)
     if pet.health <= 0 or attacker_has_peanut_effect:
         # TODO: not sure what should trigger first. the mushroom or the on faint affect?
         # https://www.reddit.com/r/superautopets/comments/12xtp8d/mushroom_faint_ability_ordering_different_for/?rdt=51575
