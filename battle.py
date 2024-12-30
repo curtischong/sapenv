@@ -1,4 +1,4 @@
-from all_types_and_consts import MAX_ATTACK, BattleResult, Effect, Species
+from all_types_and_consts import MAX_ATTACK, BattleResult, Effect, Species, Trigger
 from pet import Pet
 from pet_data import get_base_pet
 from team import Team
@@ -51,13 +51,9 @@ def trigger_on_battle_start(pets1: list[Pet], pets2: list[Pet]):
     # now trigger the on_battle_start callbacks
     for _, pet, is_team1 in order:
         if is_team1:
-            pet.on_battle_start(
-                pet=pet, pet_level=pet.get_level(), my_pets=pets1, enemy_pets=pets2
-            )
+            pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets1, enemy_pets=pets2)
         else:
-            pet.on_battle_start(
-                pet=pet, pet_level=pet.get_level(), my_pets=pets2, enemy_pets=pets1
-            )
+            pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets2, enemy_pets=pets1)
 
 
 def damage_pet(attacker_pet: Pet, receiving_team: list[Pet]):
@@ -114,7 +110,7 @@ def receive_damage(
 def trigger_on_faint(pet: Pet, team_pets: list[Pet]):
     idx_in_team = team_pets.index(pet)
     team_pets.pop(idx_in_team)  # remove the pet first to make room for other pets
-    pet.on_faint()
+    pet.trigger(Trigger.ON_FAINT)
     if pet.effect == Effect.MUSHROOM:
         new_pet = get_base_pet(pet.species).set_stats(
             attack=1,

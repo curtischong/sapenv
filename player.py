@@ -14,6 +14,7 @@ from all_types_and_consts import (
     GameResult,
     Species,
     MAX_SHOP_SLOTS,
+    Trigger,
     foods_that_apply_globally,
     foods_for_pet,
 )
@@ -138,7 +139,7 @@ class Player:
 
         # trigger on_buy AFTER the pet is added to the team (so the proper level is considered)
         bought_pet = self.team.pets[target_team_idx]
-        bought_pet.on_buy(pet=bought_pet, team=self.team)
+        bought_pet.trigger(Trigger.ON_BUY, team=self.team)
         return {ActionReturn.BOUGHT_PET_SPECIES: shop_pet_species}
 
     def buy_pet_action_mask(self) -> np.ndarray:
@@ -277,7 +278,7 @@ class Player:
         pet = self.team.pets[idx]
         pet_species = pet.species
         assert pet_species != Species.NONE
-        pet.on_sell(pet_level=pet.get_level(), shop=self.shop, team=self.team)
+        pet.trigger(Trigger.ON_SELL, shop=self.shop, team=self.team)
         self.shop.gold += pet.get_level()
 
         self.team.pets[idx] = get_base_pet(Species.NONE)

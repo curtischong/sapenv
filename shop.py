@@ -329,8 +329,12 @@ class Shop:
             },
             "shop_num_foods": num_foods_observation,
             "shop_num_frozen_foods": num_frozen_foods_observation,
-            "shop_future_attack_addition": self.future_attack_addition,
-            "shop_future_health_addition": self.future_health_addition,
+            "shop_future_attack_addition": np.array(
+                [self.future_attack_addition], dtype=np.int32
+            ),
+            "shop_future_health_addition": np.array(
+                [self.future_health_addition], dtype=np.int32
+            ),
         }
 
     def __repr__(self):
