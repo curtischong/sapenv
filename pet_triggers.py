@@ -28,7 +28,12 @@ class OnBuy(Protocol):
 
 class OnFaint(Protocol):
     def __call__(
-        self, pet: Pet, faint_pet_idx: int, team_pets: list[Pet], is_in_battle: bool
+        self,
+        pet: Pet,
+        faint_pet_idx: int,
+        team_pets: list[Pet],
+        enemy_pets: list[Pet] | None,
+        is_in_battle: bool,
     ): ...
 
 
@@ -165,6 +170,27 @@ def on_turn_start_swan(pet: Pet, shop: Shop):
     shop.gold += pet.get_level()
 
 
+def on_faint_rat(
+    pet: Pet,
+    faint_pet_idx: int,
+    team_pets: list[Pet],
+    enemy_pets: list[Pet] | None,
+    is_in_battle: bool,
+):
+    if not is_in_battle or enemy_pets is None:
+        # enemy_pets is None if the rat fainted in the shop
+        return
+
+    num_spawns = pet.get_level()
+    for _ in range(num_spawns):
+        rat_spawn = get_base_pet(Species.RAT_SPAWN)
+
+        # the rat always try to spawn it up front for the opponent
+        front_idx = len(enemy_pets) - 1
+
+        try_spawn_at_pos(rat_spawn, idx=front_idx, pets=enemy_pets, is_in_battle=True)
+
+
 def set_pet_triggers():
     # fmt: off
     # tier 1
@@ -183,6 +209,7 @@ def set_pet_triggers():
     species_to_pet_map[Species.SNAIL].set_trigger(Trigger.ON_END_TURN, on_end_turn_snail)
     species_to_pet_map[Species.CRAB].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_crab)
     species_to_pet_map[Species.SWAN].set_trigger(Trigger.ON_TURN_START, on_turn_start_swan)
+    species_to_pet_map[Species.RAT].set_trigger(Trigger.ON_FAINT, on_faint_rat)
     # fmt: on
 
 
