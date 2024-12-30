@@ -184,7 +184,10 @@ def on_faint_rat(
     num_spawns = pet.get_level()
     for _ in range(num_spawns):
         rat_spawn = get_base_pet(Species.RAT_SPAWN)
-        front_idx = 4  # the rat always try to spawn it up front for the opponent
+
+        # the rat always try to spawn it up front for the opponent
+        front_idx = len(enemy_pets) - 1
+
         try_spawn_at_pos(rat_spawn, idx=front_idx, pets=enemy_pets, is_in_battle=True)
 
 
