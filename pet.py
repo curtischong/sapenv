@@ -114,7 +114,7 @@ class Pet:
             and self.health_boost == other.health_boost
         )
 
-    def get_level(self):
+    def get_level(self) -> int:
         if self.experience < 3:
             return 1
         elif self.experience < 6:
