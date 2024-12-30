@@ -105,7 +105,7 @@ def receive_damage(
 def trigger_on_faint(pet: Pet, team_pets: list[Pet]):
     idx_in_team = team_pets.index(pet)
     team_pets.pop(idx_in_team)  # remove the pet first to make room for other pets
-    pet.trigger(Trigger.ON_FAINT)
+    pet.trigger(Trigger.ON_FAINT, team_pets=team_pets)
     if pet.effect == Effect.MUSHROOM:
         new_pet = get_base_pet(pet.species).set_stats(
             attack=1,

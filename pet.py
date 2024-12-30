@@ -24,7 +24,7 @@ class OnBuy(Protocol):
 
 
 class OnFaint(Protocol):
-    def __call__(self, pet: "Pet", team: Team) -> None: ...
+    def __call__(self, pet: "Pet", team_pets: list["Pet"]) -> None: ...
 
 
 class OnHurt(Protocol):
