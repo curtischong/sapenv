@@ -166,6 +166,7 @@ def on_turn_start_swan(pet: Pet, shop: Shop):
 
 
 def set_pet_triggers():
+    # fmt: off
     # tier 1
     species_to_pet_map[Species.DUCK].set_trigger(Trigger.ON_SELL, on_sell_duck)
     species_to_pet_map[Species.BEAVER].set_trigger(Trigger.ON_SELL, on_sell_beaver)
@@ -173,25 +174,16 @@ def set_pet_triggers():
     species_to_pet_map[Species.OTTER].set_trigger(Trigger.ON_BUY, on_buy_otter)
     species_to_pet_map[Species.PIG].set_trigger(Trigger.ON_SELL, on_sell_pig)
     species_to_pet_map[Species.ANT].set_trigger(Trigger.ON_FAINT, on_faint_ant)
-    species_to_pet_map[Species.MOSQUITO].set_trigger(
-        Trigger.ON_BATTLE_START, on_battle_start_mosquito
-    )
+    species_to_pet_map[Species.MOSQUITO].set_trigger( Trigger.ON_BATTLE_START, on_battle_start_mosquito)
     species_to_pet_map[Species.FISH].set_trigger(Trigger.ON_LEVEL_UP, on_level_up_fish)
     species_to_pet_map[Species.CRICKET].set_trigger(Trigger.ON_FAINT, on_faint_cricket)
-    species_to_pet_map[Species.HORSE].set_trigger(
-        Trigger.ON_FRIEND_SUMMONED, on_friend_summoned_horse
-    )
+    species_to_pet_map[Species.HORSE].set_trigger(Trigger.ON_FRIEND_SUMMONED, on_friend_summoned_horse)
 
     # tier 2
-    species_to_pet_map[Species.SNAIL].set_trigger(
-        Trigger.ON_END_TURN, on_end_turn_snail
-    )
-    species_to_pet_map[Species.CRAB].set_trigger(
-        Trigger.ON_BATTLE_START, on_battle_start_crab
-    )
-    species_to_pet_map[Species.SWAN].set_trigger(
-        Trigger.ON_TURN_START, on_turn_start_swan
-    )
+    species_to_pet_map[Species.SNAIL].set_trigger(Trigger.ON_END_TURN, on_end_turn_snail)
+    species_to_pet_map[Species.CRAB].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_crab)
+    species_to_pet_map[Species.SWAN].set_trigger(Trigger.ON_TURN_START, on_turn_start_swan)
+    # fmt: on
 
 
 class CallableProtocol(Protocol):
