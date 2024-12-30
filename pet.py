@@ -4,6 +4,7 @@ from all_types_and_consts import (
     MAX_ATTACK,
     MAX_HEALTH,
     MAX_PET_EXPERIENCE,
+    BattleResult,
     Effect,
     PetExperience,
     Species,
@@ -49,8 +50,25 @@ class OnSummonedFriend(Protocol):
     ) -> None: ...
 
 
+class OnEndTurn(Protocol):
+    def __call__(
+        self, pet: "Pet", team: "Team", last_battle_result: BattleResult
+    ) -> None: ...
+
+
+# TODO: ensure triggers follow these interfaces
 TriggerFn = Callable[
-    [OnSell | OnBuy | OnFaint | OnHurt | OnBattleStart | OnLevelUp], None
+    [
+        OnSell
+        | OnBuy
+        | OnFaint
+        | OnHurt
+        | OnBattleStart
+        | OnLevelUp
+        | OnSummonedFriend
+        | OnEndTurn
+    ],
+    None,
 ]
 
 
