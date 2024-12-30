@@ -353,6 +353,34 @@ def on_faint_badger(
         )
 
 
+def on_battle_start_dolphin(
+    pet: Pet,
+    my_pets: list[Pet],
+    enemy_pets: list[Pet],
+):
+    num_times_this_triggers = pet.get_level()
+
+    for _ in range(num_times_this_triggers):
+        lowest_health_enemy_pet = None
+        lowest_health = MAX_HEALTH + 1
+        for enemy_pet in enemy_pets:
+            if enemy_pet.health < lowest_health:
+                lowest_health_enemy_pet = enemy_pet
+                lowest_health = enemy_pet.health
+
+        if lowest_health_enemy_pet is None:
+            return
+
+        # now deal damage to the lowest health enemy pet
+        receive_damage(
+            pet=lowest_health_enemy_pet,
+            damage=4,
+            team_pets=my_pets,
+            enemy_pets=enemy_pets,
+            attacker_has_peanut_effect=False,
+        )
+
+
 def set_pet_triggers():
     # fmt: off
     # tier 1
@@ -382,6 +410,7 @@ def set_pet_triggers():
     # tier 3
     species_to_pet_map[Species.DODO].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_dodo)
     species_to_pet_map[Species.BADGER].set_trigger(Trigger.ON_FAINT, on_faint_badger)
+    species_to_pet_map[Species.DOLPHIN].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_dolphin)
 
     # fmt: on
 
