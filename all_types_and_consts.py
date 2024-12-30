@@ -261,3 +261,12 @@ class Effect(Enum):
     MELON = auto()
     MUSHROOM = auto()
     PEANUT = auto()
+
+
+class Trigger(Enum):
+    ON_SELL = auto()
+    ON_BUY = auto()
+    ON_FAINT = auto()
+    ON_DAMAGE = auto()
+    ON_BATTLE_START = auto()
+    ON_LEVEL_UP = auto()

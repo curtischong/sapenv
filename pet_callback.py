@@ -1,7 +1,6 @@
-from all_types_and_consts import Effect, Food, Species
+from all_types_and_consts import Effect, Food, Species, Trigger
 from battle import receive_damage
 from pet import Pet
-from pet_callback_consts import Trigger
 from shop import Shop
 from team import Team
 from pet_data import species_to_pet_map

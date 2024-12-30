@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import Callable
 import numpy as np
 from all_types_and_consts import (
     MAX_ATTACK,
@@ -7,17 +7,37 @@ from all_types_and_consts import (
     Effect,
     PetExperience,
     Species,
-    dummy_trigger_fn,
-)
-from pet_callback_consts import (
-    OnBattleStart,
-    OnBuy,
-    OnFaint,
-    OnLevelUp,
-    OnSell,
     Trigger,
-    TriggerFn,
 )
+from typing import Any, Protocol
+
+Shop = Any  # prevent circular import
+Team = Any
+
+
+class OnSell(Protocol):
+    def __call__(self, pet: "Pet", shop: Shop, team: Team) -> None: ...
+
+
+class OnBuy(Protocol):
+    def __call__(self, pet: "Pet", team: Team) -> None: ...
+
+
+class OnFaint(Protocol):
+    def __call__(self, pet: "Pet", team: Team) -> None: ...
+
+
+class OnBattleStart(Protocol):
+    def __call__(
+        self, pet: "Pet", my_pets: list["Pet"], enemy_pets: list["Pet"]
+    ) -> None: ...
+
+
+class OnLevelUp(Protocol):
+    def __call__(self) -> None: ...
+
+
+TriggerFn = Callable[[OnBattleStart], None]
 
 
 class Pet:
@@ -51,7 +71,6 @@ class Pet:
             attack=attack,
             health=health,
             experience=1,
-            effect=None,
         )
 
     def set_trigger(self, trigger: Trigger, trigger_fn: TriggerFn):
