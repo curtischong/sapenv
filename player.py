@@ -342,9 +342,10 @@ class Player:
         self.shop.freeze_pet_at_linked_slot(slot_idx, is_freezing_pet1)
 
     def freeze_pet_at_linked_slot_action_mask(self) -> np.ndarray:
-        mask = np.zeros((MAX_SHOP_LINKED_SLOTS), dtype=bool)
+        mask = np.zeros((MAX_SHOP_LINKED_SLOTS, 2), dtype=bool)
         for slot_idx in range(len(self.shop.linked_slots)):
-            mask[slot_idx] = True
+            for is_freezing_pet1 in [0, 1]:
+                mask[slot_idx, is_freezing_pet1] = True
         return mask
 
     def end_turn_action(self) -> GameResult:

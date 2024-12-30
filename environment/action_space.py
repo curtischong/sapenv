@@ -33,7 +33,7 @@ sell_pet_space = spaces.MultiBinary(MAX_TEAM_SIZE)  # index of pet you're sellin
 
 roll_shop_space = spaces.MultiBinary(1)  # 1
 toggle_freeze_slot_space = spaces.MultiBinary(MAX_SHOP_SLOTS)  # 7
-freeze_pet_at_linked_slot_space = spaces.MultiBinary(MAX_SHOP_LINKED_SLOTS)  # 5
+freeze_pet_at_linked_slot_space = spaces.MultiBinary([MAX_SHOP_LINKED_SLOTS, 2])  # 10
 freeze_food_space = spaces.MultiBinary(len(Food))
 unfreeze_food_space = spaces.MultiBinary(len(Food))
 end_turn_space = spaces.MultiBinary(1)  # 1
