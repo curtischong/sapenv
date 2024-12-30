@@ -94,7 +94,7 @@ def receive_damage(
     if damage == 0:
         return  # early return to avoid computing on hurt effects
 
-    pet.trigger(Trigger.ON_HURT)
+    pet.trigger(Trigger.ON_HURT, team_pets=team_pets)
     if pet.health <= 0 or attacker_has_peanut_effect:
         # TODO: not sure what should trigger first. the mushroom or the on faint affect?
         # https://www.reddit.com/r/superautopets/comments/12xtp8d/mushroom_faint_ability_ordering_different_for/?rdt=51575

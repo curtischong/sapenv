@@ -27,6 +27,10 @@ class OnFaint(Protocol):
     def __call__(self, pet: "Pet", team: Team) -> None: ...
 
 
+class OnHurt(Protocol):
+    def __call__(self, pet: "Pet", team_pets: list["Pet"]) -> None: ...
+
+
 class OnBattleStart(Protocol):
     def __call__(
         self, pet: "Pet", my_pets: list["Pet"], enemy_pets: list["Pet"]
@@ -37,7 +41,9 @@ class OnLevelUp(Protocol):
     def __call__(self) -> None: ...
 
 
-TriggerFn = Callable[[OnBattleStart], None]
+TriggerFn = Callable[
+    [OnSell | OnBuy | OnFaint | OnHurt | OnBattleStart | OnLevelUp], None
+]
 
 
 class Pet:
