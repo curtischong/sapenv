@@ -14,7 +14,7 @@ class OnSell(Protocol):
 
 
 class OnBuy(Protocol):
-    def __call__(self, pet: Pet, shop: Shop, team: Team) -> None: ...
+    def __call__(self, pet: Pet, team: Team) -> None: ...
 
 
 class OnFaint(Protocol):

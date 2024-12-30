@@ -21,8 +21,7 @@ def on_sell_pigeon(pet: Pet, shop: Shop, team: Team):
     shop.num_foods[Food.BREAD_CRUMB] += pet.get_level()
 
 
-# TODO: ensure that on_buy is triggered AFTER the otter is combined (so the level is not level 1)
-def on_buy_otter(pet: Pet, shop: Shop, team: Team):
+def on_buy_otter(pet: Pet, team: Team):
     random_friends = team.get_random_pets(
         select_num_pets=pet.get_level(), exclude_pet=pet
     )

@@ -141,6 +141,10 @@ class Player:
             )
         else:
             self.team.pets[target_team_idx] = bought_pet
+
+        # trigger on_buy AFTER the pet is added to the team (so the proper level is considered)
+        bought_pet = self.team.pets[target_team_idx]
+        bought_pet.on_buy(pet=bought_pet, team=self.team)
         return {ActionReturn.BOUGHT_PET_SPECIES: shop_pet_species}
 
     def buy_pet_action_mask(self) -> np.ndarray:
