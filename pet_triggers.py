@@ -60,7 +60,7 @@ def on_level_up_fish(pet: Pet, team: Team):
         pet.add_stats(attack=stat_buff, health=stat_buff)
 
 
-def set_pet_callbacks():
+def set_pet_triggers():
     # tier 1
     species_to_pet_map[Species.DUCK].set_trigger(Trigger.ON_SELL, on_sell_duck)
     species_to_pet_map[Species.BEAVER].set_trigger(Trigger.ON_SELL, on_sell_beaver)

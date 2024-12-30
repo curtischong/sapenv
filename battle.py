@@ -43,7 +43,7 @@ def trigger_on_battle_start(pets1: list[Pet], pets2: list[Pet]):
 
     # TODO: if the pet is killed by another pet, does its trigger still trigger?
     # the video above said: "the deer can be sniped before a whale eats it"
-    # now trigger the on_battle_start callbacks
+    # now trigger the on_battle_start triggers
     for _, pet, is_team1 in order:
         if is_team1:
             pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets1, enemy_pets=pets2)
