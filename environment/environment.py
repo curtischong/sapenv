@@ -24,7 +24,7 @@ from opponent_db import OpponentDB
 # from opponent_db2 import OpponentDBInMemory
 from opponent_db2 import OpponentDBInMemory
 from opponent_db_eval import OpponentDBEval
-from pet_triggers import set_pet_triggers
+from pet_triggers import set_pet_triggers, validate_trigger_protocols
 from player import Player
 
 
@@ -40,6 +40,7 @@ class SuperAutoPetsEnv(gym.Env):
         self.action_space = env_action_space
         if IS_TRIGGERS_ENABLED:
             set_pet_triggers()
+            validate_trigger_protocols()
         self.opponent_db = opponent_db
         self.player = Player.init_starting_player(self.opponent_db)
         self.metrics_tracker = metrics_tracker

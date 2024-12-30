@@ -1,4 +1,6 @@
+import inspect
 import math
+from typing import Any, Callable, Protocol, Type, get_type_hints
 from all_types_and_consts import (
     MAX_HEALTH,
     BattleResult,
@@ -8,10 +10,60 @@ from all_types_and_consts import (
     Trigger,
 )
 from battle import receive_damage, try_spawn_at_pos
-from pet import Pet
+from pet import (
+    Pet,
+)
 from shop import Shop
 from team import Team
 from pet_data import get_base_pet, species_to_pet_map
+
+
+class OnSell(Protocol):
+    def __call__(self, pet: Pet, shop: Shop, team: Team): ...
+
+
+class OnBuy(Protocol):
+    def __call__(self, pet: Pet, team: Team): ...
+
+
+class OnFaint(Protocol):
+    def __call__(self, pet: Pet, team_pets: list[Pet], is_in_battle: bool): ...
+
+
+class OnHurt(Protocol):
+    def __call__(self, pet: Pet, team_pets: list[Pet]): ...
+
+
+class OnBattleStart(Protocol):
+    def __call__(self, pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]): ...
+
+
+class OnLevelUp(Protocol):
+    def __call__(self, pet: Pet, team: Team): ...
+
+
+class OnFriendSummoned(Protocol):
+    def __call__(self, pet: Pet, summoned_friend: Pet, is_in_battle: bool): ...
+
+
+class OnEndTurn(Protocol):
+    def __call__(self, pet: Pet, team: "Team", last_battle_result: BattleResult): ...
+
+
+# TODO: ensure triggers follow these interfaces
+TriggerFn = Callable[
+    [
+        OnSell
+        | OnBuy
+        | OnFaint
+        | OnHurt
+        | OnBattleStart
+        | OnLevelUp
+        | OnFriendSummoned
+        | OnEndTurn
+    ],
+    None,
+]
 
 
 def on_sell_duck(pet: Pet, shop: Shop, team: Team):
@@ -136,3 +188,62 @@ def set_pet_triggers():
     species_to_pet_map[Species.CRAB].set_trigger(
         Trigger.ON_BATTLE_START, on_battle_start_crab
     )
+
+
+class CallableProtocol(Protocol):
+    def __call__(self, *args: Any, **kwargs: Any) -> Any: ...
+
+
+# validate on run time that all the triggers follow the correct interface
+def validate_protocol(func: Any, protocol: Type[CallableProtocol]) -> None:
+    """
+    Validates whether a callable conforms to a given protocol.
+
+    Parameters:
+    - func: The callable to validate.
+    - protocol: The protocol to validate against.
+
+    Raises:
+    - TypeError: If the callable does not conform to the protocol.
+    """
+    func_signature = inspect.signature(func)
+    protocol_hints = get_type_hints(
+        protocol.__call__
+    )  # Extract the type hints of the protocol's __call__
+
+    protocol_signature = inspect.Signature(
+        parameters=[
+            inspect.Parameter(
+                name, inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=annotation
+            )
+            for name, annotation in protocol_hints.items()
+            if name != "return"
+        ],
+        return_annotation=protocol_hints.get("return", inspect.Signature.empty),
+    )
+
+    # Compare the function's signature with the protocol's signature
+    if func_signature != protocol_signature:
+        raise TypeError(
+            f"The function {func.__name__} does not conform to the protocol {protocol.__name__}.\n"
+            f"Expected: {protocol_signature}\nGot: {func_signature}"
+        )
+
+
+trigger_to_protocol_type = {
+    Trigger.ON_SELL: OnSell,
+    Trigger.ON_BUY: OnBuy,
+    Trigger.ON_FAINT: OnFaint,
+    Trigger.ON_HURT: OnHurt,
+    Trigger.ON_BATTLE_START: OnBattleStart,
+    Trigger.ON_LEVEL_UP: OnLevelUp,
+    Trigger.ON_FRIEND_SUMMONED: OnFriendSummoned,
+    Trigger.ON_END_TURN: OnEndTurn,
+}
+
+
+def validate_trigger_protocols():
+    for pet in species_to_pet_map.values():
+        for trigger, trigger_fn in pet._triggers.items():
+            protocol_type = trigger_to_protocol_type[trigger]
+            validate_protocol(trigger_fn, protocol_type)
