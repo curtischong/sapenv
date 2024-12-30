@@ -5,6 +5,7 @@ from all_types_and_consts import (
     MAX_PET_EXPERIENCE,
     Effect,
     PetExperience,
+    PetLevel,
     Species,
     Trigger,
 )
@@ -85,7 +86,7 @@ class Pet:
             and self.health_boost == other.health_boost
         )
 
-    def get_level(self) -> int:
+    def get_level(self) -> PetLevel:
         if self.experience < 3:
             return 1
         elif self.experience < 6:

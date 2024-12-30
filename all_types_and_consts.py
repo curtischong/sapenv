@@ -20,6 +20,7 @@ PetExperience = Literal[1, 2, 3, 4, 5, 6]
 MAX_PET_EXPERIENCE = 6
 MIN_PET_EXPERIENCE = 1
 
+PetLevel = Literal[1, 2, 3]
 MIN_PET_LEVEL = 1
 MAX_PET_LEVEL = 3
 
