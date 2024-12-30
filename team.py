@@ -35,7 +35,7 @@ class Team:
         for pet in self.pets:
             if pet.species == Species.NONE:
                 continue
-            res.append(pet.add_stats(attack=pet.attack_boost, health=pet.health_boost))
+            res.append(pet.apply_temp_buffs())
         return res
 
     # Note: this function ensures that the returned pets are not NONE

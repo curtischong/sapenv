@@ -21,6 +21,7 @@ from all_types_and_consts import (
 from battle import battle
 from food_triggers import trigger_food_for_pet, trigger_food_globally
 from opponent_db import OpponentDB
+from pet import Pet
 from pet_data import get_base_pet
 from shop import Shop
 from team import Team
@@ -130,17 +131,12 @@ class Player:
         assert pet_at_team_idx.species == Species.NONE or is_player_combining_pets
 
         bought_pet = self.shop.buy_pet_at_slot(slot_idx)
-        if is_player_combining_pets:
-            self.team.pets[target_team_idx] = bought_pet.combine_onto(
-                pet_at_team_idx, self.shop
-            )
-        else:
-            self.team.pets[target_team_idx] = bought_pet
-
-        # trigger on_buy AFTER the pet is added to the team (so the proper level is considered)
-        bought_pet = self.team.pets[target_team_idx]
-        bought_pet.trigger(Trigger.ON_BUY, team=self.team)
-        return {ActionReturn.BOUGHT_PET_SPECIES: shop_pet_species}
+        return self.put_bought_pet_to_team(
+            pet_at_team_idx=pet_at_team_idx,
+            bought_pet=bought_pet,
+            target_team_idx=target_team_idx,
+            is_player_combining_pets=is_player_combining_pets,
+        )
 
     def buy_pet_action_mask(self) -> np.ndarray:
         # prevent buying if the player does not have enough gold
@@ -178,12 +174,12 @@ class Player:
         assert pet_at_team_idx.species == Species.NONE or is_player_combining_pets
 
         bought_pet = self.shop.buy_pet_at_linked_slot(linked_slot_idx, is_pet1_bought)
-        if is_player_combining_pets:
-            self.team.pets[target_team_idx] = bought_pet.combine_onto(
-                pet_at_team_idx, self.shop
-            )
-        else:
-            self.team.pets[target_team_idx] = bought_pet
+        return self.put_bought_pet_to_team(
+            pet_at_team_idx=pet_at_team_idx,
+            bought_pet=bought_pet,
+            target_team_idx=target_team_idx,
+            is_player_combining_pets=is_player_combining_pets,
+        )
 
     def buy_linked_pet_action_mask(self) -> np.ndarray:
         # prevent buying if the player does not have enough gold
@@ -214,6 +210,29 @@ class Player:
                     if is_target_position_occupied and not is_player_combining_pets:
                         mask[linked_slot_idx, buy_pet_idx, target_team_idx] = False
         return mask
+
+    def put_bought_pet_to_team(
+        self,
+        pet_at_team_idx: Pet,
+        bought_pet: Pet,
+        target_team_idx: int,
+        is_player_combining_pets: bool,
+    ):
+        if is_player_combining_pets:
+            self.team.pets[target_team_idx] = bought_pet.combine_onto(
+                pet_at_team_idx, self.shop
+            )
+        else:
+            self.team.pets[target_team_idx] = bought_pet
+
+        bought_pet = self.team.pets[target_team_idx]
+
+        # trigger on_buy AFTER the pet is added to the team (so the proper level is considered)
+        bought_pet.trigger(Trigger.ON_BUY, team=self.team)
+        for pet in self.team.pets:
+            if pet is not bought_pet:
+                pet.trigger(Trigger.ON_FRIEND_SUMMONED, summoned_friend=bought_pet)
+        return {ActionReturn.BOUGHT_PET_SPECIES: bought_pet.species}
 
     def buy_food_action(self, food_idx: int):
         food_type = foods_that_apply_globally[food_idx]

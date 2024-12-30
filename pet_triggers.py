@@ -1,9 +1,9 @@
 from all_types_and_consts import Effect, Food, Species, Trigger
-from battle import receive_damage
+from battle import receive_damage, try_spawn_at_pos
 from pet import Pet
 from shop import Shop
 from team import Team
-from pet_data import species_to_pet_map
+from pet_data import get_base_pet, species_to_pet_map
 
 
 def on_sell_duck(pet: Pet, shop: Shop, team: Team):
@@ -33,8 +33,10 @@ def on_sell_pig(pet: Pet, shop: Shop, team: Team):
     shop.gold += pet.get_level()
 
 
-def on_faint_ant(pet: Pet, shop: Shop, team: Team):
-    pet_list = team.get_random_pets(1, exclude_pet=pet)
+def on_faint_ant(pet: Pet, team_pets: list[Pet], is_in_battle: bool):
+    pet_list = Team.get_random_pets_from_list(
+        team_pets=team_pets, select_num_pets=1, exclude_pet=pet
+    )
     if len(pet_list) > 0:
         stat_buff = pet.get_level()
         pet_list[0].add_stats(attack=stat_buff, health=stat_buff)
@@ -60,6 +62,24 @@ def on_level_up_fish(pet: Pet, team: Team):
         pet.add_stats(attack=stat_buff, health=stat_buff)
 
 
+def on_faint_cricket(pet: Pet, team_pets: list[Pet], is_in_battle: bool):
+    pet_idx = team_pets.index(pet)
+    cricket_spawn = get_base_pet(Species.CRICKET_SPAWN).set_stats(
+        attack=pet.get_level(), health=pet.get_level()
+    )
+    try_spawn_at_pos(cricket_spawn, pet_idx, team_pets, is_in_battle=is_in_battle)
+
+
+def on_friend_summoned_horse(pet: Pet, summoned_friend: Pet, is_in_battle: bool):
+    assert pet is not summoned_friend
+    attack_boost = pet.get_level()
+    if is_in_battle:
+        # if in battle, add stats instead of boost
+        summoned_friend.add_stats(attack=attack_boost, health=0)
+    else:
+        summoned_friend.add_boost(attack=attack_boost, health=0)
+
+
 def set_pet_triggers():
     # tier 1
     species_to_pet_map[Species.DUCK].set_trigger(Trigger.ON_SELL, on_sell_duck)
@@ -72,3 +92,7 @@ def set_pet_triggers():
         Trigger.ON_BATTLE_START, on_battle_start_mosquito
     )
     species_to_pet_map[Species.FISH].set_trigger(Trigger.ON_LEVEL_UP, on_level_up_fish)
+    species_to_pet_map[Species.CRICKET].set_trigger(Trigger.ON_FAINT, on_faint_cricket)
+    species_to_pet_map[Species.HORSE].set_trigger(
+        Trigger.ON_FRIEND_SUMMONED, on_friend_summoned_horse
+    )
