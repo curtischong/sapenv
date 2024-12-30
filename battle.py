@@ -71,14 +71,14 @@ def attack_team(receiving_team: list[Pet], attacking_team: list[Pet]):
             pet=second_pet,
             damage=5,
             receiving_team=receiving_team,
-            attacking_team=attacking_team,
+            opposing_team=attacking_team,
             attacker_has_peanut_effect=attacker_has_peanut_effect,
         )
     receive_damage(
         pet=first_pet,
         damage=damage,
         receiving_team=receiving_team,
-        attacking_team=attacking_team,
+        opposing_team=attacking_team,
         attacker_has_peanut_effect=attacker_has_peanut_effect,
     )
 
@@ -87,7 +87,8 @@ def receive_damage(
     pet: Pet,
     damage: int,
     receiving_team: list[Pet],
-    attacking_team: list[Pet],
+    # this is called opposing_team, NOT attacking team (since the dealer of damage can be on your own team)
+    opposing_team: list[Pet],
     attacker_has_peanut_effect: bool,
 ):
     if pet.effect == Effect.MELON:
@@ -106,7 +107,7 @@ def receive_damage(
         # https://www.reddit.com/r/superautopets/comments/12xtp8d/mushroom_faint_ability_ordering_different_for/?rdt=51575
         # I'll make the mushroom trigger last after all on faint effects are done (since it's what the sapai repo does)
         make_pet_faint(
-            pet, team_pets=receiving_team, enemy_pets=attacking_team, is_in_battle=True
+            pet, team_pets=receiving_team, enemy_pets=opposing_team, is_in_battle=True
         )
 
 
