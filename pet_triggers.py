@@ -380,8 +380,8 @@ def on_battle_start_dolphin(
         receive_damage(
             pet=lowest_health_enemy_pet,
             damage=4,
-            receiving_team=my_pets,
-            opposing_team=enemy_pets,
+            receiving_team=enemy_pets,
+            opposing_team=my_pets,
             attacker_has_peanut_effect=False,
         )
 
