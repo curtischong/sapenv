@@ -33,7 +33,7 @@ def on_sell_pig(pet: Pet, shop: Shop, team: Team):
     shop.gold += pet.get_level()
 
 
-def on_faint_ant(pet: Pet, team_pets: list[Pet]):
+def on_faint_ant(pet: Pet, team_pets: list[Pet], is_in_battle: bool):
     pet_list = Team.get_random_pets_from_list(
         team_pets=team_pets, select_num_pets=1, exclude_pet=pet
     )
