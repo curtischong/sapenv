@@ -302,10 +302,10 @@ class Player:
         pet = self.team.pets[idx]
         pet_species = pet.species
         assert pet_species != Species.NONE
+        self.team.pets[idx] = get_base_pet(Species.NONE)
         pet.trigger(Trigger.ON_SELL, shop=self.shop, team=self.team)
         self.shop.gold += pet.get_level()
 
-        self.team.pets[idx] = get_base_pet(Species.NONE)
         return {ActionReturn.SOLD_PET_SPECIES: pet_species}
 
     def sell_pet_action_mask(self) -> np.ndarray:

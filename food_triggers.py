@@ -1,5 +1,5 @@
 from all_types_and_consts import Effect, Food, Species, Trigger
-from battle import trigger_on_faint
+from battle import make_pet_faint
 from pet_data import get_base_pet
 from shop import Shop
 from team import Team
@@ -39,8 +39,7 @@ def trigger_food_for_pet(food_type: Food, team: Team, pet_idx: int, shop: Shop):
         case Food.HONEY:
             pet.effect = Effect.BEE
         case Food.PILL:
-            team.pets[pet_idx] = get_base_pet(Species.NONE)
-            trigger_on_faint(pet, team.pets, is_in_battle=False)
+            make_pet_faint(pet, team.pets, is_in_battle=False)
         case Food.MEAT_BONE:
             pet.effect = Effect.MEAT_BONE
         case Food.CUPCAKE:

@@ -99,12 +99,16 @@ def receive_damage(
         # TODO: not sure what should trigger first. the mushroom or the on faint affect?
         # https://www.reddit.com/r/superautopets/comments/12xtp8d/mushroom_faint_ability_ordering_different_for/?rdt=51575
         # I'll make the mushroom trigger last after all on faint effects are done (since it's what the sapai repo does)
-        trigger_on_faint(pet, team_pets, is_in_battle=True)
+        make_pet_faint(pet, team_pets, is_in_battle=True)
 
 
-def trigger_on_faint(pet: Pet, team_pets: list[Pet], is_in_battle: bool):
+def make_pet_faint(pet: Pet, team_pets: list[Pet], is_in_battle: bool):
     idx_in_team = team_pets.index(pet)
-    team_pets.pop(idx_in_team)  # remove the pet first to make room for other pets
+    if is_in_battle:
+        team_pets.pop(idx_in_team)  # remove the pet first to make room for other pets
+    else:
+        # e.g. when using a pill, we just set it to NONE (so the spot on the team becomes empty)
+        team_pets[idx_in_team] = get_base_pet(Species.NONE)
     pet.trigger(
         Trigger.ON_FAINT,
         faint_pet_idx=idx_in_team,
