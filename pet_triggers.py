@@ -160,7 +160,7 @@ def on_faint_cricket(
     enemy_pets: list[Pet] | None,
     is_in_battle: bool,
 ):
-    cricket_spawn = get_base_pet(Species.CRICKET_SPAWN).set_stats(
+    cricket_spawn = get_base_pet(Species.PET_SPAWN).set_stats(
         attack=pet.get_level(), health=pet.get_level()
     )
     try_spawn_at_pos(
@@ -219,7 +219,7 @@ def on_faint_rat(
 
     num_spawns = pet.get_level()
     for _ in range(num_spawns):
-        rat_spawn = get_base_pet(Species.RAT_SPAWN)
+        rat_spawn = get_base_pet(Species.PET_SPAWN).set_stats(attack=1, health=1)
 
         # the rat always try to spawn it up front for the opponent
         front_idx = len(enemy_pets) - 1
@@ -471,7 +471,7 @@ def on_faint_sheep(
     num_triggers = 2
     for _ in range(num_triggers):
         ram_stats = 2 * pet.get_level()
-        ram_to_summon = get_base_pet(Species.SHEEP_SPAWN).set_stats(
+        ram_to_summon = get_base_pet(Species.PET_SPAWN).set_stats(
             attack=ram_stats, health=ram_stats
         )
         try_spawn_at_pos(ram_to_summon, faint_pet_idx, my_pets, is_in_battle)
@@ -560,7 +560,7 @@ def on_faint_deer(
     enemy_pets: list[Pet] | None,
     is_in_battle: bool,
 ):
-    bus = get_base_pet(Species.BUS)
+    bus = get_base_pet(Species.PET_SPAWN)
     bus.effect = Effect.CHILLI
     attack_buff = 5 * pet.get_level()
     health_buff = 3 * pet.get_level()
