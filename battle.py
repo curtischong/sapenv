@@ -153,7 +153,7 @@ def make_pet_faint(
         )
         try_spawn_at_pos(new_pet, idx_in_team, team_pets, is_in_battle)
     elif pet.effect == Effect.BEE:
-        new_pet = get_base_pet(Species.BEE)
+        new_pet = get_base_pet(Species.PET_SPAWN).set_stats(attack=1, health=1)
         try_spawn_at_pos(new_pet, idx_in_team, team_pets, is_in_battle)
 
 

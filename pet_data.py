@@ -81,14 +81,15 @@ tier_6_pets: list[Pet] = [
 
 hidden_pets: list[Pet] = [
     Pet.define_base_stats(species=Species.NONE, attack=0, health=0),
-    Pet.define_base_stats(species=Species.BEE, attack=1, health=1),
-    Pet.define_base_stats(species=Species.CRICKET_SPAWN, attack=1, health=1),
-    Pet.define_base_stats(species=Species.RAT_SPAWN, attack=1, health=1),
-    # NOTE: as the sheep levels up, these stats increase
-    Pet.define_base_stats(species=Species.SHEEP_SPAWN, attack=2, health=2),
-    # NOTE: as the deer levels up, these stats increase
-    Pet.define_base_stats(species=Species.BUS, attack=5, health=3),
-    Pet.define_base_stats(species=Species.FLY_SPAWN, attack=4, health=4),
+    Pet.define_base_stats(species=Species.PET_SPAWN, attack=1, health=1),
+    # Pet.define_base_stats(species=Species.BEE, attack=1, health=1),
+    # Pet.define_base_stats(species=Species.CRICKET_SPAWN, attack=1, health=1),
+    # Pet.define_base_stats(species=Species.RAT_SPAWN, attack=1, health=1),
+    # # NOTE: as the sheep levels up, these stats increase
+    # Pet.define_base_stats(species=Species.SHEEP_SPAWN, attack=2, health=2),
+    # # NOTE: as the deer levels up, these stats increase
+    # Pet.define_base_stats(species=Species.BUS, attack=5, health=3),
+    # Pet.define_base_stats(species=Species.FLY_SPAWN, attack=4, health=4),
 ]
 
 all_pets: list[Pet] = (

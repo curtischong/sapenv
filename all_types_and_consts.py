@@ -128,21 +128,23 @@ class Species(Enum):
     FLY = auto()
 
     # hidden species
-    BEE = auto()
-    CRICKET_SPAWN = auto()  # spawned when a cricket is killed
-    RAT_SPAWN = auto()  # spawned when a rat is killed
-    SHEEP_SPAWN = auto()  # spawned when a sheep is killed
-    BUS = auto()
-    FLY_SPAWN = auto()  # spawned when a pet is killed
+    PET_SPAWN = auto()  # all the below species are represented as pet spawns (since it's just a dummy pet with stats)
+    # BEE = auto()
+    # CRICKET_SPAWN = auto()  # spawned when a cricket is killed
+    # RAT_SPAWN = auto()  # spawned when a rat is killed
+    # SHEEP_SPAWN = auto()  # spawned when a sheep is killed
+    # BUS = auto()
+    # FLY_SPAWN = auto()  # spawned when a pet is killed
 
 
 hidden_species = [
-    Species.BEE,
-    Species.CRICKET_SPAWN,
-    Species.RAT_SPAWN,
-    Species.SHEEP_SPAWN,
-    Species.BUS,
-    Species.FLY_SPAWN,
+    Species.PET_SPAWN
+    # Species.BEE,
+    # Species.CRICKET_SPAWN,
+    # Species.RAT_SPAWN,
+    # Species.SHEEP_SPAWN,
+    # Species.BUS,
+    # Species.FLY_SPAWN,
 ]
 
 
