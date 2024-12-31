@@ -291,3 +291,4 @@ class Trigger(Enum):
     ON_KNOCK_OUT = auto()
     ON_FRIEND_FAINTS = auto()
     ON_BEFORE_ATTACK = auto()
+    ON_FRIEND_HURT = auto()

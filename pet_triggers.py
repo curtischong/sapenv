@@ -98,6 +98,10 @@ class OnBeforeAttack(Protocol):
     def __call__(self, pet: Pet): ...
 
 
+class OnFriendHurt(Protocol):
+    def __call__(self, pet: Pet): ...
+
+
 def on_sell_duck(pet: Pet, shop: Shop, team: Team):
     for slot in shop.slots:
         slot.pet.add_stats(health=pet.get_level())
@@ -739,6 +743,15 @@ def on_before_attack_boar(pet: Pet):
 #    - "or certain abilities like Crab or Butterfly, a low level Tiger will make them perform their copy abilities again at lower level, and end up copying less stats."
 
 
+# https://www.youtube.com/clip/UgkxRYjQsIKoqkXkyBtE76ULs7hcYJ6fG1-n
+def on_friend_hurt_wolverine(pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet]):
+    pet.metadata["num_times_hurt"] = (pet.metadata["num_times_hurt"] + 1) % 4
+    # it reduces the health up to 1. it ignores garlic
+    health_reduction = 3 * pet.get_level()
+    for enemy_pet in enemy_pets:
+        enemy_pet.health = max(enemy_pet.health - health_reduction, 1)
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -809,6 +822,7 @@ def set_pet_triggers():
     # tier 6
     species_to_pet_map[Species.LEOPARD].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_leopard)
     species_to_pet_map[Species.BOAR].set_trigger(Trigger.ON_BEFORE_ATTACK, on_before_attack_boar)
+    species_to_pet_map[Species.WOLVERINE].set_trigger(Trigger.ON_FRIEND_HURT, on_friend_hurt_wolverine)
     # fmt: on
 
 
@@ -885,6 +899,7 @@ trigger_to_protocol_type = {
     Trigger.ON_KNOCK_OUT: OnKnockOut,
     Trigger.ON_FRIEND_FAINTS: OnFriendFaints,
     Trigger.ON_BEFORE_ATTACK: OnBeforeAttack,
+    Trigger.ON_FRIEND_HURT: OnFriendHurt,
 }
 
 
