@@ -128,7 +128,7 @@ def make_pet_faint(
     pet.trigger(
         Trigger.ON_FAINT,
         faint_pet_idx=idx_in_team,
-        team_pets=team_pets,
+        my_pets=team_pets,
         enemy_pets=enemy_pets,
         is_in_battle=is_in_battle,
     )
