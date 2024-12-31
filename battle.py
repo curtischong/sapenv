@@ -1,4 +1,11 @@
-from all_types_and_consts import MAX_ATTACK, BattleResult, Effect, Species, Trigger
+from all_types_and_consts import (
+    MAX_ATTACK,
+    MAX_TEAM_SIZE,
+    BattleResult,
+    Effect,
+    Species,
+    Trigger,
+)
 from pet import Pet
 from pet_data import get_base_pet
 from team import Team
@@ -148,15 +155,19 @@ def make_pet_faint(
 
 
 def try_spawn_at_pos(pet_to_spawn: Pet, idx: int, pets: list[Pet], is_in_battle: bool):
-    if len(pets) >= 5:
+    if len(pets) >= MAX_TEAM_SIZE:
         return
     if is_in_battle:
         # if it's in battle, the list is not a fixed size
         pets.insert(idx, pet_to_spawn)
     else:
-        # if it's not in battle, the list is a fixed size. so just set the pet at the index
-        assert pets[idx].species == Species.NONE
-        pets[idx] = pet_to_spawn
+        # if it's not in battle, the list is a fixed size.
+        # one way is to just set the pet at the index. HOWEVER, we should try to "push" nearby pets into empty slots (to make room for the spawn)
+        # e.g. when a ram is spawned, we should try to make room for the spawns
+        # This is the right set of events. Because the alternative is that only one ram is spawned when there's room for two. It makes no sense since the player could've just shifted it before pilled the sheep to spawn the rams
+
+        idx_to_spawn = shift_team_to_allow_ram_spawns(pets, idx)
+        pets[idx_to_spawn] = pet_to_spawn
     for pet in pets:
         if pet is not pet_to_spawn:
             pet.trigger(
@@ -166,6 +177,20 @@ def try_spawn_at_pos(pet_to_spawn: Pet, idx: int, pets: list[Pet], is_in_battle:
             )
 
 
-# tests to run:
-# fainting offers permanent stats buffs
-# horse stats disapepar after battle. but will help them win the battle
+def shift_team_to_allow_ram_spawns(pets: list[Pet], spawn_idx: int):
+    if pets[spawn_idx].species == Species.NONE:
+        # no need to shuffle positions
+        return spawn_idx
+    pets_to_the_left = remove_empty_pets(pets[:spawn_idx])
+    pets_to_the_right = remove_empty_pets(pets[spawn_idx + 1 :])
+    while pets_to_the_left:
+        # TODO: figureo ut how to shift pets to the left
+        pets
+
+
+def remove_empty_pets(pets: list[Pet]):
+    res = []
+    for pet in pets:
+        if pet.species != Species.NONE:
+            res.append(pet)
+    return res

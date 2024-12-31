@@ -13,3 +13,8 @@ pets that have an "works x time per turn" effect:
 - rabbit
 - gorilla
 - hippo (works 3 times per battle)
+
+
+tests to run:
+fainting offers permanent stats buffs
+horse stats disapepar after battle. but will help them win the battle
