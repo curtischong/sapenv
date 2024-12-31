@@ -11,7 +11,7 @@ from all_types_and_consts import (
     Species,
     Trigger,
 )
-from battle import receive_damage, try_spawn_at_pos
+from battle import make_pet_faint, receive_damage, try_spawn_at_pos
 from pet import (
     Pet,
 )
@@ -573,6 +573,8 @@ def on_battle_start_whale(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     # https://superautopets.fandom.com/wiki/Whale
     for friend in get_nearest_friends_ahead(pet, my_pets, num_friends=1):
         pet.metadata["on_faint_spawn_species_kind"] = friend.species.value
+        # swallow the friend:
+        make_pet_faint(pet, team_pets=my_pets, enemy_pets=enemy_pets, is_in_battle=True)
 
 
 def on_faint_whale(
