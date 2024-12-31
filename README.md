@@ -18,3 +18,6 @@ pets that have an "works x time per turn" effect:
 tests to run:
 fainting offers permanent stats buffs
 horse stats disapepar after battle. but will help them win the battle
+
+To fix:
+squirrel

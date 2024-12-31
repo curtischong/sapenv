@@ -1,4 +1,4 @@
-from all_types_and_consts import Species
+from all_types_and_consts import PetExperience, PetLevel, Species
 from pet import Pet
 
 
@@ -42,3 +42,13 @@ def get_pet_with_highest_health(pets: list[Pet]) -> Pet:
             max_health_on_team = pet.health
             target_pet = pet
     return target_pet
+
+
+def get_experience_for_level(level: PetLevel) -> PetExperience:
+    match level:
+        case 1:
+            return 1
+        case 2:
+            return 3
+        case 3:
+            return 6
