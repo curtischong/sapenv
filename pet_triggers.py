@@ -434,13 +434,13 @@ def on_hurt_camel(
 
 
 def on_friendly_ate_food_rabbit(pet: Pet, pet_on_my_team: Pet):
-    if pet.species_specific_info["num_friendlies_buffed"] < 4:
-        pet.species_specific_info["num_friendlies_buffed"] += 1
+    if pet.metadata["num_friendlies_buffed"] < 4:
+        pet.metadata["num_friendlies_buffed"] += 1
         pet_on_my_team.add_stats(health=pet.get_level())
 
 
 def on_end_turn_rabbit(pet: Pet, team: Team, last_battle_result: BattleResult):
-    pet.species_specific_info.clear()
+    pet.metadata.clear()
 
 
 def set_pet_triggers():
