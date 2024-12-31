@@ -95,5 +95,5 @@ def trigger_food_for_pet(food_type: Food, team: Team, pet_idx: int, shop: Shop):
 def trigger_on_friendly_ate_food(team: Team, pet_that_ate_food: Pet):
     for friendly_pet in team.pets:
         friendly_pet.trigger(
-            Trigger.ON_FRIENDLY_ATE_FOOD, pet_that_ate_food=pet_that_ate_food
+            Trigger.ON_FRIENDLY_ATE_FOOD, pet_that_ate_food=pet_that_ate_food, team=team
         )
