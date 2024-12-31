@@ -434,7 +434,13 @@ def on_hurt_camel(
 
 
 def on_friendly_ate_food_rabbit(pet: Pet, pet_on_my_team: Pet):
-    pass
+    if pet.species_specific_info["num_friendlies_buffed"] < 4:
+        pet.species_specific_info["num_friendlies_buffed"] += 1
+        pet_on_my_team.add_stats(health=pet.get_level())
+
+
+def on_end_turn_rabbit(pet: Pet, team: Team, last_battle_result: BattleResult):
+    pet.species_specific_info.clear()
 
 
 def set_pet_triggers():
@@ -472,6 +478,7 @@ def set_pet_triggers():
     species_to_pet_map[Species.ELEPHANT].set_trigger(Trigger.ON_AFTER_ATTACK, on_after_attack_elephant)
     species_to_pet_map[Species.CAMEL].set_trigger(Trigger.ON_HURT, on_hurt_camel)
     species_to_pet_map[Species.RABBIT].set_trigger(Trigger.ON_FRIENDLY_ATE_FOOD, on_friendly_ate_food_rabbit)
+    species_to_pet_map[Species.RABBIT].set_trigger(Trigger.ON_END_TURN, on_end_turn_rabbit) # reset the rabbit's limit on buffing friendly
 
     # fmt: on
 
