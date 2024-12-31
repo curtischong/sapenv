@@ -560,14 +560,14 @@ def validate_protocol(func: Any, protocol: Type[CallableProtocol]) -> None:
 
     # Check if the function is universal (works with any trigger) (has Pet, *args and, **kwargs)
     func_param_values = list(func_signature.parameters.values())
-    universal_acceptance = (
+    is_universally_accepted_by_all_triggers = (
         len(func_param_values) == 3
         and func_param_values[0].name == "pet"
         and func_param_values[1].kind == inspect.Parameter.VAR_POSITIONAL
         and func_param_values[2].kind == inspect.Parameter.VAR_KEYWORD
     )
 
-    if not universal_acceptance:
+    if not is_universally_accepted_by_all_triggers:
         raise TypeError(
             f"The function {func.__name__} does not conform to the protocol {protocol.__name__}.\n"
             f"Expected: {protocol_signature}\nGot: {func_signature}"
