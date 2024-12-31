@@ -498,6 +498,14 @@ def on_knock_out_hippo(pet: Pet):
         pet.add_stats(attack=stat_buff, health=stat_buff)
 
 
+def on_end_turn_bison(pet: Pet, team: Team):
+    for my_pet in team.pets:
+        if my_pet is not pet and my_pet.get_level() == 3:
+            attack_buff = my_pet.get_level()
+            health_buff = 2 * my_pet.get_level()
+            my_pet.add_stats(attack=attack_buff, health=health_buff)
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -543,6 +551,7 @@ def set_pet_triggers():
     species_to_pet_map[Species.SKUNK].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_skunk)
     species_to_pet_map[Species.HIPPO].set_trigger(Trigger.ON_KNOCK_OUT, on_knock_out_hippo)
     species_to_pet_map[Species.HIPPO].set_trigger(Trigger.ON_BATTLE_START, clear_metadata) # reset the hippo's knock out
+    species_to_pet_map[Species.BISON].set_trigger(Trigger.ON_END_TURN, on_end_turn_bison)
     # fmt: on
 
 
