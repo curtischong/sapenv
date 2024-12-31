@@ -16,6 +16,7 @@ from pet import (
     Pet,
 )
 from pet_trigger_utils import (
+    get_experience_for_level,
     get_nearest_friends_ahead,
     get_nearest_friends_behind,
     get_pet_with_highest_health,
@@ -308,13 +309,7 @@ def on_faint_spider(
     stat = 2 * pet.get_level()
 
     # we need to ensure that the new pet has the proper experience since if it's spawned in the shop, it should have the proper experience
-    match pet.get_level():
-        case 1:
-            new_spawn_experience = 1
-        case 2:
-            new_spawn_experience = 3
-        case 3:
-            new_spawn_experience = 6
+    new_spawn_experience = get_experience_for_level(pet.get_level())
 
     pet_to_spawn.set_stats_all(
         attack=stat, health=stat, experience=new_spawn_experience
@@ -568,6 +563,26 @@ def on_faint_deer(
     try_spawn_at_pos(bus, faint_pet_idx, my_pets, is_in_battle)
 
 
+def on_battle_start_whale(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
+    # They are also considered "new" pets, with no memory of their old selves before being swallowed.
+    # https://superautopets.fandom.com/wiki/Whale
+    for friend in get_nearest_friends_ahead(pet, my_pets, num_friends=1):
+        pet.metadata["on_faint_spawn_species_kind"] = friend.species.value
+
+
+def on_faint_whale(
+    pet: Pet,
+    faint_pet_idx: int,
+    my_pets: list[Pet],
+    enemy_pets: list[Pet] | None,
+    is_in_battle: bool,
+):
+    species_to_spawn = Species(pet.metadata["on_faint_spawn_species_kind"])
+    new_pet = get_base_pet(species_to_spawn)
+    new_pet.experience = get_experience_for_level(pet.get_level())
+    try_spawn_at_pos(new_pet, faint_pet_idx, my_pets, is_in_battle)
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -619,6 +634,9 @@ def set_pet_triggers():
     species_to_pet_map[Species.SQUIRREL].set_trigger(Trigger.ON_TURN_START, on_turn_start_squirrel)
     species_to_pet_map[Species.PENGUIN].set_trigger(Trigger.ON_END_TURN, on_end_turn_penguin)
     species_to_pet_map[Species.DEER].set_trigger(Trigger.ON_FAINT, on_faint_deer)
+    species_to_pet_map[Species.WHALE].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_whale)
+    species_to_pet_map[Species.WHALE].set_trigger(Trigger.ON_FAINT, on_faint_whale)
+    species_to_pet_map[Species.WHALE].set_trigger(Trigger.ON_TURN_START, clear_metadata) # reset the whale's spawn (so pills don't repawn it in the shop - I think thisi s hte intended ehaviour. haven't tested)
     # fmt: on
 
 
