@@ -128,6 +128,10 @@ def make_pet_faint(
         enemy_pets=enemy_pets,
         is_in_battle=is_in_battle,
     )
+    # now trigger the ON_FRIEND_AHEAD_FAINTS trigger
+    if idx_in_team > 0:
+        team_pets[idx_in_team - 1].trigger(Trigger.ON_FRIEND_AHEAD_FAINTS)
+
     if pet.effect == Effect.MUSHROOM:
         new_pet = get_base_pet(pet.species).set_stats(
             attack=1,
