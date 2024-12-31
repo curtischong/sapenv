@@ -94,6 +94,10 @@ class OnFriendFaints(Protocol):
     def __call__(self, pet: Pet): ...
 
 
+class OnBeforeAttack(Protocol):
+    def __call__(self, pet: Pet): ...
+
+
 def on_sell_duck(pet: Pet, shop: Shop, team: Team):
     for slot in shop.slots:
         slot.pet.add_stats(health=pet.get_level())
@@ -704,6 +708,26 @@ def on_friend_summoned_turkey(pet: Pet, summoned_friend: Pet, is_in_battle: bool
     pet.add_stats(attack=attack_boost, health=health_boost)
 
 
+def on_battle_start_leopard(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
+    damage = math.ceil(0.5 * pet.attack)
+    for enemy_pet in Team.get_random_pets_from_list(
+        enemy_pets, select_num_pets=pet.get_level()
+    ):
+        receive_damage(
+            receiving_pet=enemy_pet,
+            attacking_pet=pet,
+            damage=damage,
+            receiving_team=enemy_pets,
+            opposing_team=my_pets,
+        )
+
+
+def on_before_attack_boar(pet: Pet):
+    attack_buff = 4 * pet.get_level()
+    health_buff = 2 * pet.get_level()
+    pet.add_stats(attack=attack_buff, health=health_buff)
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -770,6 +794,10 @@ def set_pet_triggers():
     species_to_pet_map[Species.ROOSTER].set_trigger(Trigger.ON_FAINT, on_faint_rooster)
     species_to_pet_map[Species.SHARK].set_trigger(Trigger.ON_FRIEND_FAINTS, on_friend_faints_shark)
     species_to_pet_map[Species.TURKEY].set_trigger(Trigger.ON_FRIEND_SUMMONED, on_friend_summoned_turkey)
+
+    # tier 6
+    species_to_pet_map[Species.LEOPARD].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_leopard)
+    species_to_pet_map[Species.BOAR].set_trigger(Trigger.ON_BEFORE_ATTACK, on_before_attack_boar)
     # fmt: on
 
 
@@ -845,6 +873,7 @@ trigger_to_protocol_type = {
     Trigger.ON_FRIEND_AHEAD_FAINTS: OnFriendAheadFaints,
     Trigger.ON_KNOCK_OUT: OnKnockOut,
     Trigger.ON_FRIEND_FAINTS: OnFriendFaints,
+    Trigger.ON_BEFORE_ATTACK: OnBeforeAttack,
 }
 
 

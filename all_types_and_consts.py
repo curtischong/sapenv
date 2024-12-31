@@ -290,3 +290,4 @@ class Trigger(Enum):
     ON_FRIEND_AHEAD_FAINTS = auto()
     ON_KNOCK_OUT = auto()
     ON_FRIEND_FAINTS = auto()
+    ON_BEFORE_ATTACK = auto()
