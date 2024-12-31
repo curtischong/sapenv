@@ -1,4 +1,11 @@
-from all_types_and_consts import MAX_ATTACK, BattleResult, Effect, Species, Trigger
+from all_types_and_consts import (
+    MAX_ATTACK,
+    MAX_TEAM_SIZE,
+    BattleResult,
+    Effect,
+    Species,
+    Trigger,
+)
 from pet import Pet
 from pet_data import get_base_pet
 from team import Team
@@ -148,14 +155,18 @@ def make_pet_faint(
 
 
 def try_spawn_at_pos(pet_to_spawn: Pet, idx: int, pets: list[Pet], is_in_battle: bool):
-    if len(pets) >= 5:
+    if len(pets) >= MAX_TEAM_SIZE:
         return
     if is_in_battle:
         # if it's in battle, the list is not a fixed size
         pets.insert(idx, pet_to_spawn)
     else:
-        # if it's not in battle, the list is a fixed size. so just set the pet at the index
-        assert pets[idx].species == Species.NONE
+        # if it's not in battle, the list is a fixed size.
+        # one way is to just set the pet at the index. HOWEVER, we should try to "push" nearby pets into empty slots (to make room for the spawn)
+        # e.g. when a ram is spawned, we should try to make room for the spawns
+        # This is the right set of events. Because the alternative is that only one ram is spawned when there's room for two. It makes no sense since the player could've just shifted it before pilled the sheep to spawn the rams
+
+        shift_team_to_allow_spawn(pets, idx)
         pets[idx] = pet_to_spawn
     for pet in pets:
         if pet is not pet_to_spawn:
@@ -166,6 +177,35 @@ def try_spawn_at_pos(pet_to_spawn: Pet, idx: int, pets: list[Pet], is_in_battle:
             )
 
 
-# tests to run:
-# fainting offers permanent stats buffs
-# horse stats disapepar after battle. but will help them win the battle
+def shift_team_to_allow_spawn(pets: list[Pet], spawn_idx: int):
+    if pets[spawn_idx].species == Species.NONE:
+        # no need to shuffle positions
+        return
+
+    # 1) Search left for an empty slot
+    for i in range(spawn_idx, -1, -1):
+        if pets[i].species != Species.NONE:
+            first_free_idx_to_left = i
+            # Shift everything from i..spawn_idx one step to the left (to make room for hte spawn)
+            for pet_idx in range(first_free_idx_to_left, spawn_idx):
+                pets[pet_idx] = pets[pet_idx + 1]
+            return
+
+    # 2) otherwise, search right for an empty slot
+    for j in range(spawn_idx + 1, len(pets)):
+        if pets[j].species != Species.NONE:
+            first_free_idx_to_right = j
+
+            # Shift everything from spawn_idx...j one step to the right (to make room for hte spawn)
+            for pet_idx in range(first_free_idx_to_right, spawn_idx, -1):
+                pets[pet_idx] = pets[pet_idx - 1]
+            return
+    raise ValueError("Could not find a place to spawn")
+
+
+def remove_empty_pets(pets: list[Pet]):
+    res = []
+    for pet in pets:
+        if pet.species != Species.NONE:
+            res.append(pet)
+    return res

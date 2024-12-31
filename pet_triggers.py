@@ -444,6 +444,32 @@ def on_friend_ahead_faints_ox(pet: Pet):
         pet.add_stats(attack=1)
 
 
+def on_friend_summoned_dog(pet: Pet, summoned_friend: Pet, is_in_battle: bool):
+    pet_level = pet.get_level()
+    attack_buff = 2 * pet_level
+    health_buff = pet_level
+    if is_in_battle:
+        pet.add_stats(attack=attack_buff, health=health_buff)
+    else:
+        pet.add_boost(attack=attack_buff, health=health_buff)
+
+
+def on_faint_sheep(
+    pet: Pet,
+    faint_pet_idx: int,
+    my_pets: list[Pet],
+    enemy_pets: list[Pet] | None,
+    is_in_battle: bool,
+):
+    num_triggers = 2
+    for _ in range(num_triggers):
+        ram_stats = 2 * pet.get_level()
+        ram_to_summon = get_base_pet(Species.SHEEP_SPAWN).set_stats(
+            attack=ram_stats, health=ram_stats
+        )
+        try_spawn_at_pos(ram_to_summon, faint_pet_idx, my_pets, is_in_battle)
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -482,6 +508,8 @@ def set_pet_triggers():
     species_to_pet_map[Species.RABBIT].set_trigger(Trigger.ON_END_TURN, clear_metadata) # reset the rabbit's limit on buffing friendly
     species_to_pet_map[Species.OX].set_trigger(Trigger.ON_FRIEND_AHEAD_FAINTS, on_friend_ahead_faints_ox)
     species_to_pet_map[Species.OX].set_trigger(Trigger.ON_END_TURN, clear_metadata) # reset the ox's limit on buffing itself
+    species_to_pet_map[Species.DOG].set_trigger(Trigger.ON_FRIEND_SUMMONED, on_friend_summoned_dog)
+    species_to_pet_map[Species.SHEEP].set_trigger(Trigger.ON_FAINT, on_faint_sheep)
 
     # fmt: on
 
