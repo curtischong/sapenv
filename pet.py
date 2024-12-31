@@ -64,6 +64,13 @@ class Pet:
             # the first arg is always the pet that's triggering the event
             self._triggers[trigger](self, *args, **kwargs)
 
+    def clear_triggers(self):
+        self._triggers.clear()
+
+    def copy_triggers(self, other: "Pet"):
+        for trigger, trigger_fn in other._triggers.items():
+            self.set_trigger(trigger, trigger_fn)
+
     def clone(self):
         pet = Pet(
             species=self.species,
@@ -74,8 +81,7 @@ class Pet:
             attack_boost=self.attack_boost,
             health_boost=self.health_boost,
         )
-        for trigger, trigger_fn in self._triggers.items():
-            pet.set_trigger(trigger, trigger_fn)
+        pet.copy_triggers(self)
 
         return pet
 
