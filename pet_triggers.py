@@ -593,7 +593,7 @@ def on_end_turn_parrot(pet: Pet, team: Team, last_battle_result: BattleResult):
         pet.copy_triggers(friend)
         # we don't need to run the trigger (if it's an on end turn trigger). since the copied triggers will be run on order of append
 
-        # read the parrot triggers
+        # re-add the parrot triggers
         pet.set_trigger(Trigger.ON_END_TURN, on_end_turn_parrot)
         pet.set_trigger(Trigger.ON_TURN_START, clear_metadata)
 
