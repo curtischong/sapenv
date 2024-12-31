@@ -72,7 +72,11 @@ class OnAfterAttack(Protocol):
 
 
 class OnFriendlyAteFood(Protocol):
-    def __call__(self, pet: Pet, pet_on_my_team: Pet): ...
+    def __call__(self, pet: Pet, pet_that_ate_food: Pet): ...
+
+
+class OnFriendAheadFaints(Protocol):
+    def __call__(self, pet: Pet): ...
 
 
 def on_sell_duck(pet: Pet, shop: Shop, team: Team):
@@ -433,14 +437,18 @@ def on_hurt_camel(
         nearest_friend.add_stats(attack=pet.get_level(), health=2 * pet.get_level())
 
 
-def on_friendly_ate_food_rabbit(pet: Pet, pet_on_my_team: Pet):
+def on_friendly_ate_food_rabbit(pet: Pet, pet_that_ate_food: Pet):
     if pet.metadata["num_friendlies_buffed"] < 4:
         pet.metadata["num_friendlies_buffed"] += 1
-        pet_on_my_team.add_stats(health=pet.get_level())
+        pet_that_ate_food.add_stats(health=pet.get_level())
 
 
-def on_end_turn_rabbit(pet: Pet, team: Team, last_battle_result: BattleResult):
-    pet.metadata.clear()
+def on_friend_ahead_faints_ox(pet: Pet):
+    # I'm assuming the melon buff will override any existing buff the ox has
+    if pet.metadata["num_times_buff_itself"] < pet.get_level():
+        pet.metadata["num_times_buff_itself"] += 1
+        pet.effect = Effect.MELON
+        pet.add_stats(attack=1)
 
 
 def set_pet_triggers():
@@ -478,9 +486,15 @@ def set_pet_triggers():
     species_to_pet_map[Species.ELEPHANT].set_trigger(Trigger.ON_AFTER_ATTACK, on_after_attack_elephant)
     species_to_pet_map[Species.CAMEL].set_trigger(Trigger.ON_HURT, on_hurt_camel)
     species_to_pet_map[Species.RABBIT].set_trigger(Trigger.ON_FRIENDLY_ATE_FOOD, on_friendly_ate_food_rabbit)
-    species_to_pet_map[Species.RABBIT].set_trigger(Trigger.ON_END_TURN, on_end_turn_rabbit) # reset the rabbit's limit on buffing friendly
+    species_to_pet_map[Species.RABBIT].set_trigger(Trigger.ON_END_TURN, clear_metadata) # reset the rabbit's limit on buffing friendly
+    species_to_pet_map[Species.OX].set_trigger(Trigger.ON_FRIEND_AHEAD_FAINTS, on_friend_ahead_faints_ox)
+    species_to_pet_map[Species.OX].set_trigger(Trigger.ON_END_TURN, clear_metadata) # reset the ox's limit on buffing itself
 
     # fmt: on
+
+
+def clear_metadata(pet: Pet, *args):
+    pet.metadata.clear()
 
 
 def get_nearest_friends_ahead(
@@ -568,6 +582,7 @@ trigger_to_protocol_type = {
     Trigger.ON_FRIEND_AHEAD_ATTACKS: OnFriendAheadAttacks,
     Trigger.ON_AFTER_ATTACK: OnAfterAttack,
     Trigger.ON_FRIENDLY_ATE_FOOD: OnFriendlyAteFood,
+    Trigger.ON_FRIEND_AHEAD_FAINTS: OnFriendAheadFaints,
 }
 
 
