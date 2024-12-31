@@ -25,7 +25,6 @@ class Pet:
         attack: int,
         health: int,
         experience: PetExperience,
-        # effect: Effect | None,  # TODO: add effect
         effect: Effect = Effect.NONE,
         attack_boost: int = 0,
         health_boost: int = 0,
@@ -102,6 +101,10 @@ class Pet:
             and self.attack_boost == other.attack_boost
             and self.health_boost == other.health_boost
         )
+
+    def set_effect(self, effect: Effect):
+        self.effect = effect
+        return self
 
     def get_level(self) -> PetLevel:
         if self.experience < 3:

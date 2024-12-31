@@ -1,4 +1,4 @@
-from all_types_and_consts import ShopTier, Species
+from all_types_and_consts import Effect, ShopTier, Species
 from pet import Pet
 
 
@@ -54,7 +54,9 @@ tier_4_pets: list[Pet] = [
 ]
 
 tier_5_pets: list[Pet] = [
-    Pet.define_base_stats(species=Species.SCORPION, attack=1, health=1),
+    Pet.define_base_stats(species=Species.SCORPION, attack=1, health=1).set_effect(
+        Effect.PEANUT
+    ),
     Pet.define_base_stats(species=Species.CROCODILE, attack=8, health=4),
     Pet.define_base_stats(species=Species.RHINO, attack=6, health=7),
     Pet.define_base_stats(species=Species.MONKEY, attack=1, health=2),
@@ -104,6 +106,7 @@ all_pets: list[Pet] = (
 assert len(all_pets) == len(Species)
 
 species_to_pet_map: dict[Species, Pet] = {pet.species: pet for pet in all_pets}
+tier_1_pet_species = [pet.species for pet in tier_1_pets]
 shop_tier_to_pets_map: dict[ShopTier, list[Pet]] = {
     1: tier_1_pets,
     2: tier_2_pets,
