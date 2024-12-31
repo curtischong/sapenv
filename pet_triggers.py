@@ -157,7 +157,7 @@ def on_friend_summoned_horse(pet: Pet, summoned_friend: Pet, is_in_battle: bool)
         summoned_friend.add_boost(attack=attack_boost)
 
 
-def on_turn_end_snail(pet: Pet, team: Team, last_battle_result: BattleResult):
+def on_end_turn_snail(pet: Pet, team: Team, last_battle_result: BattleResult):
     # https://superautopets.fandom.com/wiki/Snail
     # it only triggers if it's a loss, not a draw
     # If Snail is bought on turn 1, the "last battle" will be considered a draw.
@@ -420,7 +420,7 @@ def set_pet_triggers():
     species_to_pet_map[Species.HORSE].set_trigger(Trigger.ON_FRIEND_SUMMONED, on_friend_summoned_horse)
 
     # tier 2
-    species_to_pet_map[Species.SNAIL].set_trigger(Trigger.ON_TURN_END, on_turn_end_snail)
+    species_to_pet_map[Species.SNAIL].set_trigger(Trigger.ON_END_TURN, on_end_turn_snail)
     species_to_pet_map[Species.CRAB].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_crab)
     species_to_pet_map[Species.SWAN].set_trigger(Trigger.ON_TURN_START, on_turn_start_swan)
     species_to_pet_map[Species.RAT].set_trigger(Trigger.ON_FAINT, on_faint_rat)
@@ -504,7 +504,7 @@ trigger_to_protocol_type = {
     Trigger.ON_BATTLE_START: OnBattleStart,
     Trigger.ON_LEVEL_UP: OnLevelUp,
     Trigger.ON_FRIEND_SUMMONED: OnFriendSummoned,
-    Trigger.ON_TURN_END: OnEndTurn,
+    Trigger.ON_END_TURN: OnEndTurn,
     Trigger.ON_TURN_START: OnTurnStart,
     Trigger.ON_FRIEND_AHEAD_ATTACKS: OnFriendAheadAttacks,
 }

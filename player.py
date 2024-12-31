@@ -351,7 +351,7 @@ class Player:
     def end_turn_action(self) -> GameResult:
         for pet in self.team.pets:
             pet.trigger(
-                Trigger.ON_TURN_END,
+                Trigger.ON_END_TURN,
                 team=self.team,
                 last_battle_result=self.last_battle_result,
             )
