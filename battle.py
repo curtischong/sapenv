@@ -142,6 +142,10 @@ def make_pet_faint(
         enemy_pets=enemy_pets,
         is_in_battle=is_in_battle,
     )
+    for team_pet in team_pets:
+        if team_pet is not pet:
+            team_pet.trigger(Trigger.ON_FRIEND_FAINTS)
+
     # now trigger the ON_FRIEND_AHEAD_FAINTS trigger
     if idx_in_team > 0:
         team_pets[idx_in_team - 1].trigger(Trigger.ON_FRIEND_AHEAD_FAINTS)

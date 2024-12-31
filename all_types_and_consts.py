@@ -289,3 +289,4 @@ class Trigger(Enum):
     ON_FRIENDLY_ATE_FOOD = auto()
     ON_FRIEND_AHEAD_FAINTS = auto()
     ON_KNOCK_OUT = auto()
+    ON_FRIEND_FAINTS = auto()
