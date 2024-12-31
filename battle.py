@@ -74,53 +74,56 @@ def attack_team(receiving_team: list[Pet], attacking_team: list[Pet]):
         friend_behind_attacker.trigger(Trigger.ON_FRIEND_AHEAD_ATTACKS)
 
     # now apply the damage
-    attacker_has_peanut_effect = attacker_pet.effect == Effect.PEANUT
     if attacker_pet.effect == Effect.CHILLI and len(receiving_team) > 1:
         # attack the second pet if the chilli effect is active
         receive_damage(
-            pet=receiving_team[-2],
+            receiving_pet=receiving_team[-2],
+            attacking_pet=attacker_pet,
             damage=5,
             receiving_team=receiving_team,
             opposing_team=attacking_team,
-            attacker_has_peanut_effect=attacker_has_peanut_effect,
         )
     receive_damage(
-        pet=receiving_team[-1],
+        receiving_pet=receiving_team[-1],
+        attacking_pet=attacker_pet,
         damage=damage,
         receiving_team=receiving_team,
         opposing_team=attacking_team,
-        attacker_has_peanut_effect=attacker_has_peanut_effect,
     )
 
     attacker_pet.trigger(Trigger.ON_AFTER_ATTACK, my_team=attacking_team)
 
 
 def receive_damage(
-    pet: Pet,
+    receiving_pet: Pet,
+    attacking_pet: Pet,
     damage: int,
     receiving_team: list[Pet],
     # this is called opposing_team, NOT attacking team (since the dealer of damage can be on your own team)
     opposing_team: list[Pet],
-    attacker_has_peanut_effect: bool,
 ):
-    if pet.effect == Effect.MELON:
+    if receiving_pet.effect == Effect.MELON:
         damage = max(damage - 20, 0)
-        pet.effect = Effect.NONE  # melon is only used once
-    elif pet.effect == Effect.GARLIC:
+        receiving_pet.effect = Effect.NONE  # melon is only used once
+    elif receiving_pet.effect == Effect.GARLIC:
         damage = max(damage - 2, 1)  # yes. Garlic does a minimum of 1 damage
-    pet.health -= damage
+    receiving_pet.health -= damage
 
     if damage == 0:
         return  # early return to avoid computing on hurt effects
 
-    pet.trigger(Trigger.ON_HURT, team_pets=receiving_team)
-    if pet.health <= 0 or attacker_has_peanut_effect:
+    receiving_pet.trigger(Trigger.ON_HURT, team_pets=receiving_team)
+    if receiving_pet.health <= 0 or attacking_pet.effect == Effect.PEANUT:
         # TODO: not sure what should trigger first. the mushroom or the on faint affect?
         # https://www.reddit.com/r/superautopets/comments/12xtp8d/mushroom_faint_ability_ordering_different_for/?rdt=51575
         # I'll make the mushroom trigger last after all on faint effects are done (since it's what the sapai repo does)
         make_pet_faint(
-            pet, team_pets=receiving_team, enemy_pets=opposing_team, is_in_battle=True
+            receiving_pet,
+            team_pets=receiving_team,
+            enemy_pets=opposing_team,
+            is_in_battle=True,
         )
+        attacking_pet.trigger(Trigger.ON_KNOCK_OUT)
 
 
 def make_pet_faint(
