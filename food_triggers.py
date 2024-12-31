@@ -75,6 +75,10 @@ def trigger_food_for_pet(food_type: Food, team: Team, pet_idx: int, shop: Shop):
             pet.add_stats(attack=1)
         case Food.MILK:
             pet.add_stats(attack=1, health=2)
+        case Food.BETTER_MILK:  # stats for milk: https://superautopets.fandom.com/wiki/Cow
+            pet.add_stats(attack=2, health=4)
+        case Food.BEST_MILK:
+            pet.add_stats(attack=3, health=6)
         case Food.APPLE_2_COST:
             pet.add_stats(attack=1, health=1)
         case Food.APPLE_2_COST_BETTER:

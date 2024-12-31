@@ -179,6 +179,9 @@ class Food(Enum):
 
     # hidden foods
     MILK = auto()
+    BETTER_MILK = auto()
+    BEST_MILK = auto()
+
     BREAD_CRUMB = auto()  # from pigeon (can overflow the food slots)
 
     # https://superautopets.fandom.com/wiki/Apple
@@ -216,6 +219,8 @@ foods_for_pet = [
     Food.MUSHROOM,
     # hidden ones:
     Food.MILK,
+    Food.BETTER_MILK,
+    Food.BEST_MILK,
     Food.BREAD_CRUMB,
     Food.APPLE_2_COST,
     Food.APPLE_2_COST_BETTER,
