@@ -166,8 +166,8 @@ def try_spawn_at_pos(pet_to_spawn: Pet, idx: int, pets: list[Pet], is_in_battle:
         # e.g. when a ram is spawned, we should try to make room for the spawns
         # This is the right set of events. Because the alternative is that only one ram is spawned when there's room for two. It makes no sense since the player could've just shifted it before pilled the sheep to spawn the rams
 
-        idx_to_spawn = shift_team_to_allow_ram_spawns(pets, idx)
-        pets[idx_to_spawn] = pet_to_spawn
+        shift_team_to_allow_spawn(pets, idx)
+        pets[idx] = pet_to_spawn
     for pet in pets:
         if pet is not pet_to_spawn:
             pet.trigger(
@@ -177,15 +177,30 @@ def try_spawn_at_pos(pet_to_spawn: Pet, idx: int, pets: list[Pet], is_in_battle:
             )
 
 
-def shift_team_to_allow_ram_spawns(pets: list[Pet], spawn_idx: int):
+def shift_team_to_allow_spawn(pets: list[Pet], spawn_idx: int):
     if pets[spawn_idx].species == Species.NONE:
         # no need to shuffle positions
-        return spawn_idx
-    pets_to_the_left = remove_empty_pets(pets[:spawn_idx])
-    pets_to_the_right = remove_empty_pets(pets[spawn_idx + 1 :])
-    while pets_to_the_left:
-        # TODO: figureo ut how to shift pets to the left
-        pets
+        return
+
+    # 1) Search left for an empty slot
+    for i in range(spawn_idx, -1, -1):
+        if pets[i].species != Species.NONE:
+            first_free_idx_to_left = i
+            # Shift everything from i..spawn_idx one step to the left (to make room for hte spawn)
+            for pet_idx in range(first_free_idx_to_left, spawn_idx):
+                pets[pet_idx] = pets[pet_idx + 1]
+            return
+
+    # 2) otherwise, search right for an empty slot
+    for j in range(spawn_idx + 1, len(pets)):
+        if pets[j].species != Species.NONE:
+            first_free_idx_to_right = j
+
+            # Shift everything from spawn_idx...j one step to the right (to make room for hte spawn)
+            for pet_idx in range(first_free_idx_to_right, spawn_idx, -1):
+                pets[pet_idx] = pets[pet_idx - 1]
+            return
+    raise ValueError("Could not find a place to spawn")
 
 
 def remove_empty_pets(pets: list[Pet]):
