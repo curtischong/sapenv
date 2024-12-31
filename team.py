@@ -39,6 +39,9 @@ class Team:
             res.append(pet.apply_temp_buffs())
         return res
 
+    def get_non_none_pets(self) -> list[Pet]:
+        return [pet for pet in self.pets if pet.species != Species.NONE]
+
     # Note: this function ensures that the returned pets are not NONE
     def get_random_pets(
         self, select_num_pets: int, exclude_pet: Pet | None = None

@@ -634,6 +634,16 @@ def on_knock_out_rhino(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     )
 
 
+# does the monkey boost itself? I think it can. cause the desc says "friendly"
+def on_end_turn_monkey(pet: Pet, team: Team, last_battle_result: BattleResult):
+    stat_buff = 2 * pet.get_level()
+
+    # we cannot use team.pets[-1] since it might be a none pet
+    # note: this list is never empty since the monkey is on the team
+    frontmost_pet = team.get_non_none_pets()[-1]
+    frontmost_pet.add_stats(attack=stat_buff, health=stat_buff)
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -693,6 +703,7 @@ def set_pet_triggers():
     # tier 5
     species_to_pet_map[Species.CROCODILE].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_crocodile)
     species_to_pet_map[Species.RHINO].set_trigger(Trigger.ON_KNOCK_OUT, on_knock_out_rhino)
+    species_to_pet_map[Species.MONKEY].set_trigger(Trigger.ON_END_TURN, on_end_turn_monkey)
     # fmt: on
 
 
