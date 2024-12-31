@@ -591,8 +591,9 @@ def on_end_turn_parrot(pet: Pet, team: Team, last_battle_result: BattleResult):
     for friend in get_nearest_friends_ahead(pet, team.pets, num_friends=1):
         pet.clear_triggers()
         pet.copy_triggers(friend)
+        # we don't need to run the trigger (if it's an on end turn trigger). since the copied triggers will be run on order of append
 
-        # readd the parrot triggers
+        # read the parrot triggers
         pet.set_trigger(Trigger.ON_END_TURN, on_end_turn_parrot)
         pet.set_trigger(Trigger.ON_TURN_START, clear_metadata)
 
