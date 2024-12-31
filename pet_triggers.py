@@ -90,6 +90,10 @@ class OnKnockOut(Protocol):
     def __call__(self, pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]): ...
 
 
+class OnFriendFaints(Protocol):
+    def __call__(self, pet: Pet): ...
+
+
 def on_sell_duck(pet: Pet, shop: Shop, team: Team):
     for slot in shop.slots:
         slot.pet.add_stats(health=pet.get_level())
@@ -673,6 +677,28 @@ def on_friendly_ate_food_seal(pet: Pet, pet_that_ate_food: Pet, team: Team):
         pet.add_stats(attack=attack_buff)
 
 
+def on_faint_rooster(
+    pet: Pet,
+    faint_pet_idx: int,
+    my_pets: list[Pet],
+    enemy_pets: list[Pet] | None,
+    is_in_battle: bool,
+):
+    num_triggers = pet.get_level()
+    for _ in range(num_triggers):
+        chick_spawn = get_base_pet(Species.PET_SPAWN).set_stats(
+            health=1, attack=math.ceil(pet.attack / 2)
+        )
+        try_spawn_at_pos(chick_spawn, faint_pet_idx, my_pets, is_in_battle)
+
+
+def on_friend_faints_shark(
+    pet: Pet,
+):
+    stat_buff = 2 * pet.get_level()
+    pet.add_stats(attack=stat_buff, health=stat_buff)
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -736,6 +762,8 @@ def set_pet_triggers():
     species_to_pet_map[Species.ARMADILLO].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_armadillo)
     species_to_pet_map[Species.COW].set_trigger(Trigger.ON_BUY, on_buy_cow)
     species_to_pet_map[Species.SEAL].set_trigger(Trigger.ON_FRIENDLY_ATE_FOOD, on_friendly_ate_food_seal)
+    species_to_pet_map[Species.ROOSTER].set_trigger(Trigger.ON_FAINT, on_faint_rooster)
+    species_to_pet_map[Species.SHARK].set_trigger(Trigger.ON_FRIEND_FAINTS, on_friend_faints_shark)
     # fmt: on
 
 
@@ -810,6 +838,7 @@ trigger_to_protocol_type = {
     Trigger.ON_FRIENDLY_ATE_FOOD: OnFriendlyAteFood,
     Trigger.ON_FRIEND_AHEAD_FAINTS: OnFriendAheadFaints,
     Trigger.ON_KNOCK_OUT: OnKnockOut,
+    Trigger.ON_FRIEND_FAINTS: OnFriendFaints,
 }
 
 
