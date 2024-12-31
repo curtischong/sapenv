@@ -498,6 +498,76 @@ def on_knock_out_hippo(pet: Pet):
         pet.add_stats(attack=stat_buff, health=stat_buff)
 
 
+def on_end_turn_bison(pet: Pet, team: Team):
+    for my_pet in team.pets:
+        if my_pet is not pet and my_pet.get_level() == 3:
+            attack_buff = my_pet.get_level()
+            health_buff = 2 * my_pet.get_level()
+            my_pet.add_stats(attack=attack_buff, health=health_buff)
+            return  # bison only buffs itself once
+
+
+def on_hurt_blowfish(pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet]):
+    damage_to_deal = 3 * pet.get_level()
+    enemy_pet = Team.get_random_pets_from_list(enemy_pets, select_num_pets=1)[0]
+    receive_damage(
+        receiving_pet=enemy_pet,
+        attacking_pet=pet,
+        damage=damage_to_deal,
+        receiving_team=enemy_pets,
+        opposing_team=team_pets,
+    )
+
+
+def on_faint_turtle(
+    pet: Pet,
+    faint_pet_idx: int,
+    my_pets: list[Pet],
+    enemy_pets: list[Pet] | None,
+    is_in_battle: bool,
+):
+    nearest_friends = get_nearest_friends_behind(
+        pet, my_pets, num_friends=pet.get_level()
+    )
+    for friend in nearest_friends:
+        friend.effect = Effect.MELON
+
+
+def on_turn_start_squirrel(pet: Pet, team: Team, shop: Shop):
+    # this is a tricky one. We can parametrize the food like pets
+    # or we can parameterie it by adding this: (number of foods with discount, discount amount)
+    # since the squirrel is triggered on the start of turn^
+    pass
+
+
+def on_end_turn_penguin(pet: Pet, team: Team):
+    # penguins do NOT buff themselves
+    pets_that_are_level_2_or_3 = [
+        my_pet for my_pet in team.pets if my_pet.get_level() >= 2
+    ]
+
+    buff_amount = pet.get_level()
+    for target_pet in Team.get_random_pets_from_list(
+        pets_that_are_level_2_or_3, select_num_pets=2, exclude_pet=pet
+    ):
+        target_pet.add_stats(attack=buff_amount, health=buff_amount)
+
+
+def on_faint_deer(
+    pet: Pet,
+    faint_pet_idx: int,
+    my_pets: list[Pet],
+    enemy_pets: list[Pet] | None,
+    is_in_battle: bool,
+):
+    bus = get_base_pet(Species.BUS)
+    bus.effect = Effect.CHILLI
+    attack_buff = 5 * pet.get_level()
+    health_buff = 3 * pet.get_level()
+    bus.add_stats(attack=attack_buff, health=health_buff)
+    try_spawn_at_pos(bus, faint_pet_idx, my_pets, is_in_battle)
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -543,6 +613,12 @@ def set_pet_triggers():
     species_to_pet_map[Species.SKUNK].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_skunk)
     species_to_pet_map[Species.HIPPO].set_trigger(Trigger.ON_KNOCK_OUT, on_knock_out_hippo)
     species_to_pet_map[Species.HIPPO].set_trigger(Trigger.ON_BATTLE_START, clear_metadata) # reset the hippo's knock out
+    species_to_pet_map[Species.BISON].set_trigger(Trigger.ON_END_TURN, on_end_turn_bison)
+    species_to_pet_map[Species.BLOWFISH].set_trigger(Trigger.ON_HURT, on_hurt_blowfish)
+    species_to_pet_map[Species.TURTLE].set_trigger(Trigger.ON_FAINT, on_faint_turtle)
+    species_to_pet_map[Species.SQUIRREL].set_trigger(Trigger.ON_TURN_START, on_turn_start_squirrel)
+    species_to_pet_map[Species.PENGUIN].set_trigger(Trigger.ON_END_TURN, on_end_turn_penguin)
+    species_to_pet_map[Species.DEER].set_trigger(Trigger.ON_FAINT, on_faint_deer)
     # fmt: on
 
 
