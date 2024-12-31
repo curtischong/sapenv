@@ -504,6 +504,7 @@ def on_end_turn_bison(pet: Pet, team: Team):
             attack_buff = my_pet.get_level()
             health_buff = 2 * my_pet.get_level()
             my_pet.add_stats(attack=attack_buff, health=health_buff)
+            return  # bison only buffs itself once
 
 
 def on_hurt_blowfish(pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet]):
