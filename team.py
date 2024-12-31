@@ -1,3 +1,4 @@
+from collections import defaultdict
 from all_types_and_consts import MAX_TEAM_SIZE, Species
 from pet import Pet
 from pet_data import get_base_pet
@@ -57,3 +58,24 @@ class Team:
 
         n = len(pets_without_none)
         return random.sample(pets_without_none, min(n, select_num_pets))
+
+    def get_pets(self, species_to_list_first: list[Species] = []) -> list[Pet]:
+        # we cannot just pop the indexes one by one. I tried in jupyter:
+        # l=[1,2,3,4,5,6]
+        # for a in l:
+        #     print(l.pop(l.index(a)))
+
+        # first create a mapping of species -> pets of that species
+        species_to_pets = defaultdict(list)
+        for pet in self.pets:
+            species_to_pets[pet.species].append(pet)
+
+        res = []
+
+        for species in species_to_list_first:
+            res += species_to_pets[species]
+
+        for pet in self.pets:
+            if pet not in res:
+                res.append(pet)
+        return res
