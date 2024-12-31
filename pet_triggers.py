@@ -72,7 +72,11 @@ class OnAfterAttack(Protocol):
 
 
 class OnFriendlyAteFood(Protocol):
-    def __call__(self, pet: Pet, pet_on_my_team: Pet): ...
+    def __call__(self, pet: Pet, pet_that_ate_food: Pet): ...
+
+
+class OnFriendAheadFaints(Protocol):
+    def __call__(self, pet: Pet): ...
 
 
 def on_sell_duck(pet: Pet, shop: Shop, team: Team):
@@ -405,9 +409,7 @@ def on_turn_start_giraffe(pet: Pet, team: Team, shop: Shop):
         friend.add_stats(attack=1, health=1)
 
 
-def on_after_attack_elephant(
-    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet] | None
-):
+def on_after_attack_elephant(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     nearest_friends_behind = get_nearest_friends_behind(pet, my_pets, num_friends=1)
     if len(nearest_friends_behind) == 1:
         num_triggers = pet.get_level()
@@ -421,26 +423,25 @@ def on_after_attack_elephant(
             )
 
 
-def on_hurt_camel(
-    pet: Pet,
-    my_pets: list[Pet],
-    enemy_pets: list[Pet] | None,
-    is_in_battle: bool,
-):
+def on_hurt_camel(pet: Pet, my_pets: list[Pet]):
     nearest_friends_behind = get_nearest_friends_behind(pet, my_pets, num_friends=1)
     if len(nearest_friends_behind) == 1:
         nearest_friend = nearest_friends_behind[0]
         nearest_friend.add_stats(attack=pet.get_level(), health=2 * pet.get_level())
 
 
-def on_friendly_ate_food_rabbit(pet: Pet, pet_on_my_team: Pet):
+def on_friendly_ate_food_rabbit(pet: Pet, pet_that_ate_food: Pet):
     if pet.metadata["num_friendlies_buffed"] < 4:
         pet.metadata["num_friendlies_buffed"] += 1
-        pet_on_my_team.add_stats(health=pet.get_level())
+        pet_that_ate_food.add_stats(health=pet.get_level())
 
 
-def on_end_turn_rabbit(pet: Pet, team: Team, last_battle_result: BattleResult):
-    pet.metadata.clear()
+def on_friend_ahead_faints_ox(pet: Pet):
+    # I'm assuming the melon buff will override any existing buff the ox has
+    if pet.metadata["num_times_buff_itself"] < pet.get_level():
+        pet.metadata["num_times_buff_itself"] += 1
+        pet.effect = Effect.MELON
+        pet.add_stats(attack=1)
 
 
 def set_pet_triggers():
@@ -478,9 +479,15 @@ def set_pet_triggers():
     species_to_pet_map[Species.ELEPHANT].set_trigger(Trigger.ON_AFTER_ATTACK, on_after_attack_elephant)
     species_to_pet_map[Species.CAMEL].set_trigger(Trigger.ON_HURT, on_hurt_camel)
     species_to_pet_map[Species.RABBIT].set_trigger(Trigger.ON_FRIENDLY_ATE_FOOD, on_friendly_ate_food_rabbit)
-    species_to_pet_map[Species.RABBIT].set_trigger(Trigger.ON_END_TURN, on_end_turn_rabbit) # reset the rabbit's limit on buffing friendly
+    species_to_pet_map[Species.RABBIT].set_trigger(Trigger.ON_END_TURN, clear_metadata) # reset the rabbit's limit on buffing friendly
+    species_to_pet_map[Species.OX].set_trigger(Trigger.ON_FRIEND_AHEAD_FAINTS, on_friend_ahead_faints_ox)
+    species_to_pet_map[Species.OX].set_trigger(Trigger.ON_END_TURN, clear_metadata) # reset the ox's limit on buffing itself
 
     # fmt: on
+
+
+def clear_metadata(pet: Pet, *args: Any, **kwargs: Any):
+    pet.metadata.clear()
 
 
 def get_nearest_friends_ahead(
@@ -519,7 +526,7 @@ class CallableProtocol(Protocol):
     def __call__(self, *args: Any, **kwargs: Any) -> Any: ...
 
 
-# validate on run time that all the triggers follow the correct interface
+# Validate at runtime that all the triggers follow the correct interface
 def validate_protocol(func: Any, protocol: Type[CallableProtocol]) -> None:
     """
     Validates whether a callable conforms to a given protocol.
@@ -547,8 +554,20 @@ def validate_protocol(func: Any, protocol: Type[CallableProtocol]) -> None:
         return_annotation=protocol_hints.get("return", inspect.Signature.empty),
     )
 
-    # Compare the function's signature with the protocol's signature
-    if func_signature != protocol_signature:
+    # Check if the function signature strictly matches the protocol's signature
+    if func_signature == protocol_signature:
+        return
+
+    # Check if the function is universal (works with any trigger) (has Pet, *args and, **kwargs)
+    func_param_values = list(func_signature.parameters.values())
+    is_universally_accepted_by_all_triggers = (
+        len(func_param_values) == 3
+        and func_param_values[0].name == "pet"
+        and func_param_values[1].kind == inspect.Parameter.VAR_POSITIONAL
+        and func_param_values[2].kind == inspect.Parameter.VAR_KEYWORD
+    )
+
+    if not is_universally_accepted_by_all_triggers:
         raise TypeError(
             f"The function {func.__name__} does not conform to the protocol {protocol.__name__}.\n"
             f"Expected: {protocol_signature}\nGot: {func_signature}"
@@ -568,6 +587,7 @@ trigger_to_protocol_type = {
     Trigger.ON_FRIEND_AHEAD_ATTACKS: OnFriendAheadAttacks,
     Trigger.ON_AFTER_ATTACK: OnAfterAttack,
     Trigger.ON_FRIENDLY_ATE_FOOD: OnFriendlyAteFood,
+    Trigger.ON_FRIEND_AHEAD_FAINTS: OnFriendAheadFaints,
 }
 
 

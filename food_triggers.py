@@ -1,5 +1,6 @@
 from all_types_and_consts import Effect, Food, Species, Trigger
 from battle import make_pet_faint
+from pet import Pet
 from pet_data import get_base_pet
 from shop import Shop
 from team import Team
@@ -11,6 +12,7 @@ def trigger_food_globally(food_type: Food, team: Team, shop: Shop):
             pets = team.get_random_pets(2)
             for pet in pets:
                 pet.add_stats(attack=1, health=1)
+                trigger_on_friendly_ate_food(team=team, pet_that_ate_food=pet)
         case Food.CANNED_FOOD:
             for slot in shop.slots:
                 slot.pet.add_stats(attack=1, health=1)
@@ -23,10 +25,12 @@ def trigger_food_globally(food_type: Food, team: Team, shop: Shop):
             pets = team.get_random_pets(3)
             for pet in pets:
                 pet.add_stats(attack=1, health=1)
+                trigger_on_friendly_ate_food(team=team, pet_that_ate_food=pet)
         case Food.PIZZA:
             pets = team.get_random_pets(2)
             for pet in pets:
                 pet.add_stats(attack=2, health=2)
+                trigger_on_friendly_ate_food(team=team, pet_that_ate_food=pet)
         case _:
             raise ValueError(f"Unknown food type: {food_type}")
 
@@ -79,3 +83,13 @@ def trigger_food_for_pet(food_type: Food, team: Team, pet_idx: int, shop: Shop):
             pet.add_stats(attack=3, health=3)
         case _:
             raise ValueError(f"Unknown food type: {food_type}")
+
+    # does this trigger if the pet ate a pill?
+    trigger_on_friendly_ate_food(team=team, pet_that_ate_food=pet)
+
+
+def trigger_on_friendly_ate_food(team: Team, pet_that_ate_food: Pet):
+    for friendly_pet in team.pets:
+        friendly_pet.trigger(
+            Trigger.ON_FRIENDLY_ATE_FOOD, pet_that_ate_food=pet_that_ate_food
+        )

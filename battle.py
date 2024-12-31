@@ -12,6 +12,10 @@ def battle(my_team: Team, team2: Team) -> BattleResult:
     trigger_on_battle_start(pets1, pets2)
 
     while len(pets1) > 0 and len(pets2) > 0:
+        # TODO: we need to explicitly get these attackers first because after the first attack_team call, the attacker pet might die?
+        # I'm not 100% sure if specifying the attackers this way is correct. so I'm commenting it out for now
+        # attacker1 = pets1[-1]
+        # attacker2 = pets1[-1]
         attack_team(receiving_team=pets2, attacking_team=pets1)
         attack_team(receiving_team=pets1, attacking_team=pets2)
 
@@ -124,10 +128,14 @@ def make_pet_faint(
     pet.trigger(
         Trigger.ON_FAINT,
         faint_pet_idx=idx_in_team,
-        team_pets=team_pets,
+        my_pets=team_pets,
         enemy_pets=enemy_pets,
         is_in_battle=is_in_battle,
     )
+    # now trigger the ON_FRIEND_AHEAD_FAINTS trigger
+    if idx_in_team > 0:
+        team_pets[idx_in_team - 1].trigger(Trigger.ON_FRIEND_AHEAD_FAINTS)
+
     if pet.effect == Effect.MUSHROOM:
         new_pet = get_base_pet(pet.species).set_stats(
             attack=1,
