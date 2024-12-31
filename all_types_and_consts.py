@@ -275,6 +275,6 @@ class Trigger(Enum):
     ON_BATTLE_START = auto()
     ON_LEVEL_UP = auto()
     ON_FRIEND_SUMMONED = auto()
-    ON_END_TURN = auto()
+    ON_END_TURN = auto()  # the user presses the "end turn" button and starts the battle
     ON_TURN_START = auto()
     ON_FRIEND_AHEAD_ATTACKS = auto()

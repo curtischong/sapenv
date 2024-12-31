@@ -56,11 +56,11 @@ class OnFriendSummoned(Protocol):
 
 
 class OnEndTurn(Protocol):
-    def __call__(self, pet: Pet, team: "Team", last_battle_result: BattleResult): ...
+    def __call__(self, pet: Pet, team: Team, last_battle_result: BattleResult): ...
 
 
 class OnTurnStart(Protocol):
-    def __call__(self, pet: Pet, shop: Shop): ...
+    def __call__(self, pet: Pet, team: Team, shop: Shop): ...
 
 
 class OnFriendAheadAttacks(Protocol):
@@ -94,7 +94,13 @@ def on_sell_pig(pet: Pet, shop: Shop, team: Team):
     shop.gold += pet.get_level()
 
 
-def on_faint_ant(pet: Pet, faint_pet_idx: int, my_pets: list[Pet], is_in_battle: bool):
+def on_faint_ant(
+    pet: Pet,
+    faint_pet_idx: int,
+    my_pets: list[Pet],
+    enemy_pets: list[Pet] | None,
+    is_in_battle: bool,
+):
     pet_list = Team.get_random_pets_from_list(
         pets_list=my_pets, select_num_pets=1, exclude_pet=pet
     )
@@ -127,7 +133,11 @@ def on_level_up_fish(pet: Pet, team: Team):
 
 
 def on_faint_cricket(
-    pet: Pet, faint_pet_idx: int, my_pets: list[Pet], is_in_battle: bool
+    pet: Pet,
+    faint_pet_idx: int,
+    my_pets: list[Pet],
+    enemy_pets: list[Pet] | None,
+    is_in_battle: bool,
 ):
     cricket_spawn = get_base_pet(Species.CRICKET_SPAWN).set_stats(
         attack=pet.get_level(), health=pet.get_level()
@@ -173,7 +183,7 @@ def on_battle_start_crab(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     pet.health = min(new_health, MAX_HEALTH)
 
 
-def on_turn_start_swan(pet: Pet, shop: Shop):
+def on_turn_start_swan(pet: Pet, team: Team, shop: Shop):
     shop.gold += pet.get_level()
 
 
@@ -257,10 +267,7 @@ def on_faint_flamingo(
         friend.add_stats(attack=stat_boost, health=stat_boost)
 
 
-def on_turn_start_worm(
-    pet: Pet,
-    shop: Shop,
-):
+def on_turn_start_worm(pet: Pet, team: Team, shop: Shop):
     # the apple the worm stocks is an ADDITIONAL food (doesn't take up a food slot)
     # https://youtu.be/T6moXKCurxw?si=HA5rgHUkSFPiPjh1&t=147
     match pet.get_level():
@@ -278,7 +285,11 @@ def on_friend_ahead_attacks_kangaroo(pet: Pet):
 
 
 def on_faint_spider(
-    pet: Pet, faint_pet_idx: int, my_pets: list[Pet], is_in_battle: bool
+    pet: Pet,
+    faint_pet_idx: int,
+    my_pets: list[Pet],
+    enemy_pets: list[Pet] | None,
+    is_in_battle: bool,
 ):
     pet_to_spawn = random.choice(tier_3_pets).clone()
     stat = 2 * pet.get_level()
@@ -305,12 +316,11 @@ def on_battle_start_dodo(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     # use ceil. so if the dodo has 1 attack, we give 1 attack to the friend
     attack_to_give_to_friend = math.ceil(percentage_amount_to_give * pet.attack)
 
-    pet_idx = my_pets.index(pet)
-    if pet_idx == len(my_pets) - 1:
-        # there are no friends ahead to give the attack to. We don't have to worry about none species here since it's the start of the battle
+    nearest_friends_ahead = get_nearest_friends_ahead(pet, my_pets, num_friends=1)
+    if len(nearest_friends_ahead) == 0:
         return
-    pet_ahead = my_pets[pet_idx + 1]
-    pet_ahead.add_stats(attack=attack_to_give_to_friend)
+
+    nearest_friends_ahead[0].add_stats(attack=attack_to_give_to_friend)
 
 
 def on_faint_badger(
@@ -386,7 +396,16 @@ def on_battle_start_dolphin(
         )
 
 
+def on_turn_start_giraffe(pet: Pet, team: Team, shop: Shop):
+    nearest_friends_ahead = get_nearest_friends_ahead(
+        pet, my_pets=team.pets, num_friends=pet.get_level()
+    )
+    for friend in nearest_friends_ahead:
+        friend.add_stats(attack=1, health=1)
+
+
 def set_pet_triggers():
+    # disable formatting so the trigger definitions are declared on one line
     # fmt: off
     # tier 1
     species_to_pet_map[Species.DUCK].set_trigger(Trigger.ON_SELL, on_sell_duck)
@@ -416,8 +435,25 @@ def set_pet_triggers():
     species_to_pet_map[Species.DODO].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_dodo)
     species_to_pet_map[Species.BADGER].set_trigger(Trigger.ON_FAINT, on_faint_badger)
     species_to_pet_map[Species.DOLPHIN].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_dolphin)
+    species_to_pet_map[Species.GIRAFFE].set_trigger(Trigger.ON_TURN_START, on_turn_start_giraffe)
 
     # fmt: on
+
+
+def get_nearest_friends_ahead(
+    pet: Pet, my_pets: list[Pet], num_friends: int
+) -> list[Pet]:
+    pet_idx = my_pets.index(pet)
+    friend_idx = pet_idx + 1
+    friends_ahead = []
+
+    while len(friends_ahead) < num_friends and friend_idx < len(my_pets):
+        friend_pet = my_pets[friend_idx]
+        if friend_pet.species != Species.NONE:
+            friends_ahead.append(friend_pet)
+        friend_idx += 1
+
+    return friends_ahead
 
 
 class CallableProtocol(Protocol):
