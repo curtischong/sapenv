@@ -71,6 +71,10 @@ class OnAfterAttack(Protocol):
     def __call__(self, pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]): ...
 
 
+class OnFriendlyAteFood(Protocol):
+    def __call__(self, pet: Pet, pet_on_my_team: Pet): ...
+
+
 def on_sell_duck(pet: Pet, shop: Shop, team: Team):
     for slot in shop.slots:
         slot.pet.add_stats(health=pet.get_level())
@@ -417,6 +421,28 @@ def on_after_attack_elephant(
             )
 
 
+def on_hurt_camel(
+    pet: Pet,
+    my_pets: list[Pet],
+    enemy_pets: list[Pet] | None,
+    is_in_battle: bool,
+):
+    nearest_friends_behind = get_nearest_friends_behind(pet, my_pets, num_friends=1)
+    if len(nearest_friends_behind) == 1:
+        nearest_friend = nearest_friends_behind[0]
+        nearest_friend.add_stats(attack=pet.get_level(), health=2 * pet.get_level())
+
+
+def on_friendly_ate_food_rabbit(pet: Pet, pet_on_my_team: Pet):
+    if pet.metadata["num_friendlies_buffed"] < 4:
+        pet.metadata["num_friendlies_buffed"] += 1
+        pet_on_my_team.add_stats(health=pet.get_level())
+
+
+def on_end_turn_rabbit(pet: Pet, team: Team, last_battle_result: BattleResult):
+    pet.metadata.clear()
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -450,6 +476,9 @@ def set_pet_triggers():
     species_to_pet_map[Species.DOLPHIN].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_dolphin)
     species_to_pet_map[Species.GIRAFFE].set_trigger(Trigger.ON_TURN_START, on_turn_start_giraffe)
     species_to_pet_map[Species.ELEPHANT].set_trigger(Trigger.ON_AFTER_ATTACK, on_after_attack_elephant)
+    species_to_pet_map[Species.CAMEL].set_trigger(Trigger.ON_HURT, on_hurt_camel)
+    species_to_pet_map[Species.RABBIT].set_trigger(Trigger.ON_FRIENDLY_ATE_FOOD, on_friendly_ate_food_rabbit)
+    species_to_pet_map[Species.RABBIT].set_trigger(Trigger.ON_END_TURN, on_end_turn_rabbit) # reset the rabbit's limit on buffing friendly
 
     # fmt: on
 
@@ -538,6 +567,7 @@ trigger_to_protocol_type = {
     Trigger.ON_TURN_START: OnTurnStart,
     Trigger.ON_FRIEND_AHEAD_ATTACKS: OnFriendAheadAttacks,
     Trigger.ON_AFTER_ATTACK: OnAfterAttack,
+    Trigger.ON_FRIENDLY_ATE_FOOD: OnFriendlyAteFood,
 }
 
 

@@ -1,3 +1,4 @@
+from collections import defaultdict
 import numpy as np
 from all_types_and_consts import (
     MAX_ATTACK,
@@ -36,6 +37,9 @@ class Pet:
         self.effect = effect
         self.attack_boost = attack_boost
         self.health_boost = health_boost
+
+        # e.g. extra info for each pet. e.g. for a rabbit: the number of times a friendly ate food this turn
+        self.metadata = defaultdict(int)
 
         self._triggers: dict[Trigger, TriggerFn] = {}
         # self.id = uuid.uuid4() # I don't think this is needed since each python object has a unique id. And we use .index() to get the right index of a pet in a list (or "is" to check for equality)
