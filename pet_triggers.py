@@ -20,6 +20,7 @@ from pet_trigger_utils import (
     get_nearest_friends_ahead,
     get_nearest_friends_behind,
     get_pet_with_highest_health,
+    get_pet_with_lowest_health,
 )
 from shop import Shop
 from team import Team
@@ -376,6 +377,7 @@ def on_faint_badger(
         )
 
 
+# does the dolphin trigger onto on one pet or multiple pets? I think it can trigger to multiple pets
 def on_battle_start_dolphin(
     pet: Pet,
     my_pets: list[Pet],
@@ -383,12 +385,7 @@ def on_battle_start_dolphin(
 ):
     num_triggers = pet.get_level()
     for _ in range(num_triggers):
-        lowest_health_enemy_pet = None
-        lowest_health = MAX_HEALTH + 1
-        for enemy_pet in enemy_pets:
-            if enemy_pet.health < lowest_health:
-                lowest_health_enemy_pet = enemy_pet
-                lowest_health = enemy_pet.health
+        lowest_health_enemy_pet = get_pet_with_lowest_health(enemy_pets)
 
         if lowest_health_enemy_pet is None:
             return
