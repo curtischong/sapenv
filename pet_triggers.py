@@ -67,6 +67,10 @@ class OnFriendAheadAttacks(Protocol):
     def __call__(self, pet: Pet): ...
 
 
+class OnAfterAttack(Protocol):
+    def __call__(self, pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]): ...
+
+
 def on_sell_duck(pet: Pet, shop: Shop, team: Team):
     for slot in shop.slots:
         slot.pet.add_stats(health=pet.get_level())
@@ -404,6 +408,22 @@ def on_turn_start_giraffe(pet: Pet, team: Team, shop: Shop):
         friend.add_stats(attack=1, health=1)
 
 
+def on_after_attack_elephant(
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet] | None
+):
+    nearest_friends_behind = get_nearest_friends_behind(pet, my_pets, num_friends=1)
+    if len(nearest_friends_behind) == 1:
+        num_triggers = pet.get_level()
+        for _ in range(num_triggers):
+            receive_damage(
+                pet=nearest_friends_behind[0],
+                damage=1,
+                receiving_team=my_pets,
+                opposing_team=enemy_pets,
+                attacker_has_peanut_effect=False,
+            )
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -436,6 +456,7 @@ def set_pet_triggers():
     species_to_pet_map[Species.BADGER].set_trigger(Trigger.ON_FAINT, on_faint_badger)
     species_to_pet_map[Species.DOLPHIN].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_dolphin)
     species_to_pet_map[Species.GIRAFFE].set_trigger(Trigger.ON_TURN_START, on_turn_start_giraffe)
+    species_to_pet_map[Species.ELEPHANT].set_trigger(Trigger.ON_AFTER_ATTACK, on_after_attack_elephant)
 
     # fmt: on
 
@@ -454,6 +475,22 @@ def get_nearest_friends_ahead(
         friend_idx += 1
 
     return friends_ahead
+
+
+def get_nearest_friends_behind(
+    pet: Pet, my_pets: list[Pet], num_friends: int
+) -> list[Pet]:
+    pet_idx = my_pets.index(pet)
+    friend_idx = pet_idx - 1
+    friends_behind = []
+
+    while len(friends_behind) < num_friends and friend_idx >= 0:
+        friend_pet = my_pets[friend_idx]
+        if friend_pet.species != Species.NONE:
+            friends_behind.append(friend_pet)
+        friend_idx -= 1
+
+    return friends_behind
 
 
 class CallableProtocol(Protocol):
@@ -507,6 +544,7 @@ trigger_to_protocol_type = {
     Trigger.ON_END_TURN: OnEndTurn,
     Trigger.ON_TURN_START: OnTurnStart,
     Trigger.ON_FRIEND_AHEAD_ATTACKS: OnFriendAheadAttacks,
+    Trigger.ON_AFTER_ATTACK: OnAfterAttack,
 }
 
 

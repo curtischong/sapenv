@@ -50,7 +50,6 @@ def trigger_on_battle_start(pets1: list[Pet], pets2: list[Pet]):
 
 def attack_team(receiving_team: list[Pet], attacking_team: list[Pet]):
     attacker_pet = attacking_team[-1]
-    first_pet = receiving_team[-1]
     damage = attacker_pet.attack
     if attacker_pet.effect == Effect.MEAT_BONE:
         damage += 3
@@ -66,21 +65,23 @@ def attack_team(receiving_team: list[Pet], attacking_team: list[Pet]):
     # now apply the damage
     attacker_has_peanut_effect = attacker_pet.effect == Effect.PEANUT
     if attacker_pet.effect == Effect.CHILLI and len(receiving_team) > 1:
-        second_pet = receiving_team[-2]
+        # attack the second pet if the chilli effect is active
         receive_damage(
-            pet=second_pet,
+            pet=receiving_team[-2],
             damage=5,
             receiving_team=receiving_team,
             opposing_team=attacking_team,
             attacker_has_peanut_effect=attacker_has_peanut_effect,
         )
     receive_damage(
-        pet=first_pet,
+        pet=receiving_team[-1],
         damage=damage,
         receiving_team=receiving_team,
         opposing_team=attacking_team,
         attacker_has_peanut_effect=attacker_has_peanut_effect,
     )
+
+    attacker_pet.trigger(Trigger.ON_AFTER_ATTACK, my_team=attacking_team)
 
 
 def receive_damage(
