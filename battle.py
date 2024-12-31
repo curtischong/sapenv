@@ -68,6 +68,9 @@ def attack_team(receiving_team: list[Pet], attacking_team: list[Pet]):
         damage = max(damage + 20, MAX_ATTACK)
         attacker_pet.effect = Effect.NONE  # steak is only used once
 
+    # trigger ON_BEFORE_ATTACK
+    attacker_pet.trigger(Trigger.ON_BEFORE_ATTACK)
+
     # trigger ON_FRIEND_AHEAD_ATTACKS
     if len(attacking_team) > 1:
         friend_behind_attacker = attacking_team[-2]
