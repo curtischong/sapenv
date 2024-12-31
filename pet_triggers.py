@@ -577,9 +577,13 @@ def on_faint_whale(
     enemy_pets: list[Pet] | None,
     is_in_battle: bool,
 ):
+    # from the wiki: Summoned friend's stats will be their base stats multiplied by the Whale’s level.
     species_to_spawn = Species(pet.metadata["on_faint_spawn_species_kind"])
     new_pet = get_base_pet(species_to_spawn)
     new_pet.experience = get_experience_for_level(pet.get_level())
+    new_pet.set_stats(
+        attack=new_pet.attack * pet.get_level(), health=new_pet.health * pet.get_level()
+    )
     try_spawn_at_pos(new_pet, faint_pet_idx, my_pets, is_in_battle)
 
 
