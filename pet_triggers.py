@@ -730,6 +730,15 @@ def on_before_attack_boar(pet: Pet):
     pet.add_stats(attack=attack_buff, health=health_buff)
 
 
+# Tiger considerations
+# - triggers should pass in the level so we know what level to do abilities on
+#     - mayb instead we set the metadata of hte pet and the get_level() function can be overriden for tiger triggers?
+# - what triggers should NOT be triggered more than once? (those htat set metadata?)
+# - does the tiger go past trigger caps ? like will the rabbit be able to buff 2x as many pets?
+#    - "Friends repeating their abilities won't deplete additional triggers" https://superautopets.fandom.com/wiki/Tiger
+#    - "or certain abilities like Crab or Butterfly, a low level Tiger will make them perform their copy abilities again at lower level, and end up copying less stats."
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
