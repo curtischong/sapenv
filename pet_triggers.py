@@ -79,7 +79,7 @@ class OnAfterAttack(Protocol):
 
 
 class OnFriendlyAteFood(Protocol):
-    def __call__(self, pet: Pet, pet_that_ate_food: Pet): ...
+    def __call__(self, pet: Pet, pet_that_ate_food: Pet, team: Team): ...
 
 
 class OnFriendAheadFaints(Protocol):
@@ -429,7 +429,7 @@ def on_hurt_camel(pet: Pet, my_pets: list[Pet]):
         nearest_friend.add_stats(attack=pet.get_level(), health=2 * pet.get_level())
 
 
-def on_friendly_ate_food_rabbit(pet: Pet, pet_that_ate_food: Pet):
+def on_friendly_ate_food_rabbit(pet: Pet, pet_that_ate_food: Pet, team: Team):
     if pet.metadata["num_friendlies_buffed"] < 4:
         pet.metadata["num_friendlies_buffed"] += 1
         pet_that_ate_food.add_stats(health=pet.get_level())
@@ -664,6 +664,15 @@ def on_buy_cow(pet: Pet, team: Team, shop: Shop):
     shop.num_foods[milk_type] = 2
 
 
+def on_friendly_ate_food_seal(pet: Pet, pet_that_ate_food: Pet, team: Team):
+    if pet_that_ate_food is not pet:
+        return
+    attack_buff = pet.get_level()
+    # pretty sure we exclude itself since it says "friends", not "friendly"
+    for pet in team.get_random_pets(3, exclude_pet=pet):
+        pet.add_stats(attack=attack_buff)
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -726,6 +735,7 @@ def set_pet_triggers():
     species_to_pet_map[Species.MONKEY].set_trigger(Trigger.ON_END_TURN, on_end_turn_monkey)
     species_to_pet_map[Species.ARMADILLO].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_armadillo)
     species_to_pet_map[Species.COW].set_trigger(Trigger.ON_BUY, on_buy_cow)
+    species_to_pet_map[Species.SEAL].set_trigger(Trigger.ON_FRIENDLY_ATE_FOOD, on_friendly_ate_food_seal)
     # fmt: on
 
 
