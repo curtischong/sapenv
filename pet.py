@@ -41,7 +41,7 @@ class Pet:
         # e.g. extra info for each pet. e.g. for a rabbit: the number of times a friendly ate food this turn
         self.metadata = defaultdict(int)
 
-        self._triggers: dict[Trigger, TriggerFn] = {}
+        self._triggers: dict[Trigger, list[TriggerFn]] = {}
         # self.id = uuid.uuid4() # I don't think this is needed since each python object has a unique id. And we use .index() to get the right index of a pet in a list (or "is" to check for equality)
 
     @staticmethod
@@ -54,15 +54,29 @@ class Pet:
         )
 
     def set_trigger(self, trigger: Trigger, trigger_fn: TriggerFn):
-        self._triggers[trigger] = trigger_fn
+        self._triggers[trigger].append(trigger_fn)
 
     # call triggers that the pet has
     def trigger(self, trigger: Trigger, *args, **kwargs) -> None:
+        if trigger == Trigger.ON_FRIEND_SUMMONED:
+            assert self is not kwargs["summoned_friend"]
+
+        # only run the trigger if the pet has it
         if trigger in self._triggers:
-            if trigger == Trigger.ON_FRIEND_SUMMONED:
-                assert self is not kwargs["summoned_friend"]
-            # the first arg is always the pet that's triggering the event
-            self._triggers[trigger](self, *args, **kwargs)
+            # a trigger may append MORE triggers of the same type. So we cannot just use a "for in" loop.
+            ith_trigger = 0
+            while ith_trigger < len(self._triggers[trigger]):
+                # the first arg is always the pet that's triggering the event. So we put "self" as the first arg
+                self._triggers[trigger][ith_trigger](self, *args, **kwargs)
+                ith_trigger += 1
+
+    def clear_triggers(self):
+        self._triggers.clear()
+
+    def copy_triggers(self, other: "Pet"):
+        for trigger, trigger_fns in other._triggers.items():
+            for trigger_fn in trigger_fns:
+                self.set_trigger(trigger, trigger_fn)
 
     def clone(self):
         pet = Pet(
@@ -74,8 +88,7 @@ class Pet:
             attack_boost=self.attack_boost,
             health_boost=self.health_boost,
         )
-        for trigger, trigger_fn in self._triggers.items():
-            pet.set_trigger(trigger, trigger_fn)
+        pet.copy_triggers(self)
 
         return pet
 

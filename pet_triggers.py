@@ -587,6 +587,17 @@ def on_faint_whale(
     try_spawn_at_pos(new_pet, faint_pet_idx, my_pets, is_in_battle)
 
 
+def on_end_turn_parrot(pet: Pet, team: Team, last_battle_result: BattleResult):
+    for friend in get_nearest_friends_ahead(pet, team.pets, num_friends=1):
+        pet.clear_triggers()
+        pet.copy_triggers(friend)
+        # we don't need to run the trigger (if it's an on end turn trigger). since the copied triggers will be run on order of append
+
+        # re-add the parrot triggers
+        pet.set_trigger(Trigger.ON_END_TURN, on_end_turn_parrot)
+        pet.set_trigger(Trigger.ON_TURN_START, clear_metadata)
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -641,6 +652,8 @@ def set_pet_triggers():
     species_to_pet_map[Species.WHALE].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_whale)
     species_to_pet_map[Species.WHALE].set_trigger(Trigger.ON_FAINT, on_faint_whale)
     species_to_pet_map[Species.WHALE].set_trigger(Trigger.ON_TURN_START, clear_metadata) # reset the whale's spawn (so pills don't repawn it in the shop - I think thisi s hte intended ehaviour. haven't tested)
+    species_to_pet_map[Species.PARROT].set_trigger(Trigger.ON_END_TURN, on_end_turn_parrot) # reset the whale's spawn (so pills don't repawn it in the shop - I think thisi s hte intended ehaviour. haven't tested)
+    species_to_pet_map[Species.PARROT].set_trigger(Trigger.ON_TURN_START, clear_metadata) # reset the whale's spawn (so pills don't repawn it in the shop - I think thisi s hte intended ehaviour. haven't tested)
     # fmt: on
 
 

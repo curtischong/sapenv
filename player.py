@@ -349,7 +349,8 @@ class Player:
         return mask
 
     def end_turn_action(self) -> GameResult:
-        for pet in self.team.pets:
+        # trigger the parrot first, so it can copy end of turn effects and run them
+        for pet in self.team.get_pets(species_to_list_first=[Species.PARROT]):
             pet.trigger(
                 Trigger.ON_END_TURN,
                 team=self.team,
