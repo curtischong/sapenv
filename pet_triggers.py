@@ -258,13 +258,7 @@ def on_faint_flamingo(
     enemy_pets: list[Pet] | None,
     is_in_battle: bool,
 ):
-    closest_friends_behind: list[Pet] = []
-    for friend_idx in range(faint_pet_idx - 1, -1, -1):
-        friend_pet = my_pets[friend_idx]
-        if friend_pet.species != Species.NONE:
-            closest_friends_behind.append(friend_pet)
-        if len(closest_friends_behind) >= 2:
-            break
+    closest_friends_behind = get_nearest_friends_behind(pet, my_pets, num_friends=2)
 
     stat_boost = pet.get_level()
     for friend in closest_friends_behind:
@@ -377,9 +371,8 @@ def on_battle_start_dolphin(
     my_pets: list[Pet],
     enemy_pets: list[Pet],
 ):
-    num_times_this_triggers = pet.get_level()
-
-    for _ in range(num_times_this_triggers):
+    num_triggers = pet.get_level()
+    for _ in range(num_triggers):
         lowest_health_enemy_pet = None
         lowest_health = MAX_HEALTH + 1
         for enemy_pet in enemy_pets:
