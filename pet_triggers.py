@@ -409,9 +409,7 @@ def on_turn_start_giraffe(pet: Pet, team: Team, shop: Shop):
         friend.add_stats(attack=1, health=1)
 
 
-def on_after_attack_elephant(
-    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet] | None
-):
+def on_after_attack_elephant(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     nearest_friends_behind = get_nearest_friends_behind(pet, my_pets, num_friends=1)
     if len(nearest_friends_behind) == 1:
         num_triggers = pet.get_level()
@@ -425,12 +423,7 @@ def on_after_attack_elephant(
             )
 
 
-def on_hurt_camel(
-    pet: Pet,
-    my_pets: list[Pet],
-    enemy_pets: list[Pet] | None,
-    is_in_battle: bool,
-):
+def on_hurt_camel(pet: Pet, my_pets: list[Pet]):
     nearest_friends_behind = get_nearest_friends_behind(pet, my_pets, num_friends=1)
     if len(nearest_friends_behind) == 1:
         nearest_friend = nearest_friends_behind[0]
@@ -493,7 +486,7 @@ def set_pet_triggers():
     # fmt: on
 
 
-def clear_metadata(pet: Pet, *args):
+def clear_metadata(pet: Pet, *args: Any, **kwargs: Any):
     pet.metadata.clear()
 
 
@@ -533,7 +526,7 @@ class CallableProtocol(Protocol):
     def __call__(self, *args: Any, **kwargs: Any) -> Any: ...
 
 
-# validate on run time that all the triggers follow the correct interface
+# Validate at runtime that all the triggers follow the correct interface
 def validate_protocol(func: Any, protocol: Type[CallableProtocol]) -> None:
     """
     Validates whether a callable conforms to a given protocol.
@@ -561,8 +554,20 @@ def validate_protocol(func: Any, protocol: Type[CallableProtocol]) -> None:
         return_annotation=protocol_hints.get("return", inspect.Signature.empty),
     )
 
-    # Compare the function's signature with the protocol's signature
-    if func_signature != protocol_signature:
+    # Check if the function signature strictly matches the protocol's signature
+    if func_signature == protocol_signature:
+        return
+
+    # Check if the function is universal (works with any trigger) (has Pet, *args and, **kwargs)
+    func_param_values = list(func_signature.parameters.values())
+    universal_acceptance = (
+        len(func_param_values) == 3
+        and func_param_values[0].name == "pet"
+        and func_param_values[1].kind == inspect.Parameter.VAR_POSITIONAL
+        and func_param_values[2].kind == inspect.Parameter.VAR_KEYWORD
+    )
+
+    if not universal_acceptance:
         raise TypeError(
             f"The function {func.__name__} does not conform to the protocol {protocol.__name__}.\n"
             f"Expected: {protocol_signature}\nGot: {func_signature}"
