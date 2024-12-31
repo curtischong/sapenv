@@ -692,11 +692,16 @@ def on_faint_rooster(
         try_spawn_at_pos(chick_spawn, faint_pet_idx, my_pets, is_in_battle)
 
 
-def on_friend_faints_shark(
-    pet: Pet,
-):
+def on_friend_faints_shark(pet: Pet):
     stat_buff = 2 * pet.get_level()
     pet.add_stats(attack=stat_buff, health=stat_buff)
+
+
+def on_friend_summoned_turkey(pet: Pet, summoned_friend: Pet, is_in_battle: bool):
+    attack_boost = 3 * pet.get_level()
+    health_boost = pet.get_level()
+    # yes. these stats are permanent
+    pet.add_stats(attack=attack_boost, health=health_boost)
 
 
 def set_pet_triggers():
@@ -764,6 +769,7 @@ def set_pet_triggers():
     species_to_pet_map[Species.SEAL].set_trigger(Trigger.ON_FRIENDLY_ATE_FOOD, on_friendly_ate_food_seal)
     species_to_pet_map[Species.ROOSTER].set_trigger(Trigger.ON_FAINT, on_faint_rooster)
     species_to_pet_map[Species.SHARK].set_trigger(Trigger.ON_FRIEND_FAINTS, on_friend_faints_shark)
+    species_to_pet_map[Species.TURKEY].set_trigger(Trigger.ON_FRIEND_SUMMONED, on_friend_summoned_turkey)
     # fmt: on
 
 
