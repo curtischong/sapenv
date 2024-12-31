@@ -20,5 +20,6 @@ fainting offers permanent stats buffs
 horse stats disapepar after battle. but will help them win the battle
 
 To fix:
-squirrel
+- squirrel
+- implement tiger
 parrot. ENSURE IT copies the ability FIRST (so when on_end_turn is called, it can repeat on_end_turn effects)

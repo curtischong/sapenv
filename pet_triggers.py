@@ -11,7 +11,7 @@ from all_types_and_consts import (
     Species,
     Trigger,
 )
-from battle import receive_damage, try_spawn_at_pos
+from battle import make_pet_faint, receive_damage, try_spawn_at_pos
 from pet import (
     Pet,
 )
@@ -95,6 +95,10 @@ class OnFriendFaints(Protocol):
 
 
 class OnBeforeAttack(Protocol):
+    def __call__(self, pet: Pet): ...
+
+
+class OnFriendHurt(Protocol):
     def __call__(self, pet: Pet): ...
 
 
@@ -573,6 +577,8 @@ def on_battle_start_whale(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     # https://superautopets.fandom.com/wiki/Whale
     for friend in get_nearest_friends_ahead(pet, my_pets, num_friends=1):
         pet.metadata["on_faint_spawn_species_kind"] = friend.species.value
+        # swallow the friend:
+        make_pet_faint(pet, team_pets=my_pets, enemy_pets=enemy_pets, is_in_battle=True)
 
 
 def on_faint_whale(
@@ -728,6 +734,24 @@ def on_before_attack_boar(pet: Pet):
     pet.add_stats(attack=attack_buff, health=health_buff)
 
 
+# Tiger considerations
+# - triggers should pass in the level so we know what level to do abilities on
+#     - mayb instead we set the metadata of hte pet and the get_level() function can be overriden for tiger triggers?
+# - what triggers should NOT be triggered more than once? (those htat set metadata?)
+# - does the tiger go past trigger caps ? like will the rabbit be able to buff 2x as many pets?
+#    - "Friends repeating their abilities won't deplete additional triggers" https://superautopets.fandom.com/wiki/Tiger
+#    - "or certain abilities like Crab or Butterfly, a low level Tiger will make them perform their copy abilities again at lower level, and end up copying less stats."
+
+
+# https://www.youtube.com/clip/UgkxRYjQsIKoqkXkyBtE76ULs7hcYJ6fG1-n
+def on_friend_hurt_wolverine(pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet]):
+    pet.metadata["num_times_hurt"] = (pet.metadata["num_times_hurt"] + 1) % 4
+    # it reduces the health up to 1. it ignores garlic
+    health_reduction = 3 * pet.get_level()
+    for enemy_pet in enemy_pets:
+        enemy_pet.health = max(enemy_pet.health - health_reduction, 1)
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -798,6 +822,7 @@ def set_pet_triggers():
     # tier 6
     species_to_pet_map[Species.LEOPARD].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_leopard)
     species_to_pet_map[Species.BOAR].set_trigger(Trigger.ON_BEFORE_ATTACK, on_before_attack_boar)
+    species_to_pet_map[Species.WOLVERINE].set_trigger(Trigger.ON_FRIEND_HURT, on_friend_hurt_wolverine)
     # fmt: on
 
 
@@ -874,6 +899,7 @@ trigger_to_protocol_type = {
     Trigger.ON_KNOCK_OUT: OnKnockOut,
     Trigger.ON_FRIEND_FAINTS: OnFriendFaints,
     Trigger.ON_BEFORE_ATTACK: OnBeforeAttack,
+    Trigger.ON_FRIEND_HURT: OnFriendHurt,
 }
 
 
