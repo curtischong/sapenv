@@ -644,6 +644,26 @@ def on_end_turn_monkey(pet: Pet, team: Team, last_battle_result: BattleResult):
     frontmost_pet.add_stats(attack=stat_buff, health=stat_buff)
 
 
+def on_battle_start_armadillo(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
+    health_buff = 8 * pet.get_level()
+    for pet in my_pets:
+        pet.add_stats(health=health_buff)
+    for pet in enemy_pets:
+        pet.add_stats(health=health_buff)
+
+
+def on_buy_cow(pet: Pet, team: Team, shop: Shop):
+    shop.num_foods.clear()
+    match pet.get_level():
+        case 1:
+            milk_type = Food.MILK
+        case 2:
+            milk_type = Food.BETTER_MILK
+        case 3:
+            milk_type = Food.BEST_MILK
+    shop.num_foods[milk_type] = 2
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -704,6 +724,8 @@ def set_pet_triggers():
     species_to_pet_map[Species.CROCODILE].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_crocodile)
     species_to_pet_map[Species.RHINO].set_trigger(Trigger.ON_KNOCK_OUT, on_knock_out_rhino)
     species_to_pet_map[Species.MONKEY].set_trigger(Trigger.ON_END_TURN, on_end_turn_monkey)
+    species_to_pet_map[Species.ARMADILLO].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_armadillo)
+    species_to_pet_map[Species.COW].set_trigger(Trigger.ON_BUY, on_buy_cow)
     # fmt: on
 
 
