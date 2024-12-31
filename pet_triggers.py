@@ -23,7 +23,7 @@ from pet_trigger_utils import (
 )
 from shop import Shop
 from team import Team
-from pet_data import get_base_pet, species_to_pet_map, tier_3_pets
+from pet_data import get_base_pet, species_to_pet_map, tier_1_pet_species, tier_3_pets
 
 
 class OnSell(Protocol):
@@ -86,7 +86,7 @@ class OnFriendAheadFaints(Protocol):
 
 
 class OnKnockOut(Protocol):
-    def __call__(self, pet: Pet): ...
+    def __call__(self, pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]): ...
 
 
 def on_sell_duck(pet: Pet, shop: Shop, team: Team):
@@ -589,13 +589,52 @@ def on_faint_whale(
 
 def on_end_turn_parrot(pet: Pet, team: Team, last_battle_result: BattleResult):
     for friend in get_nearest_friends_ahead(pet, team.pets, num_friends=1):
+        # make the parrot's data fresh for the next copy
+        pet.metadata.clear()
         pet.clear_triggers()
+
         pet.copy_triggers(friend)
         # we don't need to run the trigger (if it's an on end turn trigger). since the copied triggers will be run on order of append
 
         # re-add the parrot triggers
         pet.set_trigger(Trigger.ON_END_TURN, on_end_turn_parrot)
         pet.set_trigger(Trigger.ON_TURN_START, clear_metadata)
+
+
+def on_battle_start_crocodile(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
+    # assuming the crocodile can hit multiple enemies "Basically means that crocodile can now hit multiple units"
+    # https://www.reddit.com/r/superautopets/comments/ut58i3/turns_out_new_crocodile_is_pretty_good/?rdt=43846
+    num_triggers = pet.get_level()
+    for _ in range(num_triggers):
+        if len(enemy_pets) == 0:
+            return
+        last_enemy = enemy_pets[0]
+        receive_damage(
+            receiving_pet=last_enemy,
+            attacking_pet=pet,
+            damage=8,
+            receiving_team=enemy_pets,
+            opposing_team=my_pets,
+        )
+
+
+def on_knock_out_rhino(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
+    if len(enemy_pets) == 0:
+        return
+
+    first_enemy = enemy_pets[-1]
+    damage_to_deal = 4 * pet.get_level()
+
+    if first_enemy.species in tier_1_pet_species:
+        damage_to_deal = damage_to_deal * 2
+
+    receive_damage(
+        receiving_pet=first_enemy,
+        attacking_pet=pet,
+        damage=damage_to_deal,
+        receiving_team=enemy_pets,
+        opposing_team=my_pets,
+    )
 
 
 def set_pet_triggers():
@@ -652,8 +691,11 @@ def set_pet_triggers():
     species_to_pet_map[Species.WHALE].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_whale)
     species_to_pet_map[Species.WHALE].set_trigger(Trigger.ON_FAINT, on_faint_whale)
     species_to_pet_map[Species.WHALE].set_trigger(Trigger.ON_TURN_START, clear_metadata) # reset the whale's spawn (so pills don't repawn it in the shop - I think thisi s hte intended ehaviour. haven't tested)
-    species_to_pet_map[Species.PARROT].set_trigger(Trigger.ON_END_TURN, on_end_turn_parrot) # reset the whale's spawn (so pills don't repawn it in the shop - I think thisi s hte intended ehaviour. haven't tested)
-    species_to_pet_map[Species.PARROT].set_trigger(Trigger.ON_TURN_START, clear_metadata) # reset the whale's spawn (so pills don't repawn it in the shop - I think thisi s hte intended ehaviour. haven't tested)
+    species_to_pet_map[Species.PARROT].set_trigger(Trigger.ON_END_TURN, on_end_turn_parrot)
+
+    # tier 5
+    species_to_pet_map[Species.CROCODILE].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_crocodile)
+    species_to_pet_map[Species.RHINO].set_trigger(Trigger.ON_KNOCK_OUT, on_knock_out_rhino)
     # fmt: on
 
 
