@@ -405,6 +405,7 @@ def on_turn_start_giraffe(pet: Pet, team: Team, shop: Shop):
 
 
 def set_pet_triggers():
+    # disable formatting so the trigger definitions are declared on one line
     # fmt: off
     # tier 1
     species_to_pet_map[Species.DUCK].set_trigger(Trigger.ON_SELL, on_sell_duck)
