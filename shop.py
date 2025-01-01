@@ -123,8 +123,6 @@ class FoodShopSlot:
                 return 0
             case Food.BEST_MILK:
                 return 0
-            case Food.APPLE_2_COST:
-                return 2
             case Food.APPLE_2_COST_BETTER:
                 return 2
             case Food.APPLE_2_COST_BEST:
@@ -317,12 +315,12 @@ class Shop:
         food_kind_observation = np.zeros(
             (MAX_SHOP_FOOD_SLOTS, len(Food)), dtype=np.int32
         )
-        food_cost_observation = np.zeros((len(Food),), dtype=np.int32)
+        food_cost_observation = np.zeros((MAX_SHOP_FOOD_SLOTS,), dtype=np.int32)
         for idx, food_slot in enumerate(self.food_slots):
             food_kind_observation[idx, food_slot.food_type.value] = 1
-            food_cost_observation[idx] = (
-                food_slot.cost + 1
-            )  # plus 1 since for NAN cost, it'll be 0. However, we'll use 1 to represent free
+
+            # plus 1 since for NAN cost, it'll be 0. However, we'll use 1 to represent free
+            food_cost_observation[idx] = food_slot.cost + 1
 
         return {
             "shop_animals": slot_pets_observation | {"is_frozen": is_slot_pet_frozen},

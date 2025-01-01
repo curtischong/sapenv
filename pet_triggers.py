@@ -23,7 +23,7 @@ from pet_trigger_utils import (
     get_pet_with_highest_health,
     get_pet_with_lowest_health,
 )
-from shop import Shop
+from shop import FoodShopSlot, Shop
 from team import Team
 from pet_data import get_base_pet, species_to_pet_map, tier_1_pet_species, tier_3_pets
 
@@ -127,7 +127,8 @@ def on_sell_beaver(pet: Pet, shop: Shop, team: Team):
 
 
 def on_sell_pigeon(pet: Pet, shop: Shop, team: Team):
-    shop.num_foods[Food.BREAD_CRUMB] += pet.get_level()
+    for _ in range(pet.get_level()):
+        shop.food_slots.append(FoodShopSlot(Food.BREAD_CRUMB))
 
 
 def on_buy_otter(pet: Pet, team: Team, shop: Shop):
@@ -314,13 +315,20 @@ def on_faint_flamingo(
 def on_turn_start_worm(pet: Pet, team: Team, shop: Shop):
     # the apple the worm stocks is an ADDITIONAL food (doesn't take up a food slot)
     # https://youtu.be/T6moXKCurxw?si=HA5rgHUkSFPiPjh1&t=147
+
+    cost_discount = 0
     match pet.get_level():
         case 1:
-            shop.num_foods[Food.APPLE_2_COST] += 1
+            apple_kind = Food.APPLE
+            cost_discount = 1
         case 2:
-            shop.num_foods[Food.APPLE_2_COST_BETTER] += 1
+            apple_kind = Food.APPLE_2_COST_BETTER
         case 3:
-            shop.num_foods[Food.APPLE_2_COST_BEST] += 1
+            apple_kind = Food.APPLE_2_COST_BEST
+
+    food_to_add = FoodShopSlot(apple_kind)
+    food_to_add.cost -= cost_discount
+    shop.food_slots.append(food_to_add)
 
 
 def on_friend_ahead_attacks_kangaroo(
@@ -700,7 +708,6 @@ def on_battle_start_armadillo(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet
 
 
 def on_buy_cow(pet: Pet, team: Team, shop: Shop):
-    shop.num_foods.clear()
     match pet.get_level():
         case 1:
             milk_type = Food.MILK
@@ -708,7 +715,9 @@ def on_buy_cow(pet: Pet, team: Team, shop: Shop):
             milk_type = Food.BETTER_MILK
         case 3:
             milk_type = Food.BEST_MILK
-    shop.num_foods[milk_type] = 2
+    shop.food_slots = []
+    for _ in range(2):
+        shop.food_slots.append(FoodShopSlot(milk_type))
 
 
 def on_friendly_ate_food_seal(pet: Pet, pet_that_ate_food: Pet, team: Team):

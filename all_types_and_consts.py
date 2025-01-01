@@ -183,7 +183,6 @@ class Food(Enum):
     BREAD_CRUMB = auto()  # from pigeon (can overflow the food slots)
 
     # https://superautopets.fandom.com/wiki/Apple
-    APPLE_2_COST = auto()  # from lvl1 worm
     APPLE_2_COST_BETTER = auto()  # from lvl2 worm
     APPLE_2_COST_BEST = auto()  # from lvl3 worm
 
