@@ -42,14 +42,14 @@ class OpponentDB:
                 (compress_team(team), wins, games_played, lives_remaining),
             )
 
-    def get_opponent_similar_in_stregth(
+    def get_opponents_similar_in_stregth(
         self,
         *,
         team: Team,
         num_wins: int,
         num_games_played: int,
         num_lives_remaining: int,
-    ) -> Team:
+    ) -> list[Team]:
         opponents_with_similar_strength = []
         target_games_played = num_games_played
         with sqlite3.connect(self.db_file) as conn:
@@ -69,8 +69,9 @@ class OpponentDB:
             # sometimes when the db is flushed, the opponent is not found. In this case, we just return the horse team
             if target_games_played == 0:
                 return get_horse_team(round_number=1)
-        selected_opponent = random.choice(opponents_with_similar_strength)
-        return decompress_team(selected_opponent[0])
+        return [
+            decompress_team(opponent) for opponent in opponents_with_similar_strength
+        ]
 
     def flush(self):
         print("flushing opponent db")
