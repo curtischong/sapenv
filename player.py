@@ -255,7 +255,8 @@ class Player:
         mask = np.zeros((MAX_SHOP_FOOD_SLOTS), dtype=bool)
         for i, food_slot in enumerate(self.shop.food_slots):
             if (
-                food_slot.cost <= self.shop.gold  # can afford
+                food_slot.cost <= self.shop.gold
+                and food_slot.food_type in foods_that_apply_globally
             ):
                 mask[i] = True
         return mask
@@ -269,7 +270,10 @@ class Player:
     def buy_food_for_pet_action_mask(self) -> np.ndarray:
         mask = np.zeros((MAX_SHOP_FOOD_SLOTS, MAX_TEAM_SIZE), dtype=bool)
         for slot_idx, food_slot in enumerate(self.shop.food_slots):
-            if food_slot.cost > self.shop.gold:  # too expensive
+            if (
+                food_slot.cost > self.shop.gold
+                or food_slot.food_type not in foods_for_pet
+            ):
                 continue
             for team_idx, pet in enumerate(self.team.pets):
                 if pet.species != Species.NONE:
