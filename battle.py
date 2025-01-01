@@ -200,6 +200,7 @@ def try_spawn_at_pos(pet_to_spawn: Pet, idx: int, pets: list[Pet], is_in_battle:
             pet.trigger(
                 Trigger.ON_FRIEND_SUMMONED,
                 summoned_friend=pet_to_spawn,
+                my_pets=pets,
                 is_in_battle=is_in_battle,
             )
 
