@@ -229,7 +229,7 @@ class Player:
         bought_pet = self.team.pets[target_team_idx]
 
         # trigger on_buy AFTER the pet is added to the team (so the proper level is considered)
-        bought_pet.trigger(Trigger.ON_BUY, team=self.team)
+        bought_pet.trigger(Trigger.ON_BUY, team=self.team, shop=self.shop)
         for pet in self.team.pets:
             if pet is not bought_pet:
                 pet.trigger(

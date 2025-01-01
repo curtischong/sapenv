@@ -20,11 +20,10 @@ def battle(my_team: Team, team2: Team) -> BattleResult:
 
     while len(pets1) > 0 and len(pets2) > 0:
         # TODO: we need to explicitly get these attackers first because after the first attack_team call, the attacker pet might die?
-        # I'm not 100% sure if specifying the attackers this way is correct. so I'm commenting it out for now
-        # attacker1 = pets1[-1]
-        # attacker2 = pets1[-1]
-        attack_team(receiving_team=pets2, attacking_team=pets1)
-        attack_team(receiving_team=pets1, attacking_team=pets2)
+        attacker1 = pets1[-1]
+        attacker2 = pets2[-1]
+        attack_team(attacker_pet=attacker1, receiving_team=pets2, attacking_team=pets1)
+        attack_team(attacker_pet=attacker2, receiving_team=pets1, attacking_team=pets2)
 
     if len(pets1) == 0 and len(pets2) == 0:
         return BattleResult.TIE
@@ -59,8 +58,9 @@ def trigger_on_battle_start(pets1: list[Pet], pets2: list[Pet]):
             pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets2, enemy_pets=pets1)
 
 
-def attack_team(receiving_team: list[Pet], attacking_team: list[Pet]):
-    attacker_pet = attacking_team[-1]
+def attack_team(
+    attacker_pet: Pet, receiving_team: list[Pet], attacking_team: list[Pet]
+):
     damage = attacker_pet.attack
     if attacker_pet.effect == Effect.MEAT_BONE:
         damage += 3

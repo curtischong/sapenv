@@ -9,7 +9,7 @@ from all_types_and_consts import (
     PetLevel,
     Species,
     Trigger,
-    shop_only_triggers,
+    in_battle_triggers,
 )
 from typing import Any
 
@@ -74,7 +74,13 @@ class Pet:
     def try_trigger_twice_tiger(
         self, trigger: Trigger, ith_trigger: int, *args, **kwargs
     ):
-        if trigger in shop_only_triggers or not kwargs["is_in_battle"]:
+        is_not_a_battle_trigger = trigger not in in_battle_triggers
+
+        # I made sure that all triggers that can be in the shop or in battle will pass in a "is_in_battle" kwarg
+        is_triggering_in_the_shop = (
+            "is_in_battle" in kwargs and not kwargs["is_in_battle"]
+        )
+        if is_not_a_battle_trigger or is_triggering_in_the_shop:
             # the tiger can only trigger multiple times if it's in battle
             return
 
@@ -82,7 +88,14 @@ class Pet:
             my_pets: list[Pet] = kwargs["my_pets"]
         else:
             my_pets = kwargs["team"].pets
-        pet_idx = my_pets.index(self)
+
+        # get idx of the pet to check if the preivous pet is a tiger
+        if "faint_pet_idx" in kwargs:
+            # use this instead because for on_faint, we will NOT be able to find the index of the pet (after it's removed from the team)
+            pet_idx = kwargs["faint_pet_idx"]
+        else:
+            pet_idx = my_pets.index(self)
+
         prev_index_pet_species = Species.NONE
         if pet_idx > 0:
             prev_index_pet_species = my_pets[pet_idx - 1].species

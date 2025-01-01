@@ -10,6 +10,7 @@ from all_types_and_consts import (
     Food,
     Species,
     Trigger,
+    can_trigger_in_shop_or_battle,
 )
 from battle import make_pet_faint, receive_damage, try_spawn_at_pos
 from pet import (
@@ -85,7 +86,7 @@ class OnFriendlyAteFood(Protocol):
 
 
 class OnFriendAheadFaints(Protocol):
-    def __call__(self, pet: Pet): ...
+    def __call__(self, pet: Pet, is_in_battle: bool): ...
 
 
 class OnKnockOut(Protocol):
@@ -103,7 +104,9 @@ class OnBeforeAttack(Protocol):
 
 
 class OnFriendHurt(Protocol):
-    def __call__(self, pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet]): ...
+    def __call__(
+        self, pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+    ): ...
 
 
 class OnFriendBought(Protocol):
@@ -466,7 +469,7 @@ def on_friendly_ate_food_rabbit(pet: Pet, pet_that_ate_food: Pet, team: Team):
         pet_that_ate_food.add_stats(health=pet.get_level())
 
 
-def on_friend_ahead_faints_ox(pet: Pet):
+def on_friend_ahead_faints_ox(pet: Pet, is_in_battle: bool):
     # I'm assuming the melon buff will override any existing buff the ox has
     if pet.metadata["num_times_buff_itself"] < pet.get_level():
         pet.metadata["num_times_buff_itself"] += 1
@@ -771,7 +774,9 @@ def on_before_attack_boar(pet: Pet):
 
 
 # https://www.youtube.com/clip/UgkxRYjQsIKoqkXkyBtE76ULs7hcYJ6fG1-n
-def on_friend_hurt_wolverine(pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet]):
+def on_friend_hurt_wolverine(
+    pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+):
     pet.metadata["num_times_hurt"] = (pet.metadata["num_times_hurt"] + 1) % 4
     # it reduces the health up to 1. it ignores garlic
     health_reduction = 3 * pet.get_level()
@@ -1010,3 +1015,15 @@ def validate_trigger_protocols():
             for trigger_fn in trigger_fns:
                 protocol_type = trigger_to_protocol_type[trigger]
                 validate_protocol(trigger_fn, protocol_type)
+
+
+def validate_can_trigger_in_shop_or_battle_triggers_have_is_in_battle_kwarg():
+    for trigger in can_trigger_in_shop_or_battle:
+        trigger_fn = trigger_to_protocol_type[trigger]
+        sig = inspect.signature(trigger_fn)
+        # Check that `is_in_battle` is present in the parameters
+        print("sig.parameters", sig.parameters)
+        if "is_in_battle" not in sig.parameters:
+            raise TypeError(
+                f"trigger type {trigger}) must have an 'is_in_battle' parameter as it can trigger in both the shop and battle. (needed for the tiger to know if it should trigger)"
+            )
