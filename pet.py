@@ -99,7 +99,7 @@ class Pet:
         prev_index_pet_species = Species.NONE
         if pet_idx > 0:
             prev_index_pet_species = my_pets[pet_idx - 1].species
-        if kwargs["is_in_battle"] and prev_index_pet_species == Species.TIGER:
+        if prev_index_pet_species == Species.TIGER:
             # the tigger behind this pet makes this trigger run twice
             print("trigger ran twice")
             self._triggers[trigger][ith_trigger](self, *args, **kwargs)

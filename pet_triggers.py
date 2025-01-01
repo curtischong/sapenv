@@ -62,7 +62,9 @@ class OnLevelUp(Protocol):
 
 
 class OnFriendSummoned(Protocol):
-    def __call__(self, pet: Pet, summoned_friend: Pet, is_in_battle: bool): ...
+    def __call__(
+        self, pet: Pet, summoned_friend: Pet, my_pets: list[Pet], is_in_battle: bool
+    ): ...
 
 
 class OnEndTurn(Protocol):
@@ -86,7 +88,7 @@ class OnFriendlyAteFood(Protocol):
 
 
 class OnFriendAheadFaints(Protocol):
-    def __call__(self, pet: Pet, is_in_battle: bool): ...
+    def __call__(self, pet: Pet, my_pets: list[Pet], is_in_battle: bool): ...
 
 
 class OnKnockOut(Protocol):
@@ -105,7 +107,7 @@ class OnBeforeAttack(Protocol):
 
 class OnFriendHurt(Protocol):
     def __call__(
-        self, pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+        self, pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
     ): ...
 
 
@@ -194,7 +196,9 @@ def on_faint_cricket(
     )
 
 
-def on_friend_summoned_horse(pet: Pet, summoned_friend: Pet, is_in_battle: bool):
+def on_friend_summoned_horse(
+    pet: Pet, summoned_friend: Pet, my_pets: list[Pet], is_in_battle: bool
+):
     assert pet is not summoned_friend
     attack_boost = pet.get_level()
     if is_in_battle:
@@ -469,7 +473,7 @@ def on_friendly_ate_food_rabbit(pet: Pet, pet_that_ate_food: Pet, team: Team):
         pet_that_ate_food.add_stats(health=pet.get_level())
 
 
-def on_friend_ahead_faints_ox(pet: Pet, is_in_battle: bool):
+def on_friend_ahead_faints_ox(pet: Pet, my_pets: list[Pet], is_in_battle: bool):
     # I'm assuming the melon buff will override any existing buff the ox has
     if pet.metadata["num_times_buff_itself"] < pet.get_level():
         pet.metadata["num_times_buff_itself"] += 1
@@ -477,7 +481,9 @@ def on_friend_ahead_faints_ox(pet: Pet, is_in_battle: bool):
         pet.add_stats(attack=1)
 
 
-def on_friend_summoned_dog(pet: Pet, summoned_friend: Pet, is_in_battle: bool):
+def on_friend_summoned_dog(
+    pet: Pet, summoned_friend: Pet, my_pets: list[Pet], is_in_battle: bool
+):
     pet_level = pet.get_level()
     attack_buff = 2 * pet_level
     health_buff = pet_level
@@ -736,7 +742,9 @@ def on_friend_faints_shark(
     pet.add_stats(attack=stat_buff, health=stat_buff)
 
 
-def on_friend_summoned_turkey(pet: Pet, summoned_friend: Pet, is_in_battle: bool):
+def on_friend_summoned_turkey(
+    pet: Pet, summoned_friend: Pet, my_pets: list[Pet], is_in_battle: bool
+):
     attack_boost = 3 * pet.get_level()
     health_boost = pet.get_level()
     # yes. these stats are permanent
@@ -775,7 +783,7 @@ def on_before_attack_boar(pet: Pet):
 
 # https://www.youtube.com/clip/UgkxRYjQsIKoqkXkyBtE76ULs7hcYJ6fG1-n
 def on_friend_hurt_wolverine(
-    pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
 ):
     pet.metadata["num_times_hurt"] = (pet.metadata["num_times_hurt"] + 1) % 4
     # it reduces the health up to 1. it ignores garlic
@@ -1018,12 +1026,20 @@ def validate_trigger_protocols():
 
 
 def validate_can_trigger_in_shop_or_battle_triggers_have_is_in_battle_kwarg():
+    """
+    Ensures that every trigger in `can_trigger_in_shop_or_battle`
+    requires an `is_in_battle` parameter in its protocol signature.
+    """
     for trigger in can_trigger_in_shop_or_battle:
-        trigger_fn = trigger_to_protocol_type[trigger]
-        sig = inspect.signature(trigger_fn)
-        # Check that `is_in_battle` is present in the parameters
-        print("sig.parameters", sig.parameters)
+        protocol_cls = trigger_to_protocol_type[trigger]
+        # Get the signature of the protocol's __call__ method
+        sig = inspect.signature(protocol_cls.__call__)
+
         if "is_in_battle" not in sig.parameters:
             raise TypeError(
-                f"trigger type {trigger}) must have an 'is_in_battle' parameter as it can trigger in both the shop and battle. (needed for the tiger to know if it should trigger)"
+                f"Trigger type {trigger} must have an 'is_in_battle' parameter as it can trigger in both the shop and battle. (needed for the tiger to know if it should trigger)"
+            )
+        if "my_pets" not in sig.parameters and "team" not in sig.parameters:
+            raise TypeError(
+                f"Trigger type {trigger} must have a 'my_pets' or 'team' parameter as it can trigger in both the shop and battle. (needed for the tiger to know which pets are in the team)"
             )
