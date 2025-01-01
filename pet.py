@@ -9,6 +9,7 @@ from all_types_and_consts import (
     PetLevel,
     Species,
     Trigger,
+    shop_only_triggers,
 )
 from typing import Any
 
@@ -67,18 +68,28 @@ class Pet:
             while ith_trigger < len(self._triggers[trigger]):
                 # the first arg is always the pet that's triggering the event. So we put "self" as the first arg
                 self._triggers[trigger][ith_trigger](self, *args, **kwargs)
-
-                my_pets: list[Pet] = kwargs["my_pets"]
-                pet_idx = my_pets.index(self)
-                prev_index_pet_species = Species.NONE
-                if pet_idx > 0:
-                    prev_index_pet_species = my_pets[pet_idx - 1].species
-                if kwargs["is_in_battle"] and prev_index_pet_species == Species.TIGER:
-                    # the tigger behind this pet makes this trigger run twice
-                    print("trigger ran twice")
-                    self._triggers[trigger][ith_trigger](self, *args, **kwargs)
-
+                self.try_trigger_twice_tiger(trigger, ith_trigger, *args, **kwargs)
                 ith_trigger += 1
+
+    def try_trigger_twice_tiger(
+        self, trigger: Trigger, ith_trigger: int, *args, **kwargs
+    ):
+        if trigger in shop_only_triggers or not kwargs["is_in_battle"]:
+            # the tiger can only trigger multiple times if it's in battle
+            return
+
+        if "my_pets" in kwargs:
+            my_pets: list[Pet] = kwargs["my_pets"]
+        else:
+            my_pets = kwargs["team"].pets
+        pet_idx = my_pets.index(self)
+        prev_index_pet_species = Species.NONE
+        if pet_idx > 0:
+            prev_index_pet_species = my_pets[pet_idx - 1].species
+        if kwargs["is_in_battle"] and prev_index_pet_species == Species.TIGER:
+            # the tigger behind this pet makes this trigger run twice
+            print("trigger ran twice")
+            self._triggers[trigger][ith_trigger](self, *args, **kwargs)
 
     def clear_triggers(self):
         self._triggers.clear()
