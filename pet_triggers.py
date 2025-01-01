@@ -577,10 +577,9 @@ def on_faint_turtle(
 
 
 def on_turn_start_squirrel(pet: Pet, team: Team, shop: Shop):
-    # this is a tricky one. We can parametrize the food like pets
-    # or we can parameterie it by adding this: (number of foods with discount, discount amount)
-    # since the squirrel is triggered on the start of turn^
-    pass
+    discount_amount = pet.get_level()
+    for food_slot in shop.food_slots:
+        food_slot.cost = max(food_slot.cost - discount_amount, 0)
 
 
 def on_end_turn_penguin(pet: Pet, team: Team, last_battle_result: BattleResult):
@@ -911,8 +910,7 @@ def set_pet_triggers():
     species_to_pet_map[Species.BISON].set_trigger(Trigger.ON_END_TURN, on_end_turn_bison)
     species_to_pet_map[Species.BLOWFISH].set_trigger(Trigger.ON_HURT, on_hurt_blowfish)
     species_to_pet_map[Species.TURTLE].set_trigger(Trigger.ON_FAINT, on_faint_turtle)
-    # species_to_pet_map[Species.SQUIRREL].set_trigger(Trigger.ON_TURN_START, on_turn_start_squirrel)
-    # todo: squirrel
+    species_to_pet_map[Species.SQUIRREL].set_trigger(Trigger.ON_TURN_START, on_turn_start_squirrel)
     species_to_pet_map[Species.PENGUIN].set_trigger(Trigger.ON_END_TURN, on_end_turn_penguin)
     species_to_pet_map[Species.DEER].set_trigger(Trigger.ON_FAINT, on_faint_deer)
     species_to_pet_map[Species.WHALE].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_whale)
@@ -921,6 +919,7 @@ def set_pet_triggers():
     species_to_pet_map[Species.PARROT].set_trigger(Trigger.ON_END_TURN, on_end_turn_parrot)
 
     # tier 5
+    # scorpion has no triggers. it just inately has the peanut effect
     species_to_pet_map[Species.CROCODILE].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_crocodile)
     species_to_pet_map[Species.RHINO].set_trigger(Trigger.ON_KNOCK_OUT, on_knock_out_rhino)
     species_to_pet_map[Species.MONKEY].set_trigger(Trigger.ON_END_TURN, on_end_turn_monkey)
@@ -934,6 +933,7 @@ def set_pet_triggers():
     # tier 6
     species_to_pet_map[Species.LEOPARD].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_leopard)
     species_to_pet_map[Species.BOAR].set_trigger(Trigger.ON_BEFORE_ATTACK, on_before_attack_boar)
+    # tiger's triggers are deal inside the pet's trigger function (so it can dupliate the effect)
     species_to_pet_map[Species.WOLVERINE].set_trigger(Trigger.ON_FRIEND_HURT, on_friend_hurt_wolverine)
     species_to_pet_map[Species.GORILLA].set_trigger(Trigger.ON_HURT, on_hurt_gorilla)
     species_to_pet_map[Species.GORILLA].set_trigger(Trigger.ON_TURN_START, clear_metadata)
