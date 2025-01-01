@@ -116,13 +116,6 @@ shop_foods_space = spaces.Dict(
     }
 )
 
-shop_num_foods_space = spaces.Box(
-    low=0, high=MAX_SHOP_FOOD_SLOTS, shape=(len(Food),), dtype=np.int32
-)
-shop_num_frozen_foods_space = spaces.Box(
-    low=0, high=MAX_SHOP_FOOD_SLOTS, shape=(len(Food),), dtype=np.int32
-)
-
 
 shop_gold_space = spaces.Box(low=0, high=MAX_GOLD, shape=(1,), dtype=np.int32)
 turn_number_space = spaces.Box(low=1, high=MAX_GAMES_LENGTH, shape=(1,), dtype=np.int32)
