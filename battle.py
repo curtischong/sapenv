@@ -123,11 +123,19 @@ def receive_damage(
         return  # early return to avoid computing on hurt effects
 
     receiving_pet.trigger(
-        Trigger.ON_HURT, team_pets=receiving_team, is_in_battle=is_in_battle
+        Trigger.ON_HURT,
+        team_pets=receiving_team,
+        enemy_pets=opposing_team,
+        is_in_battle=is_in_battle,
     )
     for team_pet in receiving_team:
         if team_pet is not receiving_pet:
-            team_pet.trigger(Trigger.ON_FRIEND_HURT)
+            team_pet.trigger(
+                Trigger.ON_FRIEND_HURT,
+                my_pets=receiving_team,
+                enemy_pets=opposing_team,
+                is_in_battle=is_in_battle,
+            )
     if receiving_pet.health <= 0 or attacking_pet.effect == Effect.PEANUT:
         # TODO: not sure what should trigger first. the mushroom or the on faint affect?
         # https://www.reddit.com/r/superautopets/comments/12xtp8d/mushroom_faint_ability_ordering_different_for/?rdt=51575
@@ -168,7 +176,11 @@ def make_pet_faint(
 
     # now trigger the ON_FRIEND_AHEAD_FAINTS trigger
     if idx_in_team > 0:
-        team_pets[idx_in_team - 1].trigger(Trigger.ON_FRIEND_AHEAD_FAINTS)
+        team_pets[idx_in_team - 1].trigger(
+            Trigger.ON_FRIEND_AHEAD_FAINTS,
+            my_pets=team_pets,
+            is_in_battle=is_in_battle,
+        )
 
     if pet.effect == Effect.MUSHROOM:
         new_pet = get_base_pet(pet.species).set_stats(
