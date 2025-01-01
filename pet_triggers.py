@@ -102,6 +102,10 @@ class OnFriendHurt(Protocol):
     def __call__(self, pet: Pet): ...
 
 
+class OnFriendBought(Protocol):
+    def __call__(self, pet: Pet, bought_pet: Pet, team: Team): ...
+
+
 def on_sell_duck(pet: Pet, shop: Shop, team: Team):
     for slot in shop.slots:
         slot.pet.add_stats(health=pet.get_level())
@@ -752,6 +756,23 @@ def on_friend_hurt_wolverine(pet: Pet, team_pets: list[Pet], enemy_pets: list[Pe
         enemy_pet.health = max(enemy_pet.health - health_reduction, 1)
 
 
+def on_hurt_gorilla(pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet]):
+    pet.metadata["num_times_hurt"] += 1
+    if pet.metadata["num_times_hurt"] <= pet.get_level():
+        pet.effect = Effect.MELON
+
+
+def on_friend_bought_dragon(pet: Pet, bought_pet: Pet, team: Team):
+    if bought_pet.species not in tier_1_pet_species:
+        return
+
+    stat_buff = pet.get_level()
+    for team_pet in team.pets:
+        # the dragon does not buff itself https://youtu.be/IfOVDc7g3W4?si=esEDFcEEj-nWbD19&t=376
+        if team_pet is not pet:
+            pet.add_stats(attack=stat_buff, health=stat_buff)
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -823,6 +844,9 @@ def set_pet_triggers():
     species_to_pet_map[Species.LEOPARD].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_leopard)
     species_to_pet_map[Species.BOAR].set_trigger(Trigger.ON_BEFORE_ATTACK, on_before_attack_boar)
     species_to_pet_map[Species.WOLVERINE].set_trigger(Trigger.ON_FRIEND_HURT, on_friend_hurt_wolverine)
+    species_to_pet_map[Species.GORILLA].set_trigger(Trigger.ON_HURT, on_hurt_gorilla)
+    species_to_pet_map[Species.GORILLA].set_trigger(Trigger.ON_TURN_START, clear_metadata)
+    species_to_pet_map[Species.DRAGON].set_trigger(Trigger.ON_FRIEND_BOUGHT, on_friend_bought_dragon)
     # fmt: on
 
 
@@ -900,6 +924,7 @@ trigger_to_protocol_type = {
     Trigger.ON_FRIEND_FAINTS: OnFriendFaints,
     Trigger.ON_BEFORE_ATTACK: OnBeforeAttack,
     Trigger.ON_FRIEND_HURT: OnFriendHurt,
+    Trigger.ON_FRIEND_BOUGHT: OnFriendBought,
 }
 
 
