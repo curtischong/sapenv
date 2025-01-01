@@ -219,7 +219,6 @@ foods_for_pet = [
     Food.BETTER_MILK,
     Food.BEST_MILK,
     Food.BREAD_CRUMB,
-    Food.APPLE_2_COST,
     Food.APPLE_2_COST_BETTER,
     Food.APPLE_2_COST_BEST,
 ]

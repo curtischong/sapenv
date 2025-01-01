@@ -276,28 +276,13 @@ class Player:
                     mask[slot_idx, team_idx] = True
         return mask
 
-    def freeze_food_action(self, food_type_idx: int):
-        food_type = Food(food_type_idx)
-        self.shop.freeze_food(food_type)
+    def toggle_freeze_food_slot_action(self, food_slot_idx: int):
+        self.shop.toggle_freeze_food_slot(food_slot_idx)
 
-    def freeze_food_action_mask(self) -> np.ndarray:
-        # return np.zeros((len(Food)), dtype=bool)
-        mask = np.zeros((len(Food)), dtype=bool)
-        for food_type in self.shop.num_foods:
-            if self.shop.num_frozen_foods[food_type] < self.shop.num_foods[food_type]:
-                mask[food_type.value] = True
-        return mask
-
-    def unfreeze_food_action(self, food_type_idx: Food):
-        food_type = Food(food_type_idx)
-        self.shop.unfreeze_food(food_type)
-
-    def unfreeze_food_action_mask(self) -> np.ndarray:
-        # return np.zeros((len(Food)), dtype=bool)
-        mask = np.zeros((len(Food)), dtype=bool)
-        for food_type in self.shop.num_frozen_foods:
-            if self.shop.num_frozen_foods[food_type] > 0:
-                mask[food_type.value] = True
+    def toggle_freeze_food_slot_action_mask(self) -> np.ndarray:
+        mask = np.zeros((len(MAX_SHOP_FOOD_SLOTS)), dtype=bool)
+        for idx in range(len(self.shop.food_slots)):
+            mask[idx] = True
         return mask
 
     def sell_pet_action(self, idx: int):
