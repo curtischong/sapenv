@@ -1,10 +1,10 @@
 from all_types_and_consts import (
+    FOOD_COST,
     MAX_ACTIONS_IN_TURN,
     MAX_ATTACK,
     MAX_GAMES_LENGTH,
     MAX_HEALTH,
     MAX_PET_EXPERIENCE,
-    MAX_PET_LEVEL,
     MAX_SHOP_FOOD_SLOTS,
     MAX_SHOP_LINKED_SLOTS,
     MAX_SHOP_SLOTS,
@@ -12,8 +12,8 @@ from all_types_and_consts import (
     MIN_ATTACK,
     MIN_HEALTH,
     MIN_PET_EXPERIENCE,
-    MIN_PET_LEVEL,
     NUM_WINS_TO_WIN,
+    PET_COST,
     STARTING_HEARTS,
     Species,
     MAX_GOLD,
@@ -21,9 +21,7 @@ from all_types_and_consts import (
 )
 from gymnasium import spaces
 import numpy as np
-import gymnasium as gym
 
-from environment.action_space import get_action_masks
 from player import Player
 
 # Team: up to 5 animals
@@ -105,11 +103,17 @@ shop_linked_animals_space = spaces.Dict(
     }
 )
 
-shop_num_foods_space = spaces.Box(
-    low=0, high=MAX_SHOP_FOOD_SLOTS, shape=(len(Food),), dtype=np.int32
-)
-shop_num_frozen_foods_space = spaces.Box(
-    low=0, high=MAX_SHOP_FOOD_SLOTS, shape=(len(Food),), dtype=np.int32
+shop_foods_space = spaces.Dict(
+    {
+        "kind": spaces.MultiBinary([len(Food)] * MAX_SHOP_FOOD_SLOTS),
+        "cost": spaces.Box(
+            low=0,
+            # add 1 to high becuase we want to shift the observation space to have 4 elements (NAN, FREE, 1, 2)
+            high=FOOD_COST + 1,
+            shape=(MAX_SHOP_FOOD_SLOTS,),
+            dtype=np.int32,
+        ),
+    }
 )
 
 
@@ -146,13 +150,12 @@ env_observation_space = spaces.Dict(
         "team": team_space,
         "shop_animals": shop_animals_space,
         "shop_linked_animals": shop_linked_animals_space,
+        "shop_foods": shop_foods_space,
         "shop_gold": shop_gold_space,
         "turn_number": turn_number_space,
         "num_wins": num_wins_space,
         "num_hearts": num_hearts_space,
         # "actions_taken_in_turn": actions_taken_in_turn_space,
-        "shop_num_foods": shop_num_foods_space,
-        "shop_num_frozen_foods": shop_num_frozen_foods_space,
         "shop_future_attack_addition": shop_future_attack_addition_space,
         "shop_future_health_addition": shop_future_health_addition_space,
     }

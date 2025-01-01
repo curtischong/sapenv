@@ -17,6 +17,7 @@ from all_types_and_consts import (
     Trigger,
     foods_that_apply_globally,
     foods_for_pet,
+    MAX_SHOP_FOOD_SLOTS,
 )
 from battle import battle
 from food_triggers import trigger_food_for_pet, trigger_food_globally
@@ -246,62 +247,46 @@ class Player:
         return {ActionReturn.BOUGHT_PET_SPECIES: bought_pet.species}
 
     def buy_food_action(self, food_idx: int):
-        food_type = foods_that_apply_globally[food_idx]
-        self.shop.buy_food(food_type)
+        food_type = self.shop.buy_food(food_idx)
+        assert food_type in foods_that_apply_globally
         trigger_food_globally(food_type, self.team, self.shop)
 
     def buy_food_action_mask(self) -> np.ndarray:
-        # return np.zeros((len(foods_that_apply_globally)), dtype=bool)
-        mask = np.zeros((len(foods_that_apply_globally)), dtype=bool)
-        for i, food_type in enumerate(foods_that_apply_globally):
+        mask = np.zeros((MAX_SHOP_FOOD_SLOTS), dtype=bool)
+        for i, food_slot in enumerate(self.shop.food_slots):
             if (
-                self.shop.num_foods[food_type] > 0  # food is available
-                and self.shop.food_cost(food_type) <= self.shop.gold  # can afford
+                food_slot.cost <= self.shop.gold
+                and food_slot.food_type in foods_that_apply_globally
             ):
                 mask[i] = True
         return mask
 
     def buy_food_for_pet_action(self, food_idx: int, pet_idx: int):
-        food_type = foods_for_pet[food_idx]
-        self.shop.buy_food_for_pet(food_type)
         assert self.team.pets[pet_idx].species != Species.NONE
+        food_type = self.shop.buy_food(food_idx)
+        assert food_type in foods_for_pet
         trigger_food_for_pet(food_type, self.team, pet_idx, self.shop)
 
     def buy_food_for_pet_action_mask(self) -> np.ndarray:
-        # return np.zeros( (len(foods_for_pet), MAX_TEAM_SIZE), dtype=bool)
-        mask = np.zeros((len(foods_for_pet), MAX_TEAM_SIZE), dtype=bool)
-        for i, food_type in enumerate(foods_for_pet):
+        mask = np.zeros((MAX_SHOP_FOOD_SLOTS, MAX_TEAM_SIZE), dtype=bool)
+        for slot_idx, food_slot in enumerate(self.shop.food_slots):
             if (
-                self.shop.num_foods[food_type] == 0  # food is not available
-                or self.shop.food_cost(food_type) > self.shop.gold  # too poor to buy
+                food_slot.cost > self.shop.gold
+                or food_slot.food_type not in foods_for_pet
             ):
                 continue
-            non_empty_pets = [pet.species != Species.NONE for pet in self.team.pets]
-            mask[i] = non_empty_pets
+            for team_idx, pet in enumerate(self.team.pets):
+                if pet.species != Species.NONE:
+                    mask[slot_idx, team_idx] = True
         return mask
 
-    def freeze_food_action(self, food_type_idx: int):
-        food_type = Food(food_type_idx)
-        self.shop.freeze_food(food_type)
+    def toggle_freeze_food_slot_action(self, food_slot_idx: int):
+        self.shop.toggle_freeze_food_slot(food_slot_idx)
 
-    def freeze_food_action_mask(self) -> np.ndarray:
-        # return np.zeros((len(Food)), dtype=bool)
-        mask = np.zeros((len(Food)), dtype=bool)
-        for food_type in self.shop.num_foods:
-            if self.shop.num_frozen_foods[food_type] < self.shop.num_foods[food_type]:
-                mask[food_type.value] = True
-        return mask
-
-    def unfreeze_food_action(self, food_type_idx: Food):
-        food_type = Food(food_type_idx)
-        self.shop.unfreeze_food(food_type)
-
-    def unfreeze_food_action_mask(self) -> np.ndarray:
-        # return np.zeros((len(Food)), dtype=bool)
-        mask = np.zeros((len(Food)), dtype=bool)
-        for food_type in self.shop.num_frozen_foods:
-            if self.shop.num_frozen_foods[food_type] > 0:
-                mask[food_type.value] = True
+    def toggle_freeze_food_slot_action_mask(self) -> np.ndarray:
+        mask = np.zeros((MAX_SHOP_FOOD_SLOTS), dtype=bool)
+        for idx in range(len(self.shop.food_slots)):
+            mask[idx] = True
         return mask
 
     def sell_pet_action(self, idx: int):
