@@ -2,6 +2,7 @@ from collections import defaultdict
 import itertools
 from all_types_and_consts import (
     FOOD_COST,
+    MAX_SHOP_FOOD_SLOTS,
     MAX_SHOP_LINKED_SLOTS,
     MAX_SHOP_SLOTS,
     MAX_SHOP_TIER,
@@ -99,14 +100,46 @@ class LinkedShopSlot:
         return f"{self.pet1}|--|{self.pet2})"
 
 
+class FoodShopSlot:
+    def __init__(self, food_type: Food):
+        self.food_type = food_type
+        self.is_frozen = False
+        self.cost = self.food_cost(food_type)
+
+    def __repr__(self):
+        if self.is_frozen:
+            return f"🧊{self.food_type}🧊"
+        return str(self.food_type)
+
+    def food_cost(self, food_type: Food):
+        match food_type:
+            case Food.PILL:
+                return 1
+            case Food.BREAD_CRUMB:
+                return 0
+            case Food.MILK:
+                return 0
+            case Food.BETTER_MILK:
+                return 0
+            case Food.BEST_MILK:
+                return 0
+            case Food.APPLE_2_COST:
+                return 2
+            case Food.APPLE_2_COST_BETTER:
+                return 2
+            case Food.APPLE_2_COST_BEST:
+                return 2
+            case _:
+                return FOOD_COST
+
+
 class Shop:
     def __init__(self):
         self.shop_tier: ShopTier = 1
         self.slots: list[ShopSlot] = []
         self.linked_slots: list[LinkedShopSlot] = []
+        self.food_slots: list[FoodShopSlot] = []
         self.gold: int = STARTING_GOLD
-        self.num_foods: defaultdict[Food, int] = defaultdict(int)
-        self.num_frozen_foods: defaultdict[Food, int] = defaultdict(int)
         self.future_attack_addition: int = 0
         self.future_health_addition: int = 0
 
@@ -164,20 +197,20 @@ class Shop:
         self._roll_food()
 
     def _roll_food(self):
-        self.num_foods.clear()
         # carry over all the frozen foods
-        num_frozen_foods = 0
-        for food_type, num_frozen in self.num_frozen_foods.items():
-            self.num_foods[food_type] = num_frozen
-            num_frozen_foods += num_frozen
+        new_food_slots = []
+        for slot in self.food_slots:
+            if slot.is_frozen:
+                new_food_slots.append(slot)
 
         available_foods = avail_food_in_tier[self.shop_tier]
         num_food_slots = SHOP_TIER_TO_MAX_FOOD_SLOTS[self.shop_tier]
 
-        num_foods_to_roll = max(0, num_food_slots - num_frozen_foods)
+        num_foods_to_roll = max(0, num_food_slots - len(new_food_slots))
         for _ in range(num_foods_to_roll):
             chosen_food = random.choice(available_foods)
-            self.num_foods[chosen_food] += 1
+            new_food_slots.append(FoodShopSlot(chosen_food))
+        self.food_slots = new_food_slots
 
     def roll_random_linked_slot_pet(self, tier: int):
         chosen = random.choice(
@@ -197,13 +230,9 @@ class Shop:
         linked_slot = LinkedShopSlot(pet1, pet2)
         self.linked_slots.append(linked_slot)
 
-    def freeze_food(self, food_type: Food):
-        assert self.num_frozen_foods[food_type] < self.num_foods[food_type]
-        self.num_frozen_foods[food_type] += 1
-
-    def unfreeze_food(self, food_type: Food):
-        assert self.num_frozen_foods[food_type] > 0
-        self.num_frozen_foods[food_type] -= 1
+    def toggle_freeze_food_slot(self, idx: int):
+        assert idx < len(self.food_slots)
+        self.food_slots[idx].is_frozen = not self.food_slots[idx].is_frozen
 
     def toggle_freeze_slot(self, slot_idx: int):
         assert slot_idx < len(self.slots)
@@ -251,46 +280,12 @@ class Shop:
         else:
             return bought_linked_slot.pet2
 
-    def _buy_food_helper(self, food_type: Food):
-        cost = self.food_cost(food_type)
+    def buy_food(self, food_slot_idx: int) -> Food:
+        food_slot = self.food_slots.pop(food_slot_idx)
+        cost = food_slot.cost
         assert self.gold >= cost
-        assert self.num_foods[food_type] > 0
-        self.num_foods[food_type] -= 1
-
-        # prioritize buying nonfrozen foods
-        self.num_frozen_foods[food_type] = min(
-            self.num_frozen_foods[food_type], self.num_foods[food_type]
-        )
         self.gold -= cost
-
-    def buy_food(self, food_type: Food):
-        assert food_type in foods_that_apply_globally
-        self._buy_food_helper(food_type)
-
-    def buy_food_for_pet(self, food_type: Food):
-        assert food_type in foods_for_pet
-        self._buy_food_helper(food_type)
-
-    def food_cost(self, food_type: Food):
-        match food_type:
-            case Food.PILL:
-                return 1
-            case Food.BREAD_CRUMB:
-                return 0
-            case Food.MILK:
-                return 0
-            case Food.BETTER_MILK:
-                return 0
-            case Food.BEST_MILK:
-                return 0
-            case Food.APPLE_2_COST:
-                return 2
-            case Food.APPLE_2_COST_BETTER:
-                return 2
-            case Food.APPLE_2_COST_BEST:
-                return 2
-            case _:
-                return FOOD_COST
+        return food_slot.food_type
 
     def get_observation(self):
         slot_pets_observation = Pet.get_base_stats_observation(
@@ -319,13 +314,15 @@ class Shop:
                 length=MAX_SHOP_LINKED_SLOTS,
             )
         )
-        num_foods_observation = np.zeros((len(Food),), dtype=np.int32)
-        for food_type, num_foods in self.num_foods.items():
-            num_foods_observation[food_type.value] = num_foods
-
-        num_frozen_foods_observation = np.zeros((len(Food),), dtype=np.int32)
-        for food_type, num_foods in self.num_frozen_foods.items():
-            num_frozen_foods_observation[food_type.value] = num_foods
+        food_kind_observation = np.zeros(
+            (MAX_SHOP_FOOD_SLOTS, len(Food)), dtype=np.int32
+        )
+        food_cost_observation = np.zeros((len(Food),), dtype=np.int32)
+        for idx, food_slot in enumerate(self.food_slots):
+            food_kind_observation[idx, food_slot.food_type.value] = 1
+            food_cost_observation[idx] = (
+                food_slot.cost + 1
+            )  # plus 1 since for NAN cost, it'll be 0. However, we'll use 1 to represent free
 
         return {
             "shop_animals": slot_pets_observation | {"is_frozen": is_slot_pet_frozen},
@@ -337,8 +334,10 @@ class Shop:
                 "healths1": linked_slot_observation1["healths"],
                 "healths2": linked_slot_observation2["healths"],
             },
-            "shop_num_foods": num_foods_observation,
-            "shop_num_frozen_foods": num_frozen_foods_observation,
+            "shop_foods": {
+                "kind": food_kind_observation,
+                "cost": food_cost_observation,
+            },
             "shop_future_attack_addition": np.array(
                 [self.future_attack_addition], dtype=np.int32
             ),
@@ -354,4 +353,6 @@ class Shop:
         res += "\n"
         for linked_slot in self.linked_slots:
             res += f" {linked_slot} "
+        for food_slot in self.food_slots:
+            res += f" {food_slot} "
         return res

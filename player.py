@@ -17,6 +17,7 @@ from all_types_and_consts import (
     Trigger,
     foods_that_apply_globally,
     foods_for_pet,
+    MAX_SHOP_FOOD_SLOTS,
 )
 from battle import battle
 from food_triggers import trigger_food_for_pet, trigger_food_globally
@@ -246,38 +247,33 @@ class Player:
         return {ActionReturn.BOUGHT_PET_SPECIES: bought_pet.species}
 
     def buy_food_action(self, food_idx: int):
-        food_type = foods_that_apply_globally[food_idx]
-        self.shop.buy_food(food_type)
+        food_type = self.shop.buy_food(food_idx)
+        assert food_type in foods_that_apply_globally
         trigger_food_globally(food_type, self.team, self.shop)
 
     def buy_food_action_mask(self) -> np.ndarray:
-        # return np.zeros((len(foods_that_apply_globally)), dtype=bool)
-        mask = np.zeros((len(foods_that_apply_globally)), dtype=bool)
-        for i, food_type in enumerate(foods_that_apply_globally):
+        mask = np.zeros((MAX_SHOP_FOOD_SLOTS), dtype=bool)
+        for i, food_slot in enumerate(self.shop.food_slots):
             if (
-                self.shop.num_foods[food_type] > 0  # food is available
-                and self.shop.food_cost(food_type) <= self.shop.gold  # can afford
+                food_slot.cost <= self.shop.gold  # can afford
             ):
                 mask[i] = True
         return mask
 
     def buy_food_for_pet_action(self, food_idx: int, pet_idx: int):
-        food_type = foods_for_pet[food_idx]
-        self.shop.buy_food_for_pet(food_type)
         assert self.team.pets[pet_idx].species != Species.NONE
+        food_type = self.shop.buy_food(food_idx)
+        assert food_type in foods_for_pet
         trigger_food_for_pet(food_type, self.team, pet_idx, self.shop)
 
     def buy_food_for_pet_action_mask(self) -> np.ndarray:
-        # return np.zeros( (len(foods_for_pet), MAX_TEAM_SIZE), dtype=bool)
-        mask = np.zeros((len(foods_for_pet), MAX_TEAM_SIZE), dtype=bool)
-        for i, food_type in enumerate(foods_for_pet):
-            if (
-                self.shop.num_foods[food_type] == 0  # food is not available
-                or self.shop.food_cost(food_type) > self.shop.gold  # too poor to buy
-            ):
+        mask = np.zeros((MAX_SHOP_FOOD_SLOTS, MAX_TEAM_SIZE), dtype=bool)
+        for slot_idx, food_slot in enumerate(self.shop.food_slots):
+            if food_slot.cost > self.shop.gold:  # too expensive
                 continue
-            non_empty_pets = [pet.species != Species.NONE for pet in self.team.pets]
-            mask[i] = non_empty_pets
+            for team_idx, pet in enumerate(self.team.pets):
+                if pet.species != Species.NONE:
+                    mask[slot_idx, team_idx] = True
         return mask
 
     def freeze_food_action(self, food_type_idx: int):
