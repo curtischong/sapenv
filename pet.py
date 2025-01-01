@@ -40,7 +40,7 @@ class Pet:
         # e.g. extra info for each pet. e.g. for a rabbit: the number of times a friendly ate food this turn
         self.metadata = defaultdict(int)
 
-        self._triggers: dict[Trigger, list[TriggerFn]] = {}
+        self._triggers: dict[Trigger, list[TriggerFn]] = defaultdict(list)
         # self.id = uuid.uuid4() # I don't think this is needed since each python object has a unique id. And we use .index() to get the right index of a pet in a list (or "is" to check for equality)
 
     @staticmethod
@@ -67,6 +67,17 @@ class Pet:
             while ith_trigger < len(self._triggers[trigger]):
                 # the first arg is always the pet that's triggering the event. So we put "self" as the first arg
                 self._triggers[trigger][ith_trigger](self, *args, **kwargs)
+
+                my_pets: list[Pet] = kwargs["my_pets"]
+                pet_idx = my_pets.index(self)
+                prev_index_pet_species = Species.NONE
+                if pet_idx > 0:
+                    prev_index_pet_species = my_pets[pet_idx - 1].species
+                if kwargs["is_in_battle"] and prev_index_pet_species == Species.TIGER:
+                    # the tigger behind this pet makes this trigger run twice
+                    print("trigger ran twice")
+                    self._triggers[trigger][ith_trigger](self, *args, **kwargs)
+
                 ith_trigger += 1
 
     def clear_triggers(self):

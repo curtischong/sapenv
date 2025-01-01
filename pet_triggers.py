@@ -161,6 +161,7 @@ def on_battle_start_mosquito(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]
             damage=1,
             receiving_team=enemy_pets,
             opposing_team=my_pets,
+            is_in_battle=True,
         )
 
 
@@ -263,6 +264,7 @@ def on_faint_hedgehog(
                 damage=damage,
                 receiving_team=my_pets,
                 opposing_team=enemy_pets,
+                is_in_battle=is_in_battle,
             )
 
     if enemy_pets is None:
@@ -275,6 +277,7 @@ def on_faint_hedgehog(
             damage=damage,
             receiving_team=enemy_pets,
             opposing_team=my_pets,
+            is_in_battle=is_in_battle,
         )
 
 
@@ -372,6 +375,7 @@ def on_faint_badger(
                 damage=damage_to_deal,
                 receiving_team=my_pets,
                 opposing_team=enemy_pets,
+                is_in_battle=is_in_battle,
             )
     else:  # else: the badger is at the front of the team
         if is_in_battle and len(enemy_pets) > 0:
@@ -382,6 +386,7 @@ def on_faint_badger(
                 damage=damage_to_deal,
                 receiving_team=enemy_pets,
                 opposing_team=my_pets,
+                is_in_battle=is_in_battle,
             )
         # else: there is no pet ahead to deal damage to
 
@@ -394,6 +399,7 @@ def on_faint_badger(
             damage=damage_to_deal,
             receiving_team=my_pets,
             opposing_team=enemy_pets,
+            is_in_battle=is_in_battle,
         )
 
 
@@ -417,6 +423,7 @@ def on_battle_start_dolphin(
             damage=4,
             receiving_team=enemy_pets,
             opposing_team=my_pets,
+            is_in_battle=True,
         )
 
 
@@ -439,6 +446,7 @@ def on_after_attack_elephant(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]
                 damage=1,
                 receiving_team=my_pets,
                 opposing_team=enemy_pets,
+                is_in_battle=True,
             )
 
 
@@ -519,7 +527,9 @@ def on_end_turn_bison(pet: Pet, team: Team):
             return  # bison only buffs itself once
 
 
-def on_hurt_blowfish(pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet]):
+def on_hurt_blowfish(
+    pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+):
     damage_to_deal = 3 * pet.get_level()
     enemy_pet = Team.get_random_pets_from_list(enemy_pets, select_num_pets=1)[0]
     receive_damage(
@@ -528,6 +538,7 @@ def on_hurt_blowfish(pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet]):
         damage=damage_to_deal,
         receiving_team=enemy_pets,
         opposing_team=team_pets,
+        is_in_battle=is_in_battle,
     )
 
 
@@ -634,6 +645,7 @@ def on_battle_start_crocodile(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet
             damage=8,
             receiving_team=enemy_pets,
             opposing_team=my_pets,
+            is_in_battle=True,
         )
 
 
@@ -653,6 +665,7 @@ def on_knock_out_rhino(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
         damage=damage_to_deal,
         receiving_team=enemy_pets,
         opposing_team=my_pets,
+        is_in_battle=True,
     )
 
 
@@ -735,6 +748,7 @@ def on_battle_start_leopard(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet])
             damage=damage,
             receiving_team=enemy_pets,
             opposing_team=my_pets,
+            is_in_battle=True,
         )
 
 
@@ -801,6 +815,7 @@ def on_friend_ahead_attacks_snake(pet: Pet, enemy_pets: list[Pet], my_pets: list
             damage=damage,
             receiving_team=enemy_pets,
             opposing_team=my_pets,
+            is_in_battle=True,
         )
 
 
@@ -986,6 +1001,7 @@ trigger_to_protocol_type = {
 
 def validate_trigger_protocols():
     for pet in species_to_pet_map.values():
-        for trigger, trigger_fn in pet._triggers.items():
-            protocol_type = trigger_to_protocol_type[trigger]
-            validate_protocol(trigger_fn, protocol_type)
+        for trigger, trigger_fns in pet._triggers.items():
+            for trigger_fn in trigger_fns:
+                protocol_type = trigger_to_protocol_type[trigger]
+                validate_protocol(trigger_fn, protocol_type)
