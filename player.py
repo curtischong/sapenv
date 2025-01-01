@@ -88,7 +88,7 @@ class Player:
         assert pet1.species != Species.NONE
         assert pet1.get_level() < 3 and pet2.get_level() < 3
 
-        new_pet = pet1.combine_onto(pet2, self.shop)
+        new_pet = pet1.combine_onto(pet2, team=self.team, shop=self.shop)
         self.team.pets[pet2_idx] = new_pet
         self.team.pets[pet1_idx] = get_base_pet(Species.NONE)
         # PERF: do we delete the old pet?
@@ -221,7 +221,7 @@ class Player:
     ):
         if is_player_combining_pets:
             self.team.pets[target_team_idx] = bought_pet.combine_onto(
-                pet_at_team_idx, self.shop
+                pet_at_team_idx, team=self.team, shop=self.shop
             )
         else:
             self.team.pets[target_team_idx] = bought_pet
@@ -235,6 +235,7 @@ class Player:
                 pet.trigger(
                     Trigger.ON_FRIEND_SUMMONED,
                     summoned_friend=bought_pet,
+                    my_pets=self.team.pets,
                     is_in_battle=False,
                 )
                 pet.trigger(
