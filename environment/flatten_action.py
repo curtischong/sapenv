@@ -69,6 +69,9 @@ class FlattenAction(gym.ActionWrapper):
                 flatten_action_def = self.action_def_map[path_key]
                 start_idx = flatten_action_def.start_idx
                 end_idx = start_idx + flatten_action_def.size
+                assert (
+                    end_idx - start_idx == value.size
+                ), f"{path_key} action has size issue. Trying to flatten action mask of shape {value.shape} into the defined action size {end_idx - start_idx}"
                 action_mask[start_idx:end_idx] = value.flatten()
 
     def return_flattened_action_ranges(

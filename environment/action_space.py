@@ -26,15 +26,15 @@ buy_linked_pet_space = spaces.MultiBinary(
     [MAX_SHOP_LINKED_SLOTS, 2, MAX_TEAM_SIZE]
 )  # 50
 
-buy_food_space = spaces.MultiBinary([len(foods_that_apply_globally)])
-buy_food_for_pet_space = spaces.MultiBinary([len(foods_for_pet), MAX_TEAM_SIZE])
+buy_food_space = spaces.MultiBinary([MAX_SHOP_FOOD_SLOTS])
+buy_food_for_pet_space = spaces.MultiBinary([MAX_SHOP_FOOD_SLOTS, MAX_TEAM_SIZE])
 
 sell_pet_space = spaces.MultiBinary(MAX_TEAM_SIZE)  # index of pet you're selling # 5
 
 roll_shop_space = spaces.MultiBinary(1)  # 1
 toggle_freeze_slot_space = spaces.MultiBinary(MAX_SHOP_SLOTS)  # 7
 freeze_pet_at_linked_slot_space = spaces.MultiBinary([MAX_SHOP_LINKED_SLOTS, 2])  # 10
-toggle_freeze_food_space = spaces.MultiBinary(MAX_SHOP_FOOD_SLOTS)
+toggle_freeze_food_slot_space = spaces.MultiBinary(MAX_SHOP_FOOD_SLOTS)
 end_turn_space = spaces.MultiBinary(1)  # 1
 
 
@@ -114,7 +114,7 @@ actions_dict: dict[ActionName, Action] = {
         ),
     ),
     ActionName.TOGGLE_FREEZE_FOOD_SLOT: Action(
-        space=toggle_freeze_food_space,
+        space=toggle_freeze_food_slot_space,
         get_mask=lambda player: player.toggle_freeze_food_slot_action_mask(),
         perform_action=lambda player, params: player.toggle_freeze_food_slot_action(
             *params
