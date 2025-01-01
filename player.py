@@ -237,6 +237,11 @@ class Player:
                     summoned_friend=bought_pet,
                     is_in_battle=False,
                 )
+                pet.trigger(
+                    Trigger.ON_FRIEND_BOUGHT,
+                    bought_pet=bought_pet,
+                    team=self.team,
+                )
         return {ActionReturn.BOUGHT_PET_SPECIES: bought_pet.species}
 
     def buy_food_action(self, food_idx: int):
