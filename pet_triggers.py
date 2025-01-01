@@ -32,7 +32,7 @@ class OnSell(Protocol):
 
 
 class OnBuy(Protocol):
-    def __call__(self, pet: Pet, team: Team): ...
+    def __call__(self, pet: Pet, team: Team, shop: Shop): ...
 
 
 class OnFaint(Protocol):
@@ -47,7 +47,9 @@ class OnFaint(Protocol):
 
 
 class OnHurt(Protocol):
-    def __call__(self, pet: Pet, my_pets: list[Pet]): ...
+    def __call__(
+        self, pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+    ): ...
 
 
 class OnBattleStart(Protocol):
@@ -123,7 +125,7 @@ def on_sell_pigeon(pet: Pet, shop: Shop, team: Team):
     shop.num_foods[Food.BREAD_CRUMB] += pet.get_level()
 
 
-def on_buy_otter(pet: Pet, team: Team):
+def on_buy_otter(pet: Pet, team: Team, shop: Shop):
     random_friends = team.get_random_pets(
         select_num_pets=pet.get_level(), exclude_pet=pet
     )
@@ -282,8 +284,7 @@ def on_faint_hedgehog(
 
 
 def on_hurt_peacock(
-    pet: Pet,
-    my_pets: list[Pet],
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
 ):
     attack_boost = 3 * pet.get_level()
     pet.attack = min(pet.attack + attack_boost, MAX_ATTACK)
@@ -450,7 +451,9 @@ def on_after_attack_elephant(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]
             )
 
 
-def on_hurt_camel(pet: Pet, my_pets: list[Pet]):
+def on_hurt_camel(
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+):
     nearest_friends_behind = get_nearest_friends_behind(pet, my_pets, num_friends=1)
     if len(nearest_friends_behind) == 1:
         nearest_friend = nearest_friends_behind[0]
@@ -511,14 +514,14 @@ def on_battle_start_skunk(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     )
 
 
-def on_knock_out_hippo(pet: Pet):
+def on_knock_out_hippo(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     if pet.metadata["num_times_buffed"] < 3:
         pet.metadata["num_times_buffed"] += 1
         stat_buff = 3 * pet.get_level()
         pet.add_stats(attack=stat_buff, health=stat_buff)
 
 
-def on_end_turn_bison(pet: Pet, team: Team):
+def on_end_turn_bison(pet: Pet, team: Team, last_battle_result: BattleResult):
     for my_pet in team.pets:
         if my_pet is not pet and my_pet.get_level() == 3:
             attack_buff = my_pet.get_level()
@@ -528,7 +531,7 @@ def on_end_turn_bison(pet: Pet, team: Team):
 
 
 def on_hurt_blowfish(
-    pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
 ):
     damage_to_deal = 3 * pet.get_level()
     enemy_pet = Team.get_random_pets_from_list(enemy_pets, select_num_pets=1)[0]
@@ -537,7 +540,7 @@ def on_hurt_blowfish(
         attacking_pet=pet,
         damage=damage_to_deal,
         receiving_team=enemy_pets,
-        opposing_team=team_pets,
+        opposing_team=my_pets,
         is_in_battle=is_in_battle,
     )
 
@@ -563,7 +566,7 @@ def on_turn_start_squirrel(pet: Pet, team: Team, shop: Shop):
     pass
 
 
-def on_end_turn_penguin(pet: Pet, team: Team):
+def on_end_turn_penguin(pet: Pet, team: Team, last_battle_result: BattleResult):
     # penguins do NOT buff themselves
     pets_that_are_level_2_or_3 = [
         my_pet for my_pet in team.pets if my_pet.get_level() >= 2
