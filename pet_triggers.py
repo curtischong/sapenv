@@ -71,7 +71,7 @@ class OnTurnStart(Protocol):
 
 
 class OnFriendAheadAttacks(Protocol):
-    def __call__(self, pet: Pet): ...
+    def __call__(self, pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]): ...
 
 
 class OnAfterAttack(Protocol):
@@ -91,7 +91,9 @@ class OnKnockOut(Protocol):
 
 
 class OnFriendFaints(Protocol):
-    def __call__(self, pet: Pet): ...
+    def __call__(
+        self, pet: Pet, faint_pet_idx: int, my_pets: list[Pet], is_in_battle: bool
+    ): ...
 
 
 class OnBeforeAttack(Protocol):
@@ -310,7 +312,9 @@ def on_turn_start_worm(pet: Pet, team: Team, shop: Shop):
             shop.num_foods[Food.APPLE_2_COST_BEST] += 1
 
 
-def on_friend_ahead_attacks_kangaroo(pet: Pet):
+def on_friend_ahead_attacks_kangaroo(
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]
+):
     stat_buff = pet.get_level()
     pet.add_stats(attack=stat_buff, health=stat_buff)
 
@@ -706,7 +710,9 @@ def on_faint_rooster(
         try_spawn_at_pos(chick_spawn, faint_pet_idx, my_pets, is_in_battle)
 
 
-def on_friend_faints_shark(pet: Pet):
+def on_friend_faints_shark(
+    pet: Pet, faint_pet_idx: int, my_pets: list[Pet], is_in_battle: bool
+):
     stat_buff = 2 * pet.get_level()
     pet.add_stats(attack=stat_buff, health=stat_buff)
 
@@ -773,6 +779,48 @@ def on_friend_bought_dragon(pet: Pet, bought_pet: Pet, team: Team):
             pet.add_stats(attack=stat_buff, health=stat_buff)
 
 
+def on_faint_mammoth(
+    pet: Pet,
+    faint_pet_idx: int,
+    my_pets: list[Pet],
+    enemy_pets: list[Pet] | None,
+    is_in_battle: bool,
+):
+    stat_buff = 2 * pet.get_level()
+    for my_pet in my_pets:
+        if my_pet is not pet:
+            my_pet.add_stats(attack=stat_buff, health=stat_buff)
+
+
+def on_friend_ahead_attacks_snake(pet: Pet, enemy_pets: list[Pet], my_pets: list[Pet]):
+    damage = 5 * pet.get_level()
+    for enemy_pet in Team.get_random_pets_from_list(enemy_pets, select_num_pets=1):
+        receive_damage(
+            receiving_pet=enemy_pet,
+            attacking_pet=pet,
+            damage=damage,
+            receiving_team=enemy_pets,
+            opposing_team=my_pets,
+        )
+
+
+def on_friend_faints_fly(
+    pet: Pet, faint_pet_idx: int, my_pets: list[Pet], is_in_battle: bool
+):
+    if pet.metadata["num_zombie_flies_spawned"] < 3:
+        fainted_pet = my_pets[faint_pet_idx]
+        if fainted_pet.metadata["is_zombie_fly"]:
+            # we do not spawn a fly if the pet was a zombie fly
+            return
+        pet.metadata["num_zombie_flies_spawned"] += 1
+        spawn_stats = 4 * pet.get_level()
+        fly_spawn = get_base_pet(Species.PET_SPAWN).set_stats(
+            attack=spawn_stats, health=spawn_stats
+        )
+        fly_spawn.metadata["is_zombie_fly"] = 1
+        try_spawn_at_pos(fly_spawn, faint_pet_idx, my_pets, is_in_battle)
+
+
 def set_pet_triggers():
     # disable formatting so the trigger definitions are declared on one line
     # fmt: off
@@ -821,7 +869,8 @@ def set_pet_triggers():
     species_to_pet_map[Species.BISON].set_trigger(Trigger.ON_END_TURN, on_end_turn_bison)
     species_to_pet_map[Species.BLOWFISH].set_trigger(Trigger.ON_HURT, on_hurt_blowfish)
     species_to_pet_map[Species.TURTLE].set_trigger(Trigger.ON_FAINT, on_faint_turtle)
-    species_to_pet_map[Species.SQUIRREL].set_trigger(Trigger.ON_TURN_START, on_turn_start_squirrel)
+    # species_to_pet_map[Species.SQUIRREL].set_trigger(Trigger.ON_TURN_START, on_turn_start_squirrel)
+    # todo: squirrel
     species_to_pet_map[Species.PENGUIN].set_trigger(Trigger.ON_END_TURN, on_end_turn_penguin)
     species_to_pet_map[Species.DEER].set_trigger(Trigger.ON_FAINT, on_faint_deer)
     species_to_pet_map[Species.WHALE].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_whale)
@@ -843,10 +892,17 @@ def set_pet_triggers():
     # tier 6
     species_to_pet_map[Species.LEOPARD].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_leopard)
     species_to_pet_map[Species.BOAR].set_trigger(Trigger.ON_BEFORE_ATTACK, on_before_attack_boar)
+    # todo: tiger
     species_to_pet_map[Species.WOLVERINE].set_trigger(Trigger.ON_FRIEND_HURT, on_friend_hurt_wolverine)
     species_to_pet_map[Species.GORILLA].set_trigger(Trigger.ON_HURT, on_hurt_gorilla)
     species_to_pet_map[Species.GORILLA].set_trigger(Trigger.ON_TURN_START, clear_metadata)
     species_to_pet_map[Species.DRAGON].set_trigger(Trigger.ON_FRIEND_BOUGHT, on_friend_bought_dragon)
+    species_to_pet_map[Species.MAMMOTH].set_trigger(Trigger.ON_FAINT, on_faint_mammoth)
+    # todo cat
+    species_to_pet_map[Species.SNAKE].set_trigger(Trigger.ON_FRIEND_AHEAD_ATTACKS, on_friend_ahead_attacks_snake)
+    species_to_pet_map[Species.FLY].set_trigger(Trigger.ON_FRIEND_FAINTS, on_friend_faints_fly)
+    species_to_pet_map[Species.FLY].set_trigger(Trigger.ON_TURN_START, clear_metadata)
+
     # fmt: on
 
 

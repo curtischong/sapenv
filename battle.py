@@ -74,7 +74,11 @@ def attack_team(receiving_team: list[Pet], attacking_team: list[Pet]):
     # trigger ON_FRIEND_AHEAD_ATTACKS
     if len(attacking_team) > 1:
         friend_behind_attacker = attacking_team[-2]
-        friend_behind_attacker.trigger(Trigger.ON_FRIEND_AHEAD_ATTACKS)
+        friend_behind_attacker.trigger(
+            Trigger.ON_FRIEND_AHEAD_ATTACKS,
+            my_pets=attacking_team,
+            enemy_pets=receiving_team,
+        )
 
     # now apply the damage
     if attacker_pet.effect == Effect.CHILLI and len(receiving_team) > 1:
@@ -150,7 +154,12 @@ def make_pet_faint(
     )
     for team_pet in team_pets:
         if team_pet is not pet:
-            team_pet.trigger(Trigger.ON_FRIEND_FAINTS)
+            team_pet.trigger(
+                Trigger.ON_FRIEND_FAINTS,
+                faint_pet_idx=idx_in_team,
+                my_pets=team_pets,
+                is_in_battle=is_in_battle,
+            )
 
     # now trigger the ON_FRIEND_AHEAD_FAINTS trigger
     if idx_in_team > 0:
