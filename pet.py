@@ -206,10 +206,13 @@ class Pet:
         self.add_stats(attack=self.attack_boost, health=self.health_boost)
         return self
 
-    def set_stats_all(self, *, attack: int, health: int, experience: int):
+    def set_stats_all(self, *, attack: int, health: int, effect: Effect, experience: int, attack_boost: int, health_boost: int):
         self.attack = attack
         self.health = health
+        self.effect = effect
         self.experience = experience
+        self.attack_boost = attack_boost
+        self.health_boost = health_boost
         return self
 
     @staticmethod

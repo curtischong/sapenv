@@ -1,5 +1,5 @@
 train:
-	python main.py
+	python main.py --batch_size=128
 train-local:
 	python main.py --batch_size=4
 finetune:
