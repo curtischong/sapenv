@@ -105,10 +105,8 @@ shop_linked_animals_space = spaces.Dict(
 
 shop_foods_space = spaces.Dict(
     {
-        "food_kind_observation": spaces.MultiBinary(
-            [len(Species)] * MAX_SHOP_FOOD_SLOTS
-        ),
-        "food_cost_observation": spaces.Box(
+        "kind": spaces.MultiBinary([len(Species)] * MAX_SHOP_FOOD_SLOTS),
+        "cost": spaces.Box(
             low=0,
             # add 1 to high becuase we want to shift the observation space to have 4 elements (NAN, FREE, 1, 2)
             high=FOOD_COST + 1,
