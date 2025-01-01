@@ -134,10 +134,10 @@ def get_num_times_to_apply_food_buff(team: Team):
     num_times = 1
     for pet in team.pets:
         if pet.species == Species.CAT:
-            num_buffs_in_turn = pet.metadata["num_buffs_in_turn"]
+            num_buffs_in_turn = pet.metadata["num_times_buffed_food"]
             if num_buffs_in_turn >= 2:
                 continue
-            pet.metadata["num_buffs_in_turn"] += 1
+            pet.metadata["num_times_buffed_food"] += 1
 
             num_times += pet.get_level()
     return num_times
