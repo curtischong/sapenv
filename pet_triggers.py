@@ -925,13 +925,12 @@ def set_pet_triggers():
     # tier 6
     species_to_pet_map[Species.LEOPARD].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_leopard)
     species_to_pet_map[Species.BOAR].set_trigger(Trigger.ON_BEFORE_ATTACK, on_before_attack_boar)
-    # todo: tiger
     species_to_pet_map[Species.WOLVERINE].set_trigger(Trigger.ON_FRIEND_HURT, on_friend_hurt_wolverine)
     species_to_pet_map[Species.GORILLA].set_trigger(Trigger.ON_HURT, on_hurt_gorilla)
     species_to_pet_map[Species.GORILLA].set_trigger(Trigger.ON_TURN_START, clear_metadata)
     species_to_pet_map[Species.DRAGON].set_trigger(Trigger.ON_FRIEND_BOUGHT, on_friend_bought_dragon)
     species_to_pet_map[Species.MAMMOTH].set_trigger(Trigger.ON_FAINT, on_faint_mammoth)
-    # todo cat
+    species_to_pet_map[Species.CAT].set_trigger(Trigger.ON_TURN_START, clear_metadata)
     species_to_pet_map[Species.SNAKE].set_trigger(Trigger.ON_FRIEND_AHEAD_ATTACKS, on_friend_ahead_attacks_snake)
     species_to_pet_map[Species.FLY].set_trigger(Trigger.ON_FRIEND_FAINTS, on_friend_faints_fly)
     species_to_pet_map[Species.FLY].set_trigger(Trigger.ON_TURN_START, clear_metadata)

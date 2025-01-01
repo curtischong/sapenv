@@ -1,7 +1,6 @@
 from all_types_and_consts import Effect, Food, Species, Trigger
 from battle import make_pet_faint
 from pet import Pet
-from pet_data import get_base_pet
 from shop import Shop
 from team import Team
 
@@ -9,10 +8,9 @@ from team import Team
 def trigger_food_globally(food_type: Food, team: Team, shop: Shop):
     match food_type:
         case Food.SALAD_BOWL:
-            pets = team.get_random_pets(2)
-            for pet in pets:
-                pet.add_stats(attack=1, health=1)
-                trigger_on_friendly_ate_food(team=team, pet_that_ate_food=pet)
+            pets_to_buff = team.get_random_pets(2)
+            attack_buff = 1
+            health_buff = 1
         case Food.CANNED_FOOD:
             for slot in shop.slots:
                 slot.pet.add_stats(attack=1, health=1)
@@ -21,25 +19,33 @@ def trigger_food_globally(food_type: Food, team: Team, shop: Shop):
                 slot.pet2.add_stats(attack=1, health=1)
             shop.future_attack_addition += 1
             shop.future_health_addition += 1
+            return
         case Food.SUSHI:
-            pets = team.get_random_pets(3)
-            for pet in pets:
-                pet.add_stats(attack=1, health=1)
-                trigger_on_friendly_ate_food(team=team, pet_that_ate_food=pet)
+            pets_to_buff = team.get_random_pets(3)
+            attack_buff = 1
+            health_buff = 1
         case Food.PIZZA:
-            pets = team.get_random_pets(2)
-            for pet in pets:
-                pet.add_stats(attack=2, health=2)
-                trigger_on_friendly_ate_food(team=team, pet_that_ate_food=pet)
+            pets_to_buff = team.get_random_pets(2)
+            attack_buff = 2
+            health_buff = 2
         case _:
             raise ValueError(f"Unknown food type: {food_type}")
+    apply_food_buff(
+        team=team,
+        attack_buff=attack_buff,
+        health_buff=health_buff,
+        pets_to_buff=pets_to_buff,
+    )
 
 
 def trigger_food_for_pet(food_type: Food, team: Team, pet_idx: int, shop: Shop):
     pet = team.pets[pet_idx]
+    attack_buff = 0
+    health_buff = 0
     match food_type:
         case Food.APPLE:
-            pet.add_stats(attack=1, health=1)
+            attack_buff = 1
+            health_buff = 1
         case Food.HONEY:
             pet.effect = Effect.BEE
         case Food.PILL:
@@ -49,11 +55,15 @@ def trigger_food_for_pet(food_type: Food, team: Team, pet_idx: int, shop: Shop):
         case Food.MEAT_BONE:
             pet.effect = Effect.MEAT_BONE
         case Food.CUPCAKE:
-            pet.add_boost(attack=3, health=3)
+            num_times_to_apply_buff = get_num_times_to_apply_food_buff(team=team)
+            pet.add_boost(
+                attack=3 * num_times_to_apply_buff, health=3 * num_times_to_apply_buff
+            )
         case Food.GARLIC:
             pet.effect = Effect.GARLIC
         case Food.PEAR:
-            pet.add_stats(attack=2, health=2)
+            attack_buff = 2
+            health_buff = 2
         case Food.CHILI:
             pet.effect = Effect.CHILLI
         case Food.CHOCOLATE:
@@ -72,24 +82,65 @@ def trigger_food_for_pet(food_type: Food, team: Team, pet_idx: int, shop: Shop):
 
         # hidden foods
         case Food.BREAD_CRUMB:
-            pet.add_stats(attack=1)
+            attack_buff = 1
         case Food.MILK:
-            pet.add_stats(attack=1, health=2)
+            attack_buff = 1
+            health_buff = 2
         case Food.BETTER_MILK:  # stats for milk: https://superautopets.fandom.com/wiki/Cow
-            pet.add_stats(attack=2, health=4)
+            attack_buff = 2
+            health_buff = 4
         case Food.BEST_MILK:
-            pet.add_stats(attack=3, health=6)
+            attack_buff = 3
+            health_buff = 6
         case Food.APPLE_2_COST:
-            pet.add_stats(attack=1, health=1)
+            attack_buff = 1
+            health_buff = 1
         case Food.APPLE_2_COST_BETTER:
-            pet.add_stats(attack=2, health=2)
+            attack_buff = 2
+            health_buff = 2
         case Food.APPLE_2_COST_BEST:
-            pet.add_stats(attack=3, health=3)
+            attack_buff = 3
+            health_buff = 3
         case _:
             raise ValueError(f"Unknown food type: {food_type}")
 
-    # does this trigger if the pet ate a pill?
-    trigger_on_friendly_ate_food(team=team, pet_that_ate_food=pet)
+    # does trigger_on_friendly_ate_food trigger if the pet ate a pill?
+    apply_food_buff(
+        team=team,
+        attack_buff=attack_buff,
+        health_buff=health_buff,
+        pets_to_buff=[pet],
+    )
+
+
+def apply_food_buff(
+    *,
+    team: Team,
+    attack_buff: int,
+    health_buff: int,
+    pets_to_buff: list[Pet],
+):
+    num_times_to_apply_buff = get_num_times_to_apply_food_buff(team=team)
+    for pet in pets_to_buff:
+        pet.add_stats(
+            attack=attack_buff * num_times_to_apply_buff,
+            health=health_buff * num_times_to_apply_buff,
+        )
+        trigger_on_friendly_ate_food(team=team, pet_that_ate_food=pet)
+
+
+def get_num_times_to_apply_food_buff(team: Team):
+    # use num_times_to_apply instead of a multiplier since cat buffs are additive NOT multiplicative: https://www.reddit.com/r/superautopets/comments/qsfhej/does_it_work_combo_megathread/
+    num_times = 1
+    for pet in team.pets:
+        if pet.species == Species.CAT:
+            num_buffs_in_turn = pet.metadata["num_buffs_in_turn"]
+            if num_buffs_in_turn >= 2:
+                continue
+            pet.metadata["num_buffs_in_turn"] += 1
+
+            num_times += pet.get_level()
+    return num_times
 
 
 def trigger_on_friendly_ate_food(team: Team, pet_that_ate_food: Pet):

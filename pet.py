@@ -40,6 +40,8 @@ class Pet:
         self.health_boost = health_boost
 
         # e.g. extra info for each pet. e.g. for a rabbit: the number of times a friendly ate food this turn
+        # the way to use metadata is this: whenever the cooldown refreshes, we clear the metadata (so all counts are reset to 0)
+        # This means: to implement a cooldown, just add 1 to the metadata counter and check if it's greater than the cooldown amount
         self.metadata = defaultdict(int)
 
         self._triggers: dict[Trigger, list[TriggerFn]] = defaultdict(list)
