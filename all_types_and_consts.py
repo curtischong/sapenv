@@ -288,7 +288,7 @@ class Trigger(Enum):
     ON_AFTER_ATTACK = auto()
     ON_FRIENDLY_ATE_FOOD = auto()
     ON_FRIEND_AHEAD_FAINTS = auto()
-    ON_KNOCK_OUT = auto()
+    ON_KNOCK_OUT = auto()  # the hippo kills the enemy pet
     ON_FRIEND_FAINTS = auto()
     ON_BEFORE_ATTACK = auto()
     ON_FRIEND_HURT = auto()
@@ -306,5 +306,14 @@ in_battle_triggers = [
     Trigger.ON_KNOCK_OUT,
     Trigger.ON_FRIEND_FAINTS,
     Trigger.ON_BEFORE_ATTACK,
+    Trigger.ON_FRIEND_HURT,
+]
+
+can_trigger_in_shop_or_battle = [
+    Trigger.ON_FAINT,
+    Trigger.ON_HURT,
+    Trigger.ON_FRIEND_SUMMONED,
+    Trigger.ON_FRIEND_AHEAD_FAINTS,
+    Trigger.ON_FRIEND_FAINTS,
     Trigger.ON_FRIEND_HURT,
 ]

@@ -20,11 +20,10 @@ def battle(my_team: Team, team2: Team) -> BattleResult:
 
     while len(pets1) > 0 and len(pets2) > 0:
         # TODO: we need to explicitly get these attackers first because after the first attack_team call, the attacker pet might die?
-        # I'm not 100% sure if specifying the attackers this way is correct. so I'm commenting it out for now
-        # attacker1 = pets1[-1]
-        # attacker2 = pets1[-1]
-        attack_team(receiving_team=pets2, attacking_team=pets1)
-        attack_team(receiving_team=pets1, attacking_team=pets2)
+        attacker1 = pets1[-1]
+        attacker2 = pets2[-1]
+        attack_team(attacker_pet=attacker1, receiving_team=pets2, attacking_team=pets1)
+        attack_team(attacker_pet=attacker2, receiving_team=pets1, attacking_team=pets2)
 
     if len(pets1) == 0 and len(pets2) == 0:
         return BattleResult.TIE
@@ -59,8 +58,9 @@ def trigger_on_battle_start(pets1: list[Pet], pets2: list[Pet]):
             pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets2, enemy_pets=pets1)
 
 
-def attack_team(receiving_team: list[Pet], attacking_team: list[Pet]):
-    attacker_pet = attacking_team[-1]
+def attack_team(
+    attacker_pet: Pet, receiving_team: list[Pet], attacking_team: list[Pet]
+):
     damage = attacker_pet.attack
     if attacker_pet.effect == Effect.MEAT_BONE:
         damage += 3
@@ -123,11 +123,19 @@ def receive_damage(
         return  # early return to avoid computing on hurt effects
 
     receiving_pet.trigger(
-        Trigger.ON_HURT, team_pets=receiving_team, is_in_battle=is_in_battle
+        Trigger.ON_HURT,
+        team_pets=receiving_team,
+        enemy_pets=opposing_team,
+        is_in_battle=is_in_battle,
     )
     for team_pet in receiving_team:
         if team_pet is not receiving_pet:
-            team_pet.trigger(Trigger.ON_FRIEND_HURT)
+            team_pet.trigger(
+                Trigger.ON_FRIEND_HURT,
+                my_pets=receiving_team,
+                enemy_pets=opposing_team,
+                is_in_battle=is_in_battle,
+            )
     if receiving_pet.health <= 0 or attacking_pet.effect == Effect.PEANUT:
         # TODO: not sure what should trigger first. the mushroom or the on faint affect?
         # https://www.reddit.com/r/superautopets/comments/12xtp8d/mushroom_faint_ability_ordering_different_for/?rdt=51575
@@ -168,7 +176,11 @@ def make_pet_faint(
 
     # now trigger the ON_FRIEND_AHEAD_FAINTS trigger
     if idx_in_team > 0:
-        team_pets[idx_in_team - 1].trigger(Trigger.ON_FRIEND_AHEAD_FAINTS)
+        team_pets[idx_in_team - 1].trigger(
+            Trigger.ON_FRIEND_AHEAD_FAINTS,
+            my_pets=team_pets,
+            is_in_battle=is_in_battle,
+        )
 
     if pet.effect == Effect.MUSHROOM:
         new_pet = get_base_pet(pet.species).set_stats(
@@ -200,6 +212,7 @@ def try_spawn_at_pos(pet_to_spawn: Pet, idx: int, pets: list[Pet], is_in_battle:
             pet.trigger(
                 Trigger.ON_FRIEND_SUMMONED,
                 summoned_friend=pet_to_spawn,
+                my_pets=pets,
                 is_in_battle=is_in_battle,
             )
 

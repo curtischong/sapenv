@@ -9,12 +9,14 @@ from all_types_and_consts import (
     PetLevel,
     Species,
     Trigger,
+    in_battle_triggers,
 )
 from typing import Any
 
 
 TriggerFn = Any  # prevent circular import
 Shop = Any  # prevent circular import
+Team = Any  # prevent circular import
 
 
 class Pet:
@@ -67,18 +69,41 @@ class Pet:
             while ith_trigger < len(self._triggers[trigger]):
                 # the first arg is always the pet that's triggering the event. So we put "self" as the first arg
                 self._triggers[trigger][ith_trigger](self, *args, **kwargs)
-
-                my_pets: list[Pet] = kwargs["my_pets"]
-                pet_idx = my_pets.index(self)
-                prev_index_pet_species = Species.NONE
-                if pet_idx > 0:
-                    prev_index_pet_species = my_pets[pet_idx - 1].species
-                if kwargs["is_in_battle"] and prev_index_pet_species == Species.TIGER:
-                    # the tigger behind this pet makes this trigger run twice
-                    print("trigger ran twice")
-                    self._triggers[trigger][ith_trigger](self, *args, **kwargs)
-
+                self.try_trigger_twice_tiger(trigger, ith_trigger, *args, **kwargs)
                 ith_trigger += 1
+
+    def try_trigger_twice_tiger(
+        self, trigger: Trigger, ith_trigger: int, *args, **kwargs
+    ):
+        is_not_a_battle_trigger = trigger not in in_battle_triggers
+
+        # I made sure that all triggers that can be in the shop or in battle will pass in a "is_in_battle" kwarg
+        is_triggering_in_the_shop = (
+            "is_in_battle" in kwargs and not kwargs["is_in_battle"]
+        )
+        if is_not_a_battle_trigger or is_triggering_in_the_shop:
+            # the tiger can only trigger multiple times if it's in battle
+            return
+
+        if "my_pets" in kwargs:
+            my_pets: list[Pet] = kwargs["my_pets"]
+        else:
+            my_pets = kwargs["team"].pets
+
+        # get idx of the pet to check if the preivous pet is a tiger
+        if "faint_pet_idx" in kwargs:
+            # use this instead because for on_faint, we will NOT be able to find the index of the pet (after it's removed from the team)
+            pet_idx = kwargs["faint_pet_idx"]
+        else:
+            pet_idx = my_pets.index(self)
+
+        prev_index_pet_species = Species.NONE
+        if pet_idx > 0:
+            prev_index_pet_species = my_pets[pet_idx - 1].species
+        if prev_index_pet_species == Species.TIGER:
+            # the tigger behind this pet makes this trigger run twice
+            print("trigger ran twice")
+            self._triggers[trigger][ith_trigger](self, *args, **kwargs)
 
     def clear_triggers(self):
         self._triggers.clear()
@@ -132,7 +157,7 @@ class Pet:
             return self.experience - 3
         return self.experience  # the pet is on level 1. no need to subtract anything
 
-    def combine_onto(self, pet2: "Pet", shop: Shop):
+    def combine_onto(self, pet2: "Pet", team: Team, shop: Shop):
         pet1 = self
         if pet2._has_higher_stats(pet1):
             # important. use pet2 first. So if both have equal stats, we'll USE pet2 (due to the implementation of has_higher_stats)
@@ -151,7 +176,7 @@ class Pet:
 
         # call the on_level_up function if the pet leveled up
         if new_level > old_level:
-            updated_pet.trigger(Trigger.ON_LEVEL_UP)
+            updated_pet.trigger(Trigger.ON_LEVEL_UP, team=team)
             shop.create_linked_pet()
 
         return updated_pet

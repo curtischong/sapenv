@@ -10,6 +10,7 @@ from all_types_and_consts import (
     Food,
     Species,
     Trigger,
+    can_trigger_in_shop_or_battle,
 )
 from battle import make_pet_faint, receive_damage, try_spawn_at_pos
 from pet import (
@@ -32,7 +33,7 @@ class OnSell(Protocol):
 
 
 class OnBuy(Protocol):
-    def __call__(self, pet: Pet, team: Team): ...
+    def __call__(self, pet: Pet, team: Team, shop: Shop): ...
 
 
 class OnFaint(Protocol):
@@ -47,7 +48,9 @@ class OnFaint(Protocol):
 
 
 class OnHurt(Protocol):
-    def __call__(self, pet: Pet, my_pets: list[Pet]): ...
+    def __call__(
+        self, pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+    ): ...
 
 
 class OnBattleStart(Protocol):
@@ -59,7 +62,9 @@ class OnLevelUp(Protocol):
 
 
 class OnFriendSummoned(Protocol):
-    def __call__(self, pet: Pet, summoned_friend: Pet, is_in_battle: bool): ...
+    def __call__(
+        self, pet: Pet, summoned_friend: Pet, my_pets: list[Pet], is_in_battle: bool
+    ): ...
 
 
 class OnEndTurn(Protocol):
@@ -83,7 +88,7 @@ class OnFriendlyAteFood(Protocol):
 
 
 class OnFriendAheadFaints(Protocol):
-    def __call__(self, pet: Pet): ...
+    def __call__(self, pet: Pet, my_pets: list[Pet], is_in_battle: bool): ...
 
 
 class OnKnockOut(Protocol):
@@ -101,7 +106,9 @@ class OnBeforeAttack(Protocol):
 
 
 class OnFriendHurt(Protocol):
-    def __call__(self, pet: Pet): ...
+    def __call__(
+        self, pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+    ): ...
 
 
 class OnFriendBought(Protocol):
@@ -123,7 +130,7 @@ def on_sell_pigeon(pet: Pet, shop: Shop, team: Team):
     shop.num_foods[Food.BREAD_CRUMB] += pet.get_level()
 
 
-def on_buy_otter(pet: Pet, team: Team):
+def on_buy_otter(pet: Pet, team: Team, shop: Shop):
     random_friends = team.get_random_pets(
         select_num_pets=pet.get_level(), exclude_pet=pet
     )
@@ -189,7 +196,9 @@ def on_faint_cricket(
     )
 
 
-def on_friend_summoned_horse(pet: Pet, summoned_friend: Pet, is_in_battle: bool):
+def on_friend_summoned_horse(
+    pet: Pet, summoned_friend: Pet, my_pets: list[Pet], is_in_battle: bool
+):
     assert pet is not summoned_friend
     attack_boost = pet.get_level()
     if is_in_battle:
@@ -282,8 +291,7 @@ def on_faint_hedgehog(
 
 
 def on_hurt_peacock(
-    pet: Pet,
-    my_pets: list[Pet],
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
 ):
     attack_boost = 3 * pet.get_level()
     pet.attack = min(pet.attack + attack_boost, MAX_ATTACK)
@@ -450,7 +458,9 @@ def on_after_attack_elephant(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]
             )
 
 
-def on_hurt_camel(pet: Pet, my_pets: list[Pet]):
+def on_hurt_camel(
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+):
     nearest_friends_behind = get_nearest_friends_behind(pet, my_pets, num_friends=1)
     if len(nearest_friends_behind) == 1:
         nearest_friend = nearest_friends_behind[0]
@@ -463,7 +473,7 @@ def on_friendly_ate_food_rabbit(pet: Pet, pet_that_ate_food: Pet, team: Team):
         pet_that_ate_food.add_stats(health=pet.get_level())
 
 
-def on_friend_ahead_faints_ox(pet: Pet):
+def on_friend_ahead_faints_ox(pet: Pet, my_pets: list[Pet], is_in_battle: bool):
     # I'm assuming the melon buff will override any existing buff the ox has
     if pet.metadata["num_times_buff_itself"] < pet.get_level():
         pet.metadata["num_times_buff_itself"] += 1
@@ -471,7 +481,9 @@ def on_friend_ahead_faints_ox(pet: Pet):
         pet.add_stats(attack=1)
 
 
-def on_friend_summoned_dog(pet: Pet, summoned_friend: Pet, is_in_battle: bool):
+def on_friend_summoned_dog(
+    pet: Pet, summoned_friend: Pet, my_pets: list[Pet], is_in_battle: bool
+):
     pet_level = pet.get_level()
     attack_buff = 2 * pet_level
     health_buff = pet_level
@@ -511,14 +523,14 @@ def on_battle_start_skunk(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     )
 
 
-def on_knock_out_hippo(pet: Pet):
+def on_knock_out_hippo(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     if pet.metadata["num_times_buffed"] < 3:
         pet.metadata["num_times_buffed"] += 1
         stat_buff = 3 * pet.get_level()
         pet.add_stats(attack=stat_buff, health=stat_buff)
 
 
-def on_end_turn_bison(pet: Pet, team: Team):
+def on_end_turn_bison(pet: Pet, team: Team, last_battle_result: BattleResult):
     for my_pet in team.pets:
         if my_pet is not pet and my_pet.get_level() == 3:
             attack_buff = my_pet.get_level()
@@ -528,7 +540,7 @@ def on_end_turn_bison(pet: Pet, team: Team):
 
 
 def on_hurt_blowfish(
-    pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
 ):
     damage_to_deal = 3 * pet.get_level()
     enemy_pet = Team.get_random_pets_from_list(enemy_pets, select_num_pets=1)[0]
@@ -537,7 +549,7 @@ def on_hurt_blowfish(
         attacking_pet=pet,
         damage=damage_to_deal,
         receiving_team=enemy_pets,
-        opposing_team=team_pets,
+        opposing_team=my_pets,
         is_in_battle=is_in_battle,
     )
 
@@ -563,7 +575,7 @@ def on_turn_start_squirrel(pet: Pet, team: Team, shop: Shop):
     pass
 
 
-def on_end_turn_penguin(pet: Pet, team: Team):
+def on_end_turn_penguin(pet: Pet, team: Team, last_battle_result: BattleResult):
     # penguins do NOT buff themselves
     pets_that_are_level_2_or_3 = [
         my_pet for my_pet in team.pets if my_pet.get_level() >= 2
@@ -730,7 +742,9 @@ def on_friend_faints_shark(
     pet.add_stats(attack=stat_buff, health=stat_buff)
 
 
-def on_friend_summoned_turkey(pet: Pet, summoned_friend: Pet, is_in_battle: bool):
+def on_friend_summoned_turkey(
+    pet: Pet, summoned_friend: Pet, my_pets: list[Pet], is_in_battle: bool
+):
     attack_boost = 3 * pet.get_level()
     health_boost = pet.get_level()
     # yes. these stats are permanent
@@ -768,7 +782,9 @@ def on_before_attack_boar(pet: Pet):
 
 
 # https://www.youtube.com/clip/UgkxRYjQsIKoqkXkyBtE76ULs7hcYJ6fG1-n
-def on_friend_hurt_wolverine(pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet]):
+def on_friend_hurt_wolverine(
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+):
     pet.metadata["num_times_hurt"] = (pet.metadata["num_times_hurt"] + 1) % 4
     # it reduces the health up to 1. it ignores garlic
     health_reduction = 3 * pet.get_level()
@@ -776,7 +792,9 @@ def on_friend_hurt_wolverine(pet: Pet, team_pets: list[Pet], enemy_pets: list[Pe
         enemy_pet.health = max(enemy_pet.health - health_reduction, 1)
 
 
-def on_hurt_gorilla(pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet]):
+def on_hurt_gorilla(
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+):
     pet.metadata["num_times_hurt"] += 1
     if pet.metadata["num_times_hurt"] <= pet.get_level():
         pet.effect = Effect.MELON
@@ -806,7 +824,7 @@ def on_faint_mammoth(
             my_pet.add_stats(attack=stat_buff, health=stat_buff)
 
 
-def on_friend_ahead_attacks_snake(pet: Pet, enemy_pets: list[Pet], my_pets: list[Pet]):
+def on_friend_ahead_attacks_snake(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     damage = 5 * pet.get_level()
     for enemy_pet in Team.get_random_pets_from_list(enemy_pets, select_num_pets=1):
         receive_damage(
@@ -1005,3 +1023,23 @@ def validate_trigger_protocols():
             for trigger_fn in trigger_fns:
                 protocol_type = trigger_to_protocol_type[trigger]
                 validate_protocol(trigger_fn, protocol_type)
+
+
+def validate_can_trigger_in_shop_or_battle_triggers_have_is_in_battle_kwarg():
+    """
+    Ensures that every trigger in `can_trigger_in_shop_or_battle`
+    requires an `is_in_battle` parameter in its protocol signature.
+    """
+    for trigger in can_trigger_in_shop_or_battle:
+        protocol_cls = trigger_to_protocol_type[trigger]
+        # Get the signature of the protocol's __call__ method
+        sig = inspect.signature(protocol_cls.__call__)
+
+        if "is_in_battle" not in sig.parameters:
+            raise TypeError(
+                f"Trigger type {trigger} must have an 'is_in_battle' parameter as it can trigger in both the shop and battle. (needed for the tiger to know if it should trigger)"
+            )
+        if "my_pets" not in sig.parameters and "team" not in sig.parameters:
+            raise TypeError(
+                f"Trigger type {trigger} must have a 'my_pets' or 'team' parameter as it can trigger in both the shop and battle. (needed for the tiger to know which pets are in the team)"
+            )
