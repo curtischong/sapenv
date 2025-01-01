@@ -280,7 +280,7 @@ class Player:
         self.shop.toggle_freeze_food_slot(food_slot_idx)
 
     def toggle_freeze_food_slot_action_mask(self) -> np.ndarray:
-        mask = np.zeros((len(MAX_SHOP_FOOD_SLOTS)), dtype=bool)
+        mask = np.zeros((MAX_SHOP_FOOD_SLOTS), dtype=bool)
         for idx in range(len(self.shop.food_slots)):
             mask[idx] = True
         return mask
