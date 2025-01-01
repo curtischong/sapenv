@@ -89,6 +89,7 @@ def attack_team(receiving_team: list[Pet], attacking_team: list[Pet]):
             damage=5,
             receiving_team=receiving_team,
             opposing_team=attacking_team,
+            is_in_battle=True,
         )
     receive_damage(
         receiving_pet=receiving_team[-1],
@@ -96,6 +97,7 @@ def attack_team(receiving_team: list[Pet], attacking_team: list[Pet]):
         damage=damage,
         receiving_team=receiving_team,
         opposing_team=attacking_team,
+        is_in_battle=True,
     )
 
     attacker_pet.trigger(Trigger.ON_AFTER_ATTACK, my_team=attacking_team)
@@ -108,6 +110,7 @@ def receive_damage(
     receiving_team: list[Pet],
     # this is called opposing_team, NOT attacking team (since the dealer of damage can be on your own team)
     opposing_team: list[Pet],
+    is_in_battle: bool,
 ):
     if receiving_pet.effect == Effect.MELON:
         damage = max(damage - 20, 0)
@@ -119,7 +122,9 @@ def receive_damage(
     if damage == 0:
         return  # early return to avoid computing on hurt effects
 
-    receiving_pet.trigger(Trigger.ON_HURT, team_pets=receiving_team)
+    receiving_pet.trigger(
+        Trigger.ON_HURT, team_pets=receiving_team, is_in_battle=is_in_battle
+    )
     for team_pet in receiving_team:
         if team_pet is not receiving_pet:
             team_pet.trigger(Trigger.ON_FRIEND_HURT)

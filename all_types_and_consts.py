@@ -293,3 +293,18 @@ class Trigger(Enum):
     ON_BEFORE_ATTACK = auto()
     ON_FRIEND_HURT = auto()
     ON_FRIEND_BOUGHT = auto()
+
+
+in_battle_triggers = [
+    Trigger.ON_FAINT,
+    Trigger.ON_HURT,
+    Trigger.ON_BATTLE_START,
+    Trigger.ON_FRIEND_SUMMONED,
+    Trigger.ON_FRIEND_AHEAD_ATTACKS,
+    Trigger.ON_AFTER_ATTACK,
+    Trigger.ON_FRIEND_AHEAD_FAINTS,
+    Trigger.ON_KNOCK_OUT,
+    Trigger.ON_FRIEND_FAINTS,
+    Trigger.ON_BEFORE_ATTACK,
+    Trigger.ON_FRIEND_HURT,
+]
