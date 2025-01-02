@@ -103,7 +103,7 @@ class OnFriendFaints(Protocol):
 
 
 class OnBeforeAttack(Protocol):
-    def __call__(self, pet: Pet): ...
+    def __call__(self, pet: Pet, my_pets: list[Pet]): ...
 
 
 class OnFriendHurt(Protocol):
@@ -561,15 +561,15 @@ def on_hurt_blowfish(
     pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
 ):
     damage_to_deal = 3 * pet.get_level()
-    enemy_pet = Team.get_random_pets_from_list(enemy_pets, select_num_pets=1)[0]
-    receive_damage(
-        receiving_pet=enemy_pet,
-        attacking_pet=pet,
-        damage=damage_to_deal,
-        receiving_team=enemy_pets,
-        opposing_team=my_pets,
-        is_in_battle=is_in_battle,
-    )
+    for enemy_pet in Team.get_random_pets_from_list(enemy_pets, select_num_pets=1):
+        receive_damage(
+            receiving_pet=enemy_pet,
+            attacking_pet=pet,
+            damage=damage_to_deal,
+            receiving_team=enemy_pets,
+            opposing_team=my_pets,
+            is_in_battle=is_in_battle,
+        )
 
 
 def on_faint_turtle(
@@ -784,7 +784,7 @@ def on_battle_start_leopard(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet])
         )
 
 
-def on_before_attack_boar(pet: Pet):
+def on_before_attack_boar(pet: Pet, my_pets: list[Pet]):
     attack_buff = 4 * pet.get_level()
     health_buff = 2 * pet.get_level()
     pet.add_stats(attack=attack_buff, health=health_buff)

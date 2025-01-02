@@ -75,7 +75,7 @@ def attack_team(
         attacker_pet.effect = Effect.NONE  # steak is only used once
 
     # trigger ON_BEFORE_ATTACK
-    attacker_pet.trigger(Trigger.ON_BEFORE_ATTACK)
+    attacker_pet.trigger(Trigger.ON_BEFORE_ATTACK, my_pets=attacking_team)
 
     # trigger ON_FRIEND_AHEAD_ATTACKS
     if len(attacking_team) > 1:
