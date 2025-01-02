@@ -357,6 +357,7 @@ def on_faint_spider(
     pet_to_spawn.set_stats_all(
         attack=stat,
         health=stat,
+        effect=Effect.NONE,
         experience=new_spawn_experience,
         attack_boost=0,
         health_boost=0,
@@ -623,7 +624,7 @@ def on_battle_start_whale(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     for friend in get_nearest_friends_ahead(pet, my_pets, num_friends=1):
         pet.metadata["on_faint_spawn_species_kind"] = friend.species.value
         # swallow the friend:
-        make_pet_faint(pet, team_pets=my_pets, enemy_pets=enemy_pets, is_in_battle=True)
+        make_pet_faint(pet, my_pets=my_pets, enemy_pets=enemy_pets, is_in_battle=True)
 
 
 def on_faint_whale(

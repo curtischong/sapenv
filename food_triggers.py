@@ -49,9 +49,7 @@ def trigger_food_for_pet(food_type: Food, team: Team, pet_idx: int, shop: Shop):
         case Food.HONEY:
             pet.effect = Effect.BEE
         case Food.PILL:
-            make_pet_faint(
-                pet, team_pets=team.pets, enemy_pets=None, is_in_battle=False
-            )
+            make_pet_faint(pet, my_pets=team.pets, enemy_pets=None, is_in_battle=False)
         case Food.MEAT_BONE:
             pet.effect = Effect.MEAT_BONE
         case Food.CUPCAKE:
