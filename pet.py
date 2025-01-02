@@ -113,7 +113,7 @@ class Pet:
         ):  # I'm really not sure why len(my_pets) > pet_idx - 1 can fail since we immediately call on_faint after we get the pet_idx
             # assert (
             #     len(my_pets) > pet_idx - 1
-            # ), f"my_pets is not big enough my_pets={my_pets}"
+            # ), f"my_pets is not big enough my_pets={my_pets}" # my_pets is [] when this fails :/
             prev_index_pet = my_pets[pet_idx - 1]
             if prev_index_pet.species == Species.TIGER:
                 return True, prev_index_pet.get_level()
