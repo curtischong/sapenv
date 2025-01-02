@@ -37,6 +37,8 @@ def trigger_on_battle_start(pets1: list[Pet], pets2: list[Pet]):
     on_battle_start_pets: list[
         tuple[int, Pet, bool]
     ] = []  # list of (pet_attack, pet, is_team1)
+    print("pet1s", pets1)
+    print("pet2s", pets2)
 
     for pet in pets1:
         on_battle_start_pets.append((pet.attack, pet, True))

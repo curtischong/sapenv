@@ -50,7 +50,11 @@ class OnFaint(Protocol):
 
 class OnHurt(Protocol):
     def __call__(
-        self, pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+        self,
+        pet: Pet,
+        my_pets: list[Pet],
+        enemy_pets: list[Pet] | None,
+        is_in_battle: bool,
     ): ...
 
 
@@ -108,7 +112,11 @@ class OnBeforeAttack(Protocol):
 
 class OnFriendHurt(Protocol):
     def __call__(
-        self, pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+        self,
+        pet: Pet,
+        my_pets: list[Pet],
+        enemy_pets: list[Pet] | None,
+        is_in_battle: bool,
     ): ...
 
 
@@ -296,7 +304,7 @@ def on_faint_hedgehog(
 
 
 def on_hurt_peacock(
-    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet] | None, is_in_battle: bool
 ):
     attack_boost = 3 * pet.get_level()
     pet.attack = min(pet.attack + attack_boost, MAX_ATTACK)
@@ -478,7 +486,7 @@ def on_after_attack_elephant(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]
 
 
 def on_hurt_camel(
-    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet] | None, is_in_battle: bool
 ):
     nearest_friends_behind = get_nearest_friends_behind(pet, my_pets, num_friends=1)
     if len(nearest_friends_behind) == 1:
@@ -559,8 +567,10 @@ def on_end_turn_bison(pet: Pet, team: Team, last_battle_result: BattleResult):
 
 
 def on_hurt_blowfish(
-    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet] | None, is_in_battle: bool
 ):
+    if not enemy_pets:
+        return
     damage_to_deal = 3 * pet.get_level()
     for enemy_pet in Team.get_random_pets_from_list(enemy_pets, select_num_pets=1):
         receive_damage(
@@ -804,9 +814,11 @@ def on_before_attack_boar(pet: Pet, my_pets: list[Pet]):
 
 # https://www.youtube.com/clip/UgkxRYjQsIKoqkXkyBtE76ULs7hcYJ6fG1-n
 def on_friend_hurt_wolverine(
-    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet] | None, is_in_battle: bool
 ):
     pet.metadata["num_times_hurt"] = (pet.metadata["num_times_hurt"] + 1) % 4
+    if not enemy_pets:
+        return
     # it reduces the health up to 1. it ignores garlic
     health_reduction = 3 * pet.get_level()
     for enemy_pet in enemy_pets:
@@ -814,7 +826,7 @@ def on_friend_hurt_wolverine(
 
 
 def on_hurt_gorilla(
-    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet], is_in_battle: bool
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet] | None, is_in_battle: bool
 ):
     pet.metadata["num_times_hurt"] += 1
     if pet.metadata["num_times_hurt"] <= pet.get_level():
