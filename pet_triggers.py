@@ -284,14 +284,15 @@ def on_faint_hedgehog(
         return
 
     for enemy_pet in enemy_pets:
-        receive_damage(
-            receiving_pet=enemy_pet,
-            attacking_pet=pet,
-            damage=damage,
-            receiving_team=enemy_pets,
-            opposing_team=my_pets,
-            is_in_battle=is_in_battle,
-        )
+        if enemy_pet in enemy_pets:
+            receive_damage(
+                receiving_pet=enemy_pet,
+                attacking_pet=pet,
+                damage=damage,
+                receiving_team=enemy_pets,
+                opposing_team=my_pets,
+                is_in_battle=is_in_battle,
+            )
 
 
 def on_hurt_peacock(
@@ -417,7 +418,7 @@ def on_faint_badger(
         # else: there is no pet ahead to deal damage to
 
     # now deal damage to the pet behind (you can only damage your own team)
-    if faint_pet_idx > 0:
+    if faint_pet_idx > 0 and len(my_pets) > faint_pet_idx - 1:
         pet_behind = my_pets[faint_pet_idx - 1]
         receive_damage(
             receiving_pet=pet_behind,
@@ -462,10 +463,10 @@ def on_turn_start_giraffe(pet: Pet, team: Team, shop: Shop):
 
 
 def on_after_attack_elephant(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
-    nearest_friends_behind = get_nearest_friends_behind(pet, my_pets, num_friends=1)
-    if len(nearest_friends_behind) == 1:
-        num_triggers = pet.get_level()
-        for _ in range(num_triggers):
+    num_triggers = pet.get_level()
+    for _ in range(num_triggers):
+        nearest_friends_behind = get_nearest_friends_behind(pet, my_pets, num_friends=1)
+        if len(nearest_friends_behind) == 1:
             receive_damage(
                 receiving_pet=nearest_friends_behind[0],
                 attacking_pet=pet,
@@ -626,7 +627,9 @@ def on_battle_start_whale(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     for friend in get_nearest_friends_ahead(pet, my_pets, num_friends=1):
         pet.metadata["on_faint_spawn_species_kind"] = friend.species.value
         # swallow the friend:
-        make_pet_faint(pet, my_pets=my_pets, enemy_pets=enemy_pets, is_in_battle=True)
+        make_pet_faint(
+            friend, my_pets=my_pets, enemy_pets=enemy_pets, is_in_battle=True
+        )
 
 
 def on_faint_whale(
@@ -882,7 +885,7 @@ def set_pet_triggers():
     species_to_pet_map[Species.OTTER].set_trigger(Trigger.ON_BUY, on_buy_otter)
     species_to_pet_map[Species.PIG].set_trigger(Trigger.ON_SELL, on_sell_pig)
     species_to_pet_map[Species.ANT].set_trigger(Trigger.ON_FAINT, on_faint_ant)
-    species_to_pet_map[Species.MOSQUITO].set_trigger( Trigger.ON_BATTLE_START, on_battle_start_mosquito)
+    species_to_pet_map[Species.MOSQUITO].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_mosquito)
     species_to_pet_map[Species.FISH].set_trigger(Trigger.ON_LEVEL_UP, on_level_up_fish)
     species_to_pet_map[Species.CRICKET].set_trigger(Trigger.ON_FAINT, on_faint_cricket)
     species_to_pet_map[Species.HORSE].set_trigger(Trigger.ON_FRIEND_SUMMONED, on_friend_summoned_horse)
