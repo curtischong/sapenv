@@ -23,7 +23,11 @@ def battle(my_team: Team, team2: Team) -> BattleResult:
         attacker1 = pets1[-1]
         attacker2 = pets2[-1]
         attack_team(attacker_pet=attacker1, receiving_team=pets2, attacking_team=pets1)
-        attack_team(attacker_pet=attacker2, receiving_team=pets1, attacking_team=pets2)
+        if len(pets1) > 0:
+            # if they are still alive, then attack them. otherwise, don't
+            attack_team(
+                attacker_pet=attacker2, receiving_team=pets1, attacking_team=pets2
+            )
 
     if len(pets1) == 0 and len(pets2) == 0:
         return BattleResult.TIE
@@ -71,7 +75,7 @@ def attack_team(
         attacker_pet.effect = Effect.NONE  # steak is only used once
 
     # trigger ON_BEFORE_ATTACK
-    attacker_pet.trigger(Trigger.ON_BEFORE_ATTACK)
+    attacker_pet.trigger(Trigger.ON_BEFORE_ATTACK, my_pets=attacking_team)
 
     # trigger ON_FRIEND_AHEAD_ATTACKS
     if len(attacking_team) > 1:
