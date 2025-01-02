@@ -97,18 +97,10 @@ class Pet:
             # use this instead because for on_faint, we will NOT be able to find the index of the pet (after it's removed from the team)
             pet_idx = kwargs["faint_pet_idx"]
         else:
-            if (
-                self in my_pets
-            ):  # e.g. if in an on_battle_start trigger is queued, but the whale dies before it runs, we won't find the whale on the team. so skip it
-                pet_idx = my_pets.index(self)
-            else:
-                pet_idx = -1
+            pet_idx = my_pets.index(self)
 
         prev_index_pet_species = Species.NONE
-        if (
-            pet_idx > 0 and pet_idx - 1 < len(my_pets)
-        ):  # pet_idx - 1 < len(my_pets) is super sus. I only added it because after a make_pet_faint fall, the pet behind it probably also died? so my_pets[pet_idx - 1] threw an exception
-            # I think it's find to have this if statement just to avoid the exception. it feels like an edge case
+        if pet_idx > 0:
             prev_index_pet_species = my_pets[pet_idx - 1].species
         if prev_index_pet_species == Species.TIGER:
             # the tigger behind this pet makes this trigger run twice
