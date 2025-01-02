@@ -277,7 +277,7 @@ def on_faint_hedgehog(
     is_in_battle: bool,
 ):
     damage = 2 * pet.get_level()
-    for my_pet in my_pets:
+    for my_pet in my_pets.copy():
         if my_pet is not pet:
             receive_damage(
                 receiving_pet=my_pet,
@@ -291,7 +291,7 @@ def on_faint_hedgehog(
     if enemy_pets is None:
         return
 
-    for enemy_pet in enemy_pets:
+    for enemy_pet in enemy_pets.copy():
         if enemy_pet in enemy_pets:
             receive_damage(
                 receiving_pet=enemy_pet,

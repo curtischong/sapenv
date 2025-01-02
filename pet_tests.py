@@ -47,7 +47,7 @@ def test_battle_start2():
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),
-            get_base_pet(Species.BADGER).set_stats(attack=2, health=1),
+            get_base_pet(Species.HEDGEHOG).set_stats(attack=2, health=1),
         ]
     )
     team2 = Team(
