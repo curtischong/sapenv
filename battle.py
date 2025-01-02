@@ -130,6 +130,10 @@ def receive_damage(
     opposing_team: list[Pet],
     is_in_battle: bool,
 ):
+    if receiving_pet not in receiving_team:
+        # this function was called (with older pets) but by now, the pet is dead. so don't do anything
+        return
+
     if receiving_pet.effect == Effect.MELON:
         damage = max(damage - 20, 0)
         receiving_pet.effect = Effect.NONE  # melon is only used once
