@@ -18,11 +18,10 @@ def get_nearest_friends_ahead(
     return friends_ahead
 
 
-def get_nearest_friends_behind(
-    pet: Pet, my_pets: list[Pet], num_friends: int
-) -> list[Pet]:
-    pet_idx = my_pets.index(pet)
-    friend_idx = pet_idx - 1
+def get_nearest_friends_behind_idx(
+    behind_idx: int, my_pets: list[Pet], num_friends: int
+):
+    friend_idx = behind_idx - 1
     friends_behind = []
 
     while len(friends_behind) < num_friends and friend_idx >= 0:
@@ -32,6 +31,15 @@ def get_nearest_friends_behind(
         friend_idx -= 1
 
     return friends_behind
+
+
+def get_nearest_friends_behind(
+    pet: Pet, my_pets: list[Pet], num_friends: int
+) -> list[Pet]:
+    pet_idx = my_pets.index(pet)
+    return get_nearest_friends_behind_idx(
+        behind_idx=pet_idx, my_pets=my_pets, num_friends=num_friends
+    )
 
 
 def get_pet_with_highest_health(pets: list[Pet]) -> Pet:
