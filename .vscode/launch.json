@@ -31,6 +31,14 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "test battle",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": ["pet_tests.py"],
+            "console": "integratedTerminal"
+        },
+        {
             "name": "finetune",
             "type": "debugpy",
             "request": "launch",

@@ -1,10 +1,18 @@
 from all_types_and_consts import BattleResult, Species
 from battle import battle
 from pet_data import get_base_pet
+from pet_triggers import (
+    set_pet_triggers,
+    validate_can_trigger_in_shop_or_battle_triggers_have_is_in_battle_kwarg,
+    validate_trigger_protocols,
+)
 from team import Team
 
 
 def test_mosquito_kills():
+    set_pet_triggers()
+    validate_trigger_protocols()
+    validate_can_trigger_in_shop_or_battle_triggers_have_is_in_battle_kwarg()
     team1 = Team(
         [
             get_base_pet(Species.NONE),
