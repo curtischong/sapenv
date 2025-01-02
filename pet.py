@@ -106,6 +106,8 @@ class Pet:
             # use this instead because for on_faint, we will NOT be able to find the index of the pet (after it's removed from the team)
             pet_idx = kwargs["faint_pet_idx"]
         else:
+            if self not in my_pets:
+                print("my_pets listed", my_pets, self)
             pet_idx = my_pets.index(self)
 
         if (
