@@ -18,6 +18,8 @@ TriggerFn = Any  # prevent circular import
 Shop = Any  # prevent circular import
 Team = Any  # prevent circular import
 
+TIGER_LEVEL_TRIGGER_KEY = "tiger_level_trigger"
+
 
 class Pet:
     def __init__(
@@ -69,14 +71,24 @@ class Pet:
             # a trigger may append MORE triggers of the same type. So we cannot just use a "for in" loop.
             ith_trigger = 0
             while ith_trigger < len(self._triggers[trigger]):
+                # important: determine if the tiger buff makes this trigger run twice BEFORE the trigger happens (since onfaint can mess up pet indexes)
+                is_triggered_twice, level_to_trigger_as = (
+                    self.check_if_previous_pet_is_tiger(
+                        trigger, ith_trigger, *args, **kwargs
+                    )
+                )
                 # the first arg is always the pet that's triggering the event. So we put "self" as the first arg
                 self._triggers[trigger][ith_trigger](self, *args, **kwargs)
-                self.try_trigger_twice_tiger(trigger, ith_trigger, *args, **kwargs)
+
+                if is_triggered_twice:
+                    self.metadata[TIGER_LEVEL_TRIGGER_KEY] = level_to_trigger_as
+                    self._triggers[trigger][ith_trigger](self, *args, **kwargs)
                 ith_trigger += 1
 
-    def try_trigger_twice_tiger(
+    def check_if_previous_pet_is_tiger(
         self, trigger: Trigger, ith_trigger: int, *args, **kwargs
     ):
+        # 1) ensure that we are in a battle right now. the tiger only triggers in battle
         is_not_a_battle_trigger = trigger not in in_battle_triggers
 
         # I made sure that all triggers that can be in the shop or in battle will pass in a "is_in_battle" kwarg
@@ -85,8 +97,9 @@ class Pet:
         )
         if is_not_a_battle_trigger or is_triggering_in_the_shop:
             # the tiger can only trigger multiple times if it's in battle
-            return
+            return False, 0
 
+        # 2) ensure that the pet behind this one is a tiger
         if "my_pets" in kwargs:
             my_pets: list[Pet] = kwargs["my_pets"]
         else:
@@ -99,13 +112,11 @@ class Pet:
         else:
             pet_idx = my_pets.index(self)
 
-        prev_index_pet_species = Species.NONE
         if pet_idx > 0:
-            prev_index_pet_species = my_pets[pet_idx - 1].species
-        if prev_index_pet_species == Species.TIGER:
-            # the tigger behind this pet makes this trigger run twice
-            print("trigger ran twice")
-            self._triggers[trigger][ith_trigger](self, *args, **kwargs)
+            prev_index_pet = my_pets[pet_idx - 1]
+            if prev_index_pet.species == Species.TIGER:
+                return True, prev_index_pet.get_level()
+        return False, 0
 
     def clear_triggers(self):
         self._triggers.clear()
@@ -145,6 +156,11 @@ class Pet:
         return self
 
     def get_level(self) -> PetLevel:
+        if self.metadata[TIGER_LEVEL_TRIGGER_KEY] != 0:
+            level_to_trigger_as = self.metadata[TIGER_LEVEL_TRIGGER_KEY]
+            self.metadata[TIGER_LEVEL_TRIGGER_KEY] = 0
+            return level_to_trigger_as
+
         if self.experience < 3:
             return 1
         elif self.experience < 6:
