@@ -702,7 +702,7 @@ def on_end_turn_monkey(pet: Pet, team: Team, last_battle_result: BattleResult):
 
     # we cannot use team.pets[-1] since it might be a none pet
     # note: this list is never empty since the monkey is on the team
-    frontmost_pet = team.get_non_none_pets()[-1]
+    frontmost_pet = team.get_no_none_pets()[-1]
     frontmost_pet.add_stats(attack=stat_buff, health=stat_buff)
 
 
