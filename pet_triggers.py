@@ -578,7 +578,7 @@ def on_faint_turtle(
     is_in_battle: bool,
 ):
     nearest_friends = get_nearest_friends_behind_idx(
-        faint_pet_idx=faint_pet_idx, my_pets=my_pets, num_friends=pet.get_level()
+        behind_idx=faint_pet_idx, my_pets=my_pets, num_friends=pet.get_level()
     )
     for friend in nearest_friends:
         friend.effect = Effect.MELON
