@@ -284,14 +284,15 @@ def on_faint_hedgehog(
         return
 
     for enemy_pet in enemy_pets:
-        receive_damage(
-            receiving_pet=enemy_pet,
-            attacking_pet=pet,
-            damage=damage,
-            receiving_team=enemy_pets,
-            opposing_team=my_pets,
-            is_in_battle=is_in_battle,
-        )
+        if enemy_pet in enemy_pets:
+            receive_damage(
+                receiving_pet=enemy_pet,
+                attacking_pet=pet,
+                damage=damage,
+                receiving_team=enemy_pets,
+                opposing_team=my_pets,
+                is_in_battle=is_in_battle,
+            )
 
 
 def on_hurt_peacock(
