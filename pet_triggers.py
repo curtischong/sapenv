@@ -256,7 +256,9 @@ def on_faint_rat(
         # the rat always try to spawn it up front for the opponent
         front_idx = len(enemy_pets) - 1
 
-        try_spawn_at_pos(rat_spawn, idx=front_idx, pets=enemy_pets, is_in_battle=True)
+        try_spawn_at_pos(
+            rat_spawn, idx=front_idx, pets=enemy_pets, is_in_battle=is_in_battle
+        )
 
 
 def on_faint_hedgehog(
