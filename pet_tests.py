@@ -37,7 +37,7 @@ def test_battle_start_prioritizes_higher_attack():
 # pet1s [BEAVER: 3🗡 2❤️ lvl1-1, DUCK: 7🗡 8❤️ lvl1-1, BLOWFISH: 3🗡 6❤️ lvl1-1]
 # pet2s [BEAVER: 3🗡 2❤️ lvl1-1, MOSQUITO: 2🗡 2❤️ lvl1-1]
 # my_pets listed [] MOSQUITO: 2🗡 -1❤️ lvl1-1
-def test_battle_start2():
+def test_hedgehog_takes_out_all_pets():
     set_pet_triggers()
     validate_trigger_protocols()
     validate_can_trigger_in_shop_or_battle_triggers_have_is_in_battle_kwarg()
@@ -63,4 +63,4 @@ def test_battle_start2():
 
 
 if __name__ == "__main__":
-    test_battle_start2()
+    test_hedgehog_takes_out_all_pets()
