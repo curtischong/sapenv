@@ -352,7 +352,7 @@ def on_faint_spider(
     new_spawn_experience = get_experience_for_level(pet.get_level())
 
     pet_to_spawn.set_stats_all(
-        attack=stat, health=stat, experience=new_spawn_experience
+        attack=stat, health=stat, experience=new_spawn_experience, attack_boost=0, health_boost=0
     )
     try_spawn_at_pos(pet_to_spawn, faint_pet_idx, my_pets, is_in_battle)
 
