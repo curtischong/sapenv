@@ -13,11 +13,8 @@ from all_types_and_consts import (
     can_trigger_in_shop_or_battle,
 )
 from battle import make_pet_faint, receive_damage, try_spawn_at_pos
-from pet import (
-    Pet,
-)
+from pet import Pet, get_experience_for_level
 from pet_trigger_utils import (
-    get_experience_for_level,
     get_nearest_friends_ahead,
     get_nearest_friends_behind,
     get_nearest_friends_behind_idx,

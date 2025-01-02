@@ -212,6 +212,10 @@ class Pet:
         self.health = min(MAX_HEALTH, self.health + health)
         return self
 
+    def set_level(self, level: int) -> "Pet":
+        self.experience = get_experience_for_level(level)
+        return self
+
     def set_stats(self, *, attack: int, health: int):
         self.attack = attack
         self.health = health
@@ -274,3 +278,13 @@ class Pet:
             "health": self.health,
             "experience": self.experience,
         }
+
+
+def get_experience_for_level(level: PetLevel) -> PetExperience:
+    match level:
+        case 1:
+            return 1
+        case 2:
+            return 3
+        case 3:
+            return 6
