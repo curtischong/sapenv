@@ -19,7 +19,7 @@ def test_mosquito_kills():
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),
-            get_base_pet(Species.MOSQUITO),
+            get_base_pet(Species.MOSQUITO).set_stats(attack=1, health=1),
         ]
     )
     team2 = Team(
@@ -28,7 +28,7 @@ def test_mosquito_kills():
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),
-            get_base_pet(Species.MOSQUITO).add_stats(attack=1),
+            get_base_pet(Species.MOSQUITO).set_stats(attack=2, health=1),
         ]
     )
     assert battle(my_team=team1, team2=team2) == BattleResult.LOST_BATTLE
