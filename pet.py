@@ -100,10 +100,7 @@ class Pet:
             pet_idx = my_pets.index(self)
 
         prev_index_pet_species = Species.NONE
-        if (
-            pet_idx > 0 and pet_idx - 1 < len(my_pets)
-        ):  # pet_idx - 1 < len(my_pets) is super sus. I only added it because after a make_pet_faint fall, the pet behind it probably also died? so my_pets[pet_idx - 1] threw an exception
-            # I think it's find to have this if statement just to avoid the exception. it feels like an edge case
+        if pet_idx > 0:
             prev_index_pet_species = my_pets[pet_idx - 1].species
         if prev_index_pet_species == Species.TIGER:
             # the tigger behind this pet makes this trigger run twice

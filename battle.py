@@ -53,9 +53,11 @@ def trigger_on_battle_start(pets1: list[Pet], pets2: list[Pet]):
     # now trigger the on_battle_start triggers
     for _, pet, is_team1 in order:
         if is_team1:
-            pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets1, enemy_pets=pets2)
+            if pet in pets1:  # ensure they are still alive
+                pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets1, enemy_pets=pets2)
         else:
-            pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets2, enemy_pets=pets1)
+            if pet in pets2:
+                pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets2, enemy_pets=pets1)
 
 
 def attack_team(

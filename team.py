@@ -19,7 +19,6 @@ class Team:
         num_pets = len(self.pets)
         experiences = np.zeros((num_pets,), dtype=np.int32)
 
-        # TODO: do effects as well
         for idx, pet in enumerate(self.pets):
             experiences[idx] = pet.experience
 
@@ -39,7 +38,7 @@ class Team:
             res.append(pet.apply_temp_buffs())
         return res
 
-    def get_non_none_pets(self) -> list[Pet]:
+    def get_no_none_pets(self) -> list[Pet]:
         return [pet for pet in self.pets if pet.species != Species.NONE]
 
     # Note: this function ensures that the returned pets are not NONE
