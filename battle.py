@@ -158,7 +158,7 @@ def receive_damage(
             receiving_pet,
             my_pets=receiving_team,
             enemy_pets=opposing_team,
-            is_in_battle=True,
+            is_in_battle=is_in_battle,
         )
         attacking_pet.trigger(
             Trigger.ON_KNOCK_OUT, my_pets=opposing_team, enemy_pets=receiving_team
