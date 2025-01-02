@@ -23,3 +23,6 @@ To fix:
 - squirrel
 - implement tiger
 parrot. ENSURE IT copies the ability FIRST (so when on_end_turn is called, it can repeat on_end_turn effects)
+
+
+I think that before a pet’s trigger is ran, we just need to verify that it’s still alive on the team. so each trigger needs to pass in the team. not sure how this will work with on_faint
