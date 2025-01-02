@@ -73,9 +73,7 @@ class Pet:
             while ith_trigger < len(self._triggers[trigger]):
                 # important: determine if the tiger buff makes this trigger run twice BEFORE the trigger happens (since onfaint can mess up pet indexes)
                 is_triggered_twice, level_to_trigger_as = (
-                    self.check_if_previous_pet_is_tiger(
-                        trigger, ith_trigger, *args, **kwargs
-                    )
+                    self.check_if_previous_pet_is_tiger(trigger, **kwargs)
                 )
                 # the first arg is always the pet that's triggering the event. So we put "self" as the first arg
                 self._triggers[trigger][ith_trigger](self, *args, **kwargs)
@@ -85,9 +83,7 @@ class Pet:
                     self._triggers[trigger][ith_trigger](self, *args, **kwargs)
                 ith_trigger += 1
 
-    def check_if_previous_pet_is_tiger(
-        self, trigger: Trigger, ith_trigger: int, *args, **kwargs
-    ):
+    def check_if_previous_pet_is_tiger(self, trigger: Trigger, **kwargs):
         # 1) ensure that we are in a battle right now. the tiger only triggers in battle
         is_not_a_battle_trigger = trigger not in in_battle_triggers
 

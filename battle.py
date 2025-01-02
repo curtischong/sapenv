@@ -83,18 +83,13 @@ def attack_team(
         )
 
     # now apply the damage
-    if attacker_pet.effect == Effect.CHILLI and len(receiving_team) > 1:
-        # attack the second pet if the chilli effect is active
-        receive_damage(
-            receiving_pet=receiving_team[-2],
-            attacking_pet=attacker_pet,
-            damage=5,
-            receiving_team=receiving_team,
-            opposing_team=attacking_team,
-            is_in_battle=True,
-        )
+
+    frontmost_pet = receiving_team[-1]
+    second_pet = None
+    if len(receiving_team) > 1:
+        second_pet = receiving_team[-2]
     receive_damage(
-        receiving_pet=receiving_team[-1],
+        receiving_pet=frontmost_pet,
         attacking_pet=attacker_pet,
         damage=damage,
         receiving_team=receiving_team,
@@ -102,7 +97,24 @@ def attack_team(
         is_in_battle=True,
     )
 
-    attacker_pet.trigger(Trigger.ON_AFTER_ATTACK, my_pets=attacking_team)
+    if (
+        attacker_pet.effect == Effect.CHILLI
+        and second_pet
+        and second_pet in receiving_team  # they are still alive in the team
+    ):
+        # attack the second pet if the chilli effect is active
+        receive_damage(
+            receiving_pet=second_pet,
+            attacking_pet=attacker_pet,
+            damage=5,
+            receiving_team=receiving_team,
+            opposing_team=attacking_team,
+            is_in_battle=True,
+        )
+
+    attacker_pet.trigger(
+        Trigger.ON_AFTER_ATTACK, my_pets=attacking_team, enemy_pets=receiving_team
+    )
 
 
 def receive_damage(
@@ -148,7 +160,9 @@ def receive_damage(
             enemy_pets=opposing_team,
             is_in_battle=True,
         )
-        attacking_pet.trigger(Trigger.ON_KNOCK_OUT)
+        attacking_pet.trigger(
+            Trigger.ON_KNOCK_OUT, my_pets=opposing_team, enemy_pets=receiving_team
+        )
 
 
 def make_pet_faint(

@@ -18,6 +18,7 @@
             "type": "debugpy",
             "request": "launch",
             "program": "main.py",
+            "args": ["--batch_size=128"],
             "console": "integratedTerminal",
             "justMyCode": false
         },
@@ -28,6 +29,15 @@
             "module": "pytest",
             "args": ["player_test.py"],
             "console": "integratedTerminal"
-        }
+        },
+        {
+            "name": "finetune",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main.py",
+            "args": ["--finetune", "./models/rl_model_2048_steps.zip", "--batch_size=128"],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
     ]
 }

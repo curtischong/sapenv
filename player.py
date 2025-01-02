@@ -10,7 +10,6 @@ from all_types_and_consts import (
     TURN_AT_WHICH_THEY_GAIN_ONE_LOST_HEART,
     ActionReturn,
     BattleResult,
-    Food,
     GameResult,
     Species,
     MAX_SHOP_SLOTS,

@@ -90,9 +90,6 @@ def trigger_food_for_pet(food_type: Food, team: Team, pet_idx: int, shop: Shop):
         case Food.BEST_MILK:
             attack_buff = 3
             health_buff = 6
-        case Food.APPLE_2_COST:
-            attack_buff = 1
-            health_buff = 1
         case Food.APPLE_2_COST_BETTER:
             attack_buff = 2
             health_buff = 2
