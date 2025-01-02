@@ -20,6 +20,7 @@ from pet_trigger_utils import (
     get_experience_for_level,
     get_nearest_friends_ahead,
     get_nearest_friends_behind,
+    get_nearest_friends_behind_idx,
     get_pet_with_highest_health,
     get_pet_with_lowest_health,
 )
@@ -305,7 +306,9 @@ def on_faint_flamingo(
     enemy_pets: list[Pet] | None,
     is_in_battle: bool,
 ):
-    closest_friends_behind = get_nearest_friends_behind(pet, my_pets, num_friends=2)
+    closest_friends_behind = get_nearest_friends_behind_idx(
+        behind_idx=faint_pet_idx, my_pets=my_pets, num_friends=2
+    )
 
     stat_boost = pet.get_level()
     for friend in closest_friends_behind:
@@ -352,7 +355,11 @@ def on_faint_spider(
     new_spawn_experience = get_experience_for_level(pet.get_level())
 
     pet_to_spawn.set_stats_all(
-        attack=stat, health=stat, experience=new_spawn_experience
+        attack=stat,
+        health=stat,
+        experience=new_spawn_experience,
+        attack_boost=0,
+        health_boost=0,
     )
     try_spawn_at_pos(pet_to_spawn, faint_pet_idx, my_pets, is_in_battle)
 
@@ -569,8 +576,8 @@ def on_faint_turtle(
     enemy_pets: list[Pet] | None,
     is_in_battle: bool,
 ):
-    nearest_friends = get_nearest_friends_behind(
-        pet, my_pets, num_friends=pet.get_level()
+    nearest_friends = get_nearest_friends_behind_idx(
+        faint_pet_idx=faint_pet_idx, my_pets=my_pets, num_friends=pet.get_level()
     )
     for friend in nearest_friends:
         friend.effect = Effect.MELON
