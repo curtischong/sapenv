@@ -69,7 +69,7 @@ def trigger_food_for_pet(food_type: Food, team: Team, pet_idx: int, shop: Shop):
             pet.experience += 1
             new_level = pet.get_level()
             if new_level > old_level:
-                pet.trigger(Trigger.ON_LEVEL_UP)
+                pet.trigger(Trigger.ON_LEVEL_UP, team=team)
                 shop.create_linked_pet()
         case Food.STEAK:
             pet.effect = Effect.STEAK
