@@ -102,7 +102,9 @@ def attack_team(
         is_in_battle=True,
     )
 
-    attacker_pet.trigger(Trigger.ON_AFTER_ATTACK, my_pets=attacking_team)
+    attacker_pet.trigger(
+        Trigger.ON_AFTER_ATTACK, my_pets=attacking_team, enemy_pets=receiving_team
+    )
 
 
 def receive_damage(
