@@ -18,6 +18,7 @@ def get_nearest_friends_ahead(
     return friends_ahead
 
 
+# use this function directly if an "on_faint" trigger function calls this (since there is not more pet)
 def get_nearest_friends_behind_idx(
     behind_idx: int, my_pets: list[Pet], num_friends: int
 ):
