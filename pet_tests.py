@@ -45,9 +45,9 @@ def test_battle_start2():
         [
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),
-            get_base_pet(Species.BEAVER).set_stats(attack=3, health=2),
-            get_base_pet(Species.DUCK).set_stats(attack=7, health=8),
-            get_base_pet(Species.BLOWFISH).set_stats(attack=3, health=6),
+            get_base_pet(Species.NONE),
+            get_base_pet(Species.NONE),
+            get_base_pet(Species.BADGER).set_stats(attack=2, health=1),
         ]
     )
     team2 = Team(
@@ -55,12 +55,11 @@ def test_battle_start2():
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),
-            get_base_pet(Species.BEAVER).set_stats(attack=3, health=2),
-            get_base_pet(Species.MOSQUITO).set_stats(attack=2, health=2),
+            get_base_pet(Species.MOSQUITO).set_stats(attack=3, health=1),
+            get_base_pet(Species.MOSQUITO).set_stats(attack=1, health=1),
         ]
     )
-    for _ in range(100):
-        assert battle(my_team=team1, team2=team2) == BattleResult.WON_BATTLE
+    assert battle(my_team=team1, team2=team2) == BattleResult.TIE
 
 
 if __name__ == "__main__":

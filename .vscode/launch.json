@@ -39,6 +39,14 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "run battle main",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "pet_tests.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
             "name": "finetune",
             "type": "debugpy",
             "request": "launch",
