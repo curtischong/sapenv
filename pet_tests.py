@@ -9,7 +9,7 @@ from pet_triggers import (
 from team import Team
 
 
-def test_mosquito_kills():
+def test_battle_start_prioritizes_higher_attack():
     set_pet_triggers()
     validate_trigger_protocols()
     validate_can_trigger_in_shop_or_battle_triggers_have_is_in_battle_kwarg()
