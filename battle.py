@@ -58,11 +58,9 @@ def trigger_on_battle_start(pets1: list[Pet], pets2: list[Pet]):
     for _, pet, is_team1 in order:
         if is_team1:
             if pet in pets1 and len(pets2) > 0:  # ensure they are still alive
-                # print("pets1", pets1)
                 pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets1, enemy_pets=pets2)
         else:
             if pet in pets2 and len(pets1) > 0:
-                # print("pets2", pets2)
                 pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets2, enemy_pets=pets1)
 
 
