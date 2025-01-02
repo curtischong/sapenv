@@ -160,7 +160,9 @@ def receive_damage(
             enemy_pets=opposing_team,
             is_in_battle=True,
         )
-        attacking_pet.trigger(Trigger.ON_KNOCK_OUT)
+        attacking_pet.trigger(
+            Trigger.ON_KNOCK_OUT, my_pets=opposing_team, enemy_pets=receiving_team
+        )
 
 
 def make_pet_faint(
