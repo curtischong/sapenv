@@ -124,7 +124,7 @@ def receive_damage(
 
     receiving_pet.trigger(
         Trigger.ON_HURT,
-        team_pets=receiving_team,
+        my_pets=receiving_team,
         enemy_pets=opposing_team,
         is_in_battle=is_in_battle,
     )
@@ -142,7 +142,7 @@ def receive_damage(
         # I'll make the mushroom trigger last after all on faint effects are done (since it's what the sapai repo does)
         make_pet_faint(
             receiving_pet,
-            team_pets=receiving_team,
+            my_pets=receiving_team,
             enemy_pets=opposing_team,
             is_in_battle=True,
         )
@@ -150,35 +150,35 @@ def receive_damage(
 
 
 def make_pet_faint(
-    pet: Pet, team_pets: list[Pet], enemy_pets: list[Pet] | None, is_in_battle: bool
+    pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet] | None, is_in_battle: bool
 ):
-    idx_in_team = team_pets.index(pet)
+    idx_in_team = my_pets.index(pet)
     if is_in_battle:
-        team_pets.pop(idx_in_team)  # remove the pet first to make room for other pets
+        my_pets.pop(idx_in_team)  # remove the pet first to make room for other pets
     else:
         # e.g. when using a pill, we just set it to NONE (so the spot on the team becomes empty)
-        team_pets[idx_in_team] = get_base_pet(Species.NONE)
+        my_pets[idx_in_team] = get_base_pet(Species.NONE)
     pet.trigger(
         Trigger.ON_FAINT,
         faint_pet_idx=idx_in_team,
-        my_pets=team_pets,
+        my_pets=my_pets,
         enemy_pets=enemy_pets,
         is_in_battle=is_in_battle,
     )
-    for team_pet in team_pets:
+    for team_pet in my_pets:
         if team_pet is not pet:
             team_pet.trigger(
                 Trigger.ON_FRIEND_FAINTS,
                 faint_pet_idx=idx_in_team,
-                my_pets=team_pets,
+                my_pets=my_pets,
                 is_in_battle=is_in_battle,
             )
 
     # now trigger the ON_FRIEND_AHEAD_FAINTS trigger
     if idx_in_team > 0:
-        team_pets[idx_in_team - 1].trigger(
+        my_pets[idx_in_team - 1].trigger(
             Trigger.ON_FRIEND_AHEAD_FAINTS,
-            my_pets=team_pets,
+            my_pets=my_pets,
             is_in_battle=is_in_battle,
         )
 
@@ -187,10 +187,10 @@ def make_pet_faint(
             attack=1,
             health=1,
         )
-        try_spawn_at_pos(new_pet, idx_in_team, team_pets, is_in_battle)
+        try_spawn_at_pos(new_pet, idx_in_team, my_pets, is_in_battle)
     elif pet.effect == Effect.BEE:
         new_pet = get_base_pet(Species.PET_SPAWN).set_stats(attack=1, health=1)
-        try_spawn_at_pos(new_pet, idx_in_team, team_pets, is_in_battle)
+        try_spawn_at_pos(new_pet, idx_in_team, my_pets, is_in_battle)
 
 
 def try_spawn_at_pos(pet_to_spawn: Pet, idx: int, pets: list[Pet], is_in_battle: bool):
