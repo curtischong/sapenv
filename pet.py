@@ -69,10 +69,19 @@ class Pet:
             # a trigger may append MORE triggers of the same type. So we cannot just use a "for in" loop.
             ith_trigger = 0
             while ith_trigger < len(self._triggers[trigger]):
+                is_triggered_twice = self.check_if_previous_pet_is_tiger(
+                    trigger, ith_trigger, *args, **kwargs
+                )
                 # the first arg is always the pet that's triggering the event. So we put "self" as the first arg
                 self._triggers[trigger][ith_trigger](self, *args, **kwargs)
-                self.try_trigger_twice_tiger(trigger, ith_trigger, *args, **kwargs)
+                if is_triggered_twice:
+                    self._triggers[trigger][ith_trigger](self, *args, **kwargs)
                 ith_trigger += 1
+
+    def check_if_previous_pet_is_tiger(
+        self, trigger: Trigger, ith_trigger: int, *args, **kwargs
+    ):
+        pass
 
     def try_trigger_twice_tiger(
         self, trigger: Trigger, ith_trigger: int, *args, **kwargs
