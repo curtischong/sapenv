@@ -103,6 +103,10 @@ class FlattenObservation(gym.ObservationWrapper):
                 start_idx = observation_def.start_idx
                 end_idx = observation_def.start_idx + observation_def.size
                 flattened_value = value.flatten()
+                assert (
+                    end_idx - start_idx == flattened_value.size
+                ), f"{path_key} observation has size issue. Trying to flatten observation of shape {value.shape} into the defined action size {end_idx - start_idx}"
+
                 obs_arr[start_idx:end_idx] = (
                     flattened_value + observation_def.normalization_shift
                 ) / observation_def.normalization_amount
