@@ -175,7 +175,9 @@ def make_pet_faint(
             )
 
     # now trigger the ON_FRIEND_AHEAD_FAINTS trigger
-    if idx_in_team > 0:
+    if (
+        idx_in_team > 0 and idx_in_team - 1 < len(my_pets)
+    ):  # I think we need to evaluate idx_in_team - 1 < len(my_pets) because the on_friend_faints above may have altered the team
         my_pets[idx_in_team - 1].trigger(
             Trigger.ON_FRIEND_AHEAD_FAINTS,
             my_pets=my_pets,
