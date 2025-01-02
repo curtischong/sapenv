@@ -97,7 +97,12 @@ class Pet:
             # use this instead because for on_faint, we will NOT be able to find the index of the pet (after it's removed from the team)
             pet_idx = kwargs["faint_pet_idx"]
         else:
-            pet_idx = my_pets.index(self)
+            if (
+                self in my_pets
+            ):  # e.g. if in an on_battle_start trigger is queued, but the whale dies before it runs, we won't find the whale on the team. so skip it
+                pet_idx = my_pets.index(self)
+            else:
+                pet_idx = -1
 
         prev_index_pet_species = Species.NONE
         if (
