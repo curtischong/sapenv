@@ -23,7 +23,7 @@ def battle(my_team: Team, team2: Team) -> BattleResult:
         attacker1 = pets1[-1]
         attacker2 = pets2[-1]
         attack_team(attacker_pet=attacker1, receiving_team=pets2, attacking_team=pets1)
-        if len(pets1) > 0:
+        if len(pets1) > 0 and len(pets2) > 0:
             # if they are still alive, then attack them. otherwise, don't
             attack_team(
                 attacker_pet=attacker2, receiving_team=pets1, attacking_team=pets2
@@ -57,10 +57,10 @@ def trigger_on_battle_start(pets1: list[Pet], pets2: list[Pet]):
     # now trigger the on_battle_start triggers
     for _, pet, is_team1 in order:
         if is_team1:
-            if pet in pets1:  # ensure they are still alive
+            if pet in pets1 and len(pets2) > 0:  # ensure they are still alive
                 pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets1, enemy_pets=pets2)
         else:
-            if pet in pets2:
+            if pet in pets2 and len(pets1) > 0:
                 pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets2, enemy_pets=pets1)
 
 

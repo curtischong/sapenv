@@ -417,7 +417,7 @@ def on_faint_badger(
         # else: there is no pet ahead to deal damage to
 
     # now deal damage to the pet behind (you can only damage your own team)
-    if faint_pet_idx > 0:
+    if faint_pet_idx > 0 and len(my_pets) > faint_pet_idx - 1:
         pet_behind = my_pets[faint_pet_idx - 1]
         receive_damage(
             receiving_pet=pet_behind,
