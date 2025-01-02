@@ -107,7 +107,7 @@ class Pet:
             pet_idx = kwargs["faint_pet_idx"]
         else:
             if self not in my_pets:
-                print("my_pets listed", my_pets, self)
+                print("my_pets listed", my_pets, self, trigger, kwargs)
             pet_idx = my_pets.index(self)
 
         if (

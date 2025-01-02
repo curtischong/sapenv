@@ -34,17 +34,20 @@ def test_battle_start_prioritizes_higher_attack():
     assert battle(my_team=team1, team2=team2) == BattleResult.LOST_BATTLE
 
 
-def test_battle_start_prioritizes_higher_attack2():
+# pet1s [BEAVER: 3🗡 2❤️ lvl1-1, DUCK: 7🗡 8❤️ lvl1-1, BLOWFISH: 3🗡 6❤️ lvl1-1]
+# pet2s [BEAVER: 3🗡 2❤️ lvl1-1, MOSQUITO: 2🗡 2❤️ lvl1-1]
+# my_pets listed [] MOSQUITO: 2🗡 -1❤️ lvl1-1
+def test_battle_start2():
     set_pet_triggers()
     validate_trigger_protocols()
     validate_can_trigger_in_shop_or_battle_triggers_have_is_in_battle_kwarg()
     team1 = Team(
         [
             get_base_pet(Species.NONE),
-            get_base_pet(Species.PIG).set_stats(attack=4, health=1),
-            get_base_pet(Species.RAT).set_stats(attack=3, health=6),
-            get_base_pet(Species.HEDGEHOG).set_stats(attack=2, health=2),
-            get_base_pet(Species.FISH).set_stats(attack=3, health=4),
+            get_base_pet(Species.NONE),
+            get_base_pet(Species.BEAVER).set_stats(attack=3, health=2),
+            get_base_pet(Species.DUCK).set_stats(attack=7, health=8),
+            get_base_pet(Species.BLOWFISH).set_stats(attack=3, health=6),
         ]
     )
     team2 = Team(
@@ -52,8 +55,13 @@ def test_battle_start_prioritizes_higher_attack2():
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),
             get_base_pet(Species.NONE),
+            get_base_pet(Species.BEAVER).set_stats(attack=3, health=2),
             get_base_pet(Species.MOSQUITO).set_stats(attack=2, health=2),
-            get_base_pet(Species.FISH).set_stats(attack=2, health=3),
         ]
     )
-    assert battle(my_team=team1, team2=team2) == BattleResult.LOST_BATTLE
+    for _ in range(100):
+        assert battle(my_team=team1, team2=team2) == BattleResult.WON_BATTLE
+
+
+if __name__ == "__main__":
+    test_battle_start2()
