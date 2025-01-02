@@ -357,6 +357,7 @@ def on_faint_spider(
     pet_to_spawn.set_stats_all(
         attack=stat,
         health=stat,
+        effect=Effect.NONE,
         experience=new_spawn_experience,
         attack_boost=0,
         health_boost=0,
