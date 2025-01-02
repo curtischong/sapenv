@@ -883,7 +883,7 @@ def set_pet_triggers():
     species_to_pet_map[Species.OTTER].set_trigger(Trigger.ON_BUY, on_buy_otter)
     species_to_pet_map[Species.PIG].set_trigger(Trigger.ON_SELL, on_sell_pig)
     species_to_pet_map[Species.ANT].set_trigger(Trigger.ON_FAINT, on_faint_ant)
-    species_to_pet_map[Species.MOSQUITO].set_trigger( Trigger.ON_BATTLE_START, on_battle_start_mosquito)
+    species_to_pet_map[Species.MOSQUITO].set_trigger(Trigger.ON_BATTLE_START, on_battle_start_mosquito)
     species_to_pet_map[Species.FISH].set_trigger(Trigger.ON_LEVEL_UP, on_level_up_fish)
     species_to_pet_map[Species.CRICKET].set_trigger(Trigger.ON_FAINT, on_faint_cricket)
     species_to_pet_map[Species.HORSE].set_trigger(Trigger.ON_FRIEND_SUMMONED, on_friend_summoned_horse)
