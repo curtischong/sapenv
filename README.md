@@ -26,3 +26,5 @@ parrot. ENSURE IT copies the ability FIRST (so when on_end_turn is called, it ca
 
 
 I think that before a pet’s trigger is ran, we just need to verify that it’s still alive on the team. so each trigger needs to pass in the team. not sure how this will work with on_faint
+
+one thing we should probably do is run an agent against all pets in the db to determine a smarter reward.
