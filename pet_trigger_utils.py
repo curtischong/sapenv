@@ -22,7 +22,7 @@ def get_nearest_friends_ahead(
 def get_nearest_friends_behind_idx(
     behind_idx: int, my_pets: list[Pet], num_friends: int
 ):
-    friend_idx = behind_idx - 1
+    friend_idx = min(behind_idx - 1, len(my_pets) - 1)
     friends_behind = []
 
     while len(friends_behind) < num_friends and friend_idx >= 0:

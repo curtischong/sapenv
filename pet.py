@@ -75,6 +75,8 @@ class Pet:
                 num_triggers, level_to_trigger_as = self.check_if_previous_pet_is_tiger(
                     trigger, **kwargs
                 )
+                if num_triggers == 0:
+                    continue
                 # the first arg is always the pet that's triggering the event. So we put "self" as the first arg
                 self._triggers[trigger][ith_trigger](self, *args, **kwargs)
 
@@ -84,6 +86,20 @@ class Pet:
                 ith_trigger += 1
 
     def check_if_previous_pet_is_tiger(self, trigger: Trigger, **kwargs):
+        # ensure they are still in the team
+        if "my_pets" in kwargs:
+            my_pets: list[Pet] = kwargs["my_pets"]
+        else:
+            my_pets = kwargs["team"].pets
+
+        # for some reason, pets can be gone from the team and this trigger is still called (note: we have an exception for fainted triggers. but still)
+        # e.g. on battle start, even though we have an explicit if guard to ensure the pets are not in the team (before calling the trigger), it still calls
+        # it's as if the list in the battle start is NOT updated. even though we only do mutations on the original ref object in this entire project
+        # basically, this if statement is a final catch all to prevent triggers from hapepning if the pets are not in the team
+        if "faint_pet_idx" not in kwargs and self not in my_pets:
+            # print("my_pets listed", my_pets, self, trigger, kwargs)
+            return 0, 0
+
         # 1) ensure that we are in a battle right now. the tiger only triggers in battle
         is_not_a_battle_trigger = trigger not in in_battle_triggers
 
@@ -96,19 +112,12 @@ class Pet:
             return 1, 0
 
         # 2) ensure that the pet behind this one is a tiger
-        if "my_pets" in kwargs:
-            my_pets: list[Pet] = kwargs["my_pets"]
-        else:
-            my_pets = kwargs["team"].pets
 
         # get idx of the pet to check if the preivous pet is a tiger
         if "faint_pet_idx" in kwargs:
             # use this instead because for on_faint, we will NOT be able to find the index of the pet (after it's removed from the team)
             pet_idx = kwargs["faint_pet_idx"]
         else:
-            if self not in my_pets:
-                print("my_pets listed", my_pets, self, trigger, kwargs)
-                return 1, 0
             pet_idx = my_pets.index(self)
 
         if (

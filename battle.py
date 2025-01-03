@@ -8,6 +8,7 @@ from all_types_and_consts import (
 )
 from pet import Pet
 from pet_data import get_base_pet
+from pet_trigger_utils import get_nearest_friends_behind
 from team import Team
 
 
@@ -22,10 +23,22 @@ def battle(my_team: Team, team2: Team) -> BattleResult:
         # we need to explicitly get these attackers first because after the first attack_team call since the attacker pet might die.
         attacker1 = pets1[-1]
         attacker2 = pets2[-1]
-        attack_team(attacker_pet=attacker1, receiving_team=pets2, attacking_team=pets1)
+        # calculate friend_behind_attacker before the attacks happen because the second frontmost pet may change
+        friend_behind_attacker1 = pets1[-2] if len(pets1) > 1 else None
+        friend_behind_attacker2 = pets2[-2] if len(pets2) > 1 else None
+        attacker2 = pets2[-1]
+        attack_team(
+            attacker_pet=attacker1,
+            friend_behind_attacker=friend_behind_attacker1,
+            receiving_team=pets2,
+            attacking_team=pets1,
+        )
         if len(pets1) > 0:  # only attack if there's still a team to attack!
             attack_team(
-                attacker_pet=attacker2, receiving_team=pets1, attacking_team=pets2
+                attacker_pet=attacker2,
+                friend_behind_attacker=friend_behind_attacker2,
+                receiving_team=pets1,
+                attacking_team=pets2,
             )
 
     if len(pets1) == 0 and len(pets2) == 0:
@@ -68,7 +81,10 @@ def trigger_on_battle_start(pets1: list[Pet], pets2: list[Pet]):
 
 
 def attack_team(
-    attacker_pet: Pet, receiving_team: list[Pet], attacking_team: list[Pet]
+    attacker_pet: Pet,
+    friend_behind_attacker: Pet | None,
+    receiving_team: list[Pet],
+    attacking_team: list[Pet],
 ):
     damage = attacker_pet.attack
     if attacker_pet.effect == Effect.MEAT_BONE:
@@ -81,8 +97,7 @@ def attack_team(
     attacker_pet.trigger(Trigger.ON_BEFORE_ATTACK, my_pets=attacking_team)
 
     # trigger ON_FRIEND_AHEAD_ATTACKS
-    if len(attacking_team) > 1:
-        friend_behind_attacker = attacking_team[-2]
+    if friend_behind_attacker is not None:
         friend_behind_attacker.trigger(
             Trigger.ON_FRIEND_AHEAD_ATTACKS,
             my_pets=attacking_team,
@@ -120,7 +135,10 @@ def attack_team(
         )
 
     attacker_pet.trigger(
-        Trigger.ON_AFTER_ATTACK, my_pets=attacking_team, enemy_pets=receiving_team
+        Trigger.ON_AFTER_ATTACK,
+        friend_behind_attacker=friend_behind_attacker,
+        my_pets=attacking_team,
+        enemy_pets=receiving_team,
     )
 
 

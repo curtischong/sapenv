@@ -85,7 +85,13 @@ class OnFriendAheadAttacks(Protocol):
 
 
 class OnAfterAttack(Protocol):
-    def __call__(self, pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]): ...
+    def __call__(
+        self,
+        pet: Pet,
+        friend_behind_attacker: Pet | None,
+        my_pets: list[Pet],
+        enemy_pets: list[Pet],
+    ): ...
 
 
 class OnFriendlyAteFood(Protocol):
@@ -475,21 +481,24 @@ def on_turn_start_giraffe(pet: Pet, team: Team, shop: Shop):
         friend.add_stats(attack=1, health=1)
 
 
-def on_after_attack_elephant(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
+def on_after_attack_elephant(
+    pet: Pet,
+    friend_behind_attacker: Pet | None,
+    my_pets: list[Pet],
+    enemy_pets: list[Pet],
+):
+    if friend_behind_attacker is None or friend_behind_attacker not in my_pets:
+        return
     num_triggers = pet.get_level()
     for _ in range(num_triggers):
-        if pet not in my_pets:
-            return
-        nearest_friends_behind = get_nearest_friends_behind(pet, my_pets, num_friends=1)
-        if len(nearest_friends_behind) == 1:
-            receive_damage(
-                receiving_pet=nearest_friends_behind[0],
-                attacking_pet=pet,
-                damage=1,
-                receiving_team=my_pets,
-                opposing_team=enemy_pets,
-                is_in_battle=True,
-            )
+        receive_damage(
+            receiving_pet=friend_behind_attacker,
+            attacking_pet=pet,
+            damage=1,
+            receiving_team=my_pets,
+            opposing_team=enemy_pets,
+            is_in_battle=True,
+        )
 
 
 def on_hurt_camel(
