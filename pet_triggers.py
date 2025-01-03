@@ -88,7 +88,7 @@ class OnAfterAttack(Protocol):
     def __call__(
         self,
         pet: Pet,
-        friendly_pet_behind: Pet | None,
+        friend_behind_attacker: Pet | None,
         my_pets: list[Pet],
         enemy_pets: list[Pet],
     ): ...
@@ -482,14 +482,17 @@ def on_turn_start_giraffe(pet: Pet, team: Team, shop: Shop):
 
 
 def on_after_attack_elephant(
-    pet: Pet, friendly_pet_behind: Pet | None, my_pets: list[Pet], enemy_pets: list[Pet]
+    pet: Pet,
+    friend_behind_attacker: Pet | None,
+    my_pets: list[Pet],
+    enemy_pets: list[Pet],
 ):
-    if friendly_pet_behind is None or friendly_pet_behind not in my_pets:
+    if friend_behind_attacker is None or friend_behind_attacker not in my_pets:
         return
     num_triggers = pet.get_level()
     for _ in range(num_triggers):
         receive_damage(
-            receiving_pet=friendly_pet_behind,
+            receiving_pet=friend_behind_attacker,
             attacking_pet=pet,
             damage=1,
             receiving_team=my_pets,

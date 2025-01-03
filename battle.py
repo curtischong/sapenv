@@ -136,7 +136,7 @@ def attack_team(
 
     attacker_pet.trigger(
         Trigger.ON_AFTER_ATTACK,
-        friendly_pet_behind=friend_behind_attacker,
+        friend_behind_attacker=friend_behind_attacker,
         my_pets=attacking_team,
         enemy_pets=receiving_team,
     )
