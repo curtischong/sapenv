@@ -37,8 +37,8 @@ def trigger_on_battle_start(pets1: list[Pet], pets2: list[Pet]):
     on_battle_start_pets: list[
         tuple[int, Pet, bool]
     ] = []  # list of (pet_attack, pet, is_team1)
-    print("pet1s-----", pets1)
-    print("pet2s-----", pets2)
+    # print("pet1s-----", pets1)
+    # print("pet2s-----", pets2)
 
     for pet in pets1:
         on_battle_start_pets.append((pet.attack, pet, True))
@@ -56,11 +56,11 @@ def trigger_on_battle_start(pets1: list[Pet], pets2: list[Pet]):
     for _, pet, is_team1 in order:
         if is_team1:
             if pet in pets1 and len(pets2) > 0:  # ensure they are still alive
-                print(pet, "pets1", pets1)
+                # print(pet, "pets1", pets1)
                 pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets1, enemy_pets=pets2)
         else:
             if pet in pets2 and len(pets1) > 0:
-                print(pet, "pets2", pets2)
+                # print(pet, "pets2", pets2)
                 pet.trigger(Trigger.ON_BATTLE_START, my_pets=pets2, enemy_pets=pets1)
 
 
@@ -176,6 +176,7 @@ def receive_damage(
 def make_pet_faint(
     pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet] | None, is_in_battle: bool
 ):
+    # print("fainted", pet)
     idx_in_team = my_pets.index(pet)
     if is_in_battle:
         my_pets.pop(idx_in_team)  # remove the pet first to make room for other pets

@@ -72,13 +72,13 @@ class Pet:
             ith_trigger = 0
             while ith_trigger < len(self._triggers[trigger]):
                 # important: determine if the tiger buff makes this trigger run twice BEFORE the trigger happens (since onfaint can mess up pet indexes)
-                is_triggered_twice, level_to_trigger_as = (
-                    self.check_if_previous_pet_is_tiger(trigger, **kwargs)
+                num_triggers, level_to_trigger_as = self.check_if_previous_pet_is_tiger(
+                    trigger, **kwargs
                 )
                 # the first arg is always the pet that's triggering the event. So we put "self" as the first arg
                 self._triggers[trigger][ith_trigger](self, *args, **kwargs)
 
-                if is_triggered_twice:
+                if num_triggers == 2:
                     self.metadata[TIGER_LEVEL_TRIGGER_KEY] = level_to_trigger_as
                     self._triggers[trigger][ith_trigger](self, *args, **kwargs)
                 ith_trigger += 1
@@ -93,7 +93,7 @@ class Pet:
         )
         if is_not_a_battle_trigger or is_triggering_in_the_shop:
             # the tiger can only trigger multiple times if it's in battle
-            return False, 0
+            return 1, 0
 
         # 2) ensure that the pet behind this one is a tiger
         if "my_pets" in kwargs:
@@ -108,6 +108,7 @@ class Pet:
         else:
             if self not in my_pets:
                 print("my_pets listed", my_pets, self, trigger, kwargs)
+                return 1, 0
             pet_idx = my_pets.index(self)
 
         if (
@@ -118,8 +119,8 @@ class Pet:
             # ), f"my_pets is not big enough my_pets={my_pets}" # my_pets is [] when this fails :/
             prev_index_pet = my_pets[pet_idx - 1]
             if prev_index_pet.species == Species.TIGER:
-                return True, prev_index_pet.get_level()
-        return False, 0
+                return 2, prev_index_pet.get_level()
+        return 1, 0
 
     def clear_triggers(self):
         self._triggers.clear()
