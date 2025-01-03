@@ -8,6 +8,7 @@ from all_types_and_consts import (
 )
 from pet import Pet
 from pet_data import get_base_pet
+from pet_trigger_utils import get_nearest_friends_behind
 from team import Team
 
 
@@ -80,6 +81,14 @@ def attack_team(
     # trigger ON_BEFORE_ATTACK
     attacker_pet.trigger(Trigger.ON_BEFORE_ATTACK, my_pets=attacking_team)
 
+    # allows the elephant to know it's friend behind BEFORE it attacks
+    friendly_pets_behind = get_nearest_friends_behind(
+        attacker_pet, my_pets=attacking_team, num_friends=1
+    )
+    friendly_pet_behind = (
+        friendly_pets_behind[0] if len(friendly_pets_behind) == 0 else None
+    )
+
     # trigger ON_FRIEND_AHEAD_ATTACKS
     if len(attacking_team) > 1:
         friend_behind_attacker = attacking_team[-2]
@@ -120,7 +129,10 @@ def attack_team(
         )
 
     attacker_pet.trigger(
-        Trigger.ON_AFTER_ATTACK, my_pets=attacking_team, enemy_pets=receiving_team
+        Trigger.ON_AFTER_ATTACK,
+        friendly_pet_behind=friendly_pet_behind,
+        my_pets=attacking_team,
+        enemy_pets=receiving_team,
     )
 
 
