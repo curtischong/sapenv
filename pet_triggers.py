@@ -473,6 +473,8 @@ def on_turn_start_giraffe(pet: Pet, team: Team, shop: Shop):
 def on_after_attack_elephant(pet: Pet, my_pets: list[Pet], enemy_pets: list[Pet]):
     num_triggers = pet.get_level()
     for _ in range(num_triggers):
+        if pet not in my_pets:
+            return
         nearest_friends_behind = get_nearest_friends_behind(pet, my_pets, num_friends=1)
         if len(nearest_friends_behind) == 1:
             receive_damage(
