@@ -102,7 +102,12 @@ class OnKnockOut(Protocol):
 
 class OnFriendFaints(Protocol):
     def __call__(
-        self, pet: Pet, faint_pet_idx: int, my_pets: list[Pet], is_in_battle: bool
+        self,
+        pet: Pet,
+        fainted_pet: Pet,
+        faint_pet_idx: int,
+        my_pets: list[Pet],
+        is_in_battle: bool,
     ): ...
 
 
@@ -769,7 +774,11 @@ def on_faint_rooster(
 
 
 def on_friend_faints_shark(
-    pet: Pet, faint_pet_idx: int, my_pets: list[Pet], is_in_battle: bool
+    pet: Pet,
+    fainted_pet: Pet,
+    faint_pet_idx: int,
+    my_pets: list[Pet],
+    is_in_battle: bool,
 ):
     stat_buff = 2 * pet.get_level()
     pet.add_stats(attack=stat_buff, health=stat_buff)
@@ -873,10 +882,13 @@ def on_friend_ahead_attacks_snake(pet: Pet, my_pets: list[Pet], enemy_pets: list
 
 
 def on_friend_faints_fly(
-    pet: Pet, faint_pet_idx: int, my_pets: list[Pet], is_in_battle: bool
+    pet: Pet,
+    fainted_pet: Pet,
+    faint_pet_idx: int,
+    my_pets: list[Pet],
+    is_in_battle: bool,
 ):
     if pet.metadata["num_zombie_flies_spawned"] < 3:
-        fainted_pet = my_pets[faint_pet_idx]
         if fainted_pet.metadata["is_zombie_fly"]:
             # we do not spawn a fly if the pet was a zombie fly
             return

@@ -194,6 +194,7 @@ def make_pet_faint(
         if team_pet is not pet:
             team_pet.trigger(
                 Trigger.ON_FRIEND_FAINTS,
+                fainted_pet=pet,
                 faint_pet_idx=idx_in_team,
                 my_pets=my_pets,
                 is_in_battle=is_in_battle,
