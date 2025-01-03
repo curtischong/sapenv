@@ -210,6 +210,10 @@ class Shop:
             new_food_slots.append(FoodShopSlot(chosen_food))
         self.food_slots = new_food_slots
 
+    def append_food_slot(self, food_slot: FoodShopSlot):
+        if len(self.food_slots) < MAX_SHOP_FOOD_SLOTS:
+            self.food_slots.append(food_slot)
+
     def roll_random_linked_slot_pet(self, tier: int):
         chosen = random.choice(
             shop_tier_to_pets_map[tier]

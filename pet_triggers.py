@@ -137,7 +137,7 @@ def on_sell_beaver(pet: Pet, shop: Shop, team: Team):
 
 def on_sell_pigeon(pet: Pet, shop: Shop, team: Team):
     for _ in range(pet.get_level()):
-        shop.food_slots.append(FoodShopSlot(Food.BREAD_CRUMB))
+        shop.append_food_slot(FoodShopSlot(Food.BREAD_CRUMB))
 
 
 def on_buy_otter(pet: Pet, team: Team, shop: Shop):
@@ -342,7 +342,7 @@ def on_turn_start_worm(pet: Pet, team: Team, shop: Shop):
 
     food_to_add = FoodShopSlot(apple_kind)
     food_to_add.cost -= cost_discount
-    shop.food_slots.append(food_to_add)
+    shop.append_food_slot(food_to_add)
 
 
 def on_friend_ahead_attacks_kangaroo(
@@ -739,7 +739,7 @@ def on_buy_cow(pet: Pet, team: Team, shop: Shop):
             milk_type = Food.BEST_MILK
     shop.food_slots = []
     for _ in range(2):
-        shop.food_slots.append(FoodShopSlot(milk_type))
+        shop.append_food_slot(FoodShopSlot(milk_type))
 
 
 def on_friendly_ate_food_seal(pet: Pet, pet_that_ate_food: Pet, team: Team):

@@ -31,7 +31,7 @@ MAX_SHOP_SLOTS = 7  # you can have at most 7 NORMAL shop indexes (5 from normal 
 MAX_SHOP_LINKED_SLOTS = MAX_TEAM_SIZE  # since you can promote as most this many pets (by dragging from the shop to them)
 
 # I think MAX_SHOP_FOOD_SLOTS is 18 because the max foods is 3. however, you can sell 5 pigeons to get 3*5 foods. so the shop can have up to 18 food slots.
-MAX_SHOP_FOOD_SLOTS = 18  # I think having a pigeon and then selling it at a higher tier will allow you to overflow the existing 2 food slots (so you can have an extra food). Cow CLEARs the shop. so there's no risk of overflowing
+MAX_SHOP_FOOD_SLOTS = 6  # I think having a pigeon and then selling it at a higher tier will allow you to overflow the existing 2 food slots (so you can have an extra food). Cow CLEARs the shop. so there's no risk of overflowing
 STARTING_GOLD = 10
 MAX_GOLD = 30
 PET_COST = 3
