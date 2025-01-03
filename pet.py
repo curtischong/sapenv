@@ -92,7 +92,10 @@ class Pet:
         else:
             my_pets = kwargs["team"].pets
 
-        # for some reason, pets can be gone from the team and still exist
+        # for some reason, pets can be gone from the team and this trigger is still called (note: we have an exception for fainted triggers. but still)
+        # e.g. on battle start, even though we have an explicit if guard to ensure the pets are not in the team (before calling the trigger), it still calls
+        # it's as if the list in the battle start is NOT updated. even though we only do mutations on the original ref object in this entire project
+        # basically, this if statement is a final catch all to prevent triggers from hapepning if the pets are not in the team
         if "faint_pet_idx" not in kwargs and self not in my_pets:
             # print("my_pets listed", my_pets, self, trigger, kwargs)
             return 0, 0
