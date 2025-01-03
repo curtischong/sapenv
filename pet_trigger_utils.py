@@ -1,4 +1,4 @@
-from all_types_and_consts import MAX_HEALTH, PetExperience, PetLevel, Species
+from all_types_and_consts import MAX_HEALTH, Species
 from pet import Pet
 
 
@@ -61,13 +61,3 @@ def get_pet_with_lowest_health(pets: list[Pet]) -> Pet:
             lowest_health_pet = pet
             lowest_health = pet.health
     return lowest_health_pet
-
-
-def get_experience_for_level(level: PetLevel) -> PetExperience:
-    match level:
-        case 1:
-            return 1
-        case 2:
-            return 3
-        case 3:
-            return 6
