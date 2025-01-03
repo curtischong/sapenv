@@ -75,6 +75,8 @@ class Pet:
                 num_triggers, level_to_trigger_as = self.check_if_previous_pet_is_tiger(
                     trigger, **kwargs
                 )
+                if num_triggers == 0:
+                    continue
                 # the first arg is always the pet that's triggering the event. So we put "self" as the first arg
                 self._triggers[trigger][ith_trigger](self, *args, **kwargs)
 
@@ -93,7 +95,7 @@ class Pet:
         # for some reason, pets can be gone from the team and still exist
         if "faint_pet_idx" not in kwargs and self not in my_pets:
             print("my_pets listed", my_pets, self, trigger, kwargs)
-            return 1, 0
+            return 0, 0
 
         # 1) ensure that we are in a battle right now. the tiger only triggers in battle
         is_not_a_battle_trigger = trigger not in in_battle_triggers
