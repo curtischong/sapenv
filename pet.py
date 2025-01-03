@@ -94,7 +94,7 @@ class Pet:
 
         # for some reason, pets can be gone from the team and still exist
         if "faint_pet_idx" not in kwargs and self not in my_pets:
-            print("my_pets listed", my_pets, self, trigger, kwargs)
+            # print("my_pets listed", my_pets, self, trigger, kwargs)
             return 0, 0
 
         # 1) ensure that we are in a battle right now. the tiger only triggers in battle
