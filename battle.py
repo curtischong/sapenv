@@ -23,7 +23,10 @@ def battle(my_team: Team, team2: Team) -> BattleResult:
         attacker1 = pets1[-1]
         attacker2 = pets2[-1]
         attack_team(attacker_pet=attacker1, receiving_team=pets2, attacking_team=pets1)
-        attack_team(attacker_pet=attacker2, receiving_team=pets1, attacking_team=pets2)
+        if len(pets1) > 0:  # only attack if there's still a team to attack!
+            attack_team(
+                attacker_pet=attacker2, receiving_team=pets1, attacking_team=pets2
+            )
 
     if len(pets1) == 0 and len(pets2) == 0:
         return BattleResult.TIE
