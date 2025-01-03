@@ -23,6 +23,7 @@ def battle(my_team: Team, team2: Team) -> BattleResult:
         # we need to explicitly get these attackers first because after the first attack_team call since the attacker pet might die.
         attacker1 = pets1[-1]
         attacker2 = pets2[-1]
+        # calculate friendly_behind_attacker before the attacks happen because the second frontmost pet may change
         friendly_behind_attacker1 = pets1[-2] if len(pets1) > 1 else None
         friendly_behind_attacker2 = pets2[-2] if len(pets2) > 1 else None
         attacker2 = pets2[-1]
