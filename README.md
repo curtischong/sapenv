@@ -6,6 +6,7 @@ This is a modern Super Auto Pets RL environment for the Turtle Pack. Here's why 
 - The action space and action space mask are defined next to each other, making it much simpler to read the code and detect bugs.
 - I didn't like how other envs used json to specify pet triggers. This env offers compile-time guarantees (or on start of runtime guarantees) for trigger definitions with functions
 - The action and state space uses gymnasium Dicts. I then use custom flattening logic to wrangle it for the model. However, when you are developing, it's so much simpler and easier to see all of the state/action space when it's presented in a dict. No need for thinking about bit manipulation!
+- Other environments used openAI gym (which is now unsupported). This env uses gymnasium
 
 #### Design considerations
 I chose not to use ECS in this because there are so few entities it doesn't maek sense
