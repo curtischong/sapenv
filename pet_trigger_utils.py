@@ -38,7 +38,7 @@ def get_nearest_friends_behind(
     pet: Pet, my_pets: list[Pet], num_friends: int
 ) -> list[Pet]:
     if pet not in my_pets:
-        return None
+        return []
     pet_idx = my_pets.index(pet)
     return get_nearest_friends_behind_idx(
         behind_idx=pet_idx, my_pets=my_pets, num_friends=num_friends
