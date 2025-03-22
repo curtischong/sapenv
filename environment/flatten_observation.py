@@ -20,12 +20,12 @@ class FlattenObservation(gym.ObservationWrapper):
 
     def __init__(self, env):
         super(FlattenObservation, self).__init__(env)
-        observation_ranges, self.observation_space_size = (
+        observation_defs, self.observation_space_size = (
             self.return_flatten_observation_defs(self.env.observation_space)
         )
 
         self.observation_normalization: dict[str, FlattenObservationDefinition] = {}
-        for obs_def in observation_ranges:
+        for obs_def in observation_defs:
             self.observation_normalization[obs_def.path_key] = obs_def
 
         # for each obs, I need to divide by the range (so it's normalized between 0 and 1)
@@ -41,7 +41,7 @@ class FlattenObservation(gym.ObservationWrapper):
         root_path: str = "",
         start_idx=0,
     ) -> tuple[list[FlattenObservationDefinition], int]:
-        observation_defs = []  # list of tuple: (action_name, start_idx, end_idx])
+        observation_defs: list[FlattenObservationDefinition] = []
         for key, value in observation_dict.items():
             path_key = root_path + "|" + key
             if type(value) is gym.spaces.Dict:
@@ -80,9 +80,9 @@ class FlattenObservation(gym.ObservationWrapper):
     def observation(self, obs: Dict[str, Dict | np.ndarray]):
         obs_arr = np.ndarray(self.observation_space.shape, dtype=np.float32)
         obs_size = self._recursively_flatten_obs(obs, obs_arr)
-        assert (
-            obs_size == self.observation_space_size
-        ), "The defined observation size does not match the observation size the environment produces"
+        assert obs_size == self.observation_space_size, (
+            "The defined observation size does not match the observation size the environment produces"
+        )
         return obs_arr
 
     def _recursively_flatten_obs(
@@ -103,9 +103,9 @@ class FlattenObservation(gym.ObservationWrapper):
                 start_idx = observation_def.start_idx
                 end_idx = observation_def.start_idx + observation_def.size
                 flattened_value = value.flatten()
-                assert (
-                    end_idx - start_idx == flattened_value.size
-                ), f"{path_key} observation has size issue. Trying to flatten observation of shape {value.shape} into the defined action size {end_idx - start_idx}"
+                assert end_idx - start_idx == flattened_value.size, (
+                    f"{path_key} observation has size issue. Trying to flatten observation of shape {value.shape} into the defined action size {end_idx - start_idx}"
+                )
 
                 obs_arr[start_idx:end_idx] = (
                     flattened_value + observation_def.normalization_shift
